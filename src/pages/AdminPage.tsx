@@ -15,12 +15,16 @@ import {
   Tag,
   DollarSign,
   Clock,
-  Search
+  Search,
+  Image as ImageIcon,
+  Edit3,
+  X
 } from 'lucide-react';
 import {
   fetchProductsFromAPI,
   fetchCategoriesFromAPI,
   createProductAPI,
+  updateProductAPI,
   deleteProductAPI,
   createCategoryAPI,
   deleteCategoryAPI,
@@ -35,9 +39,10 @@ export const AdminPage: React.FC = () => {
   const [orders, setOrders] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeSection, setActiveSection] = useState<
-    'dashboard' | 'products' | 'categories' | 'add-category' | 'add-product' | 'orders' | 'customers' | 'settings'
+    'dashboard' | 'products' | 'categories' | 'add-category' | 'add-product' | 'edit-product' | 'orders' | 'customers' | 'settings'
   >('dashboard');
 
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const token = localStorage.getItem('velqira_admin_token') || undefined;
 
@@ -52,7 +57,7 @@ export const AdminPage: React.FC = () => {
     sortOrder: 1,
   });
 
-  // Form State for Add Product
+  // Form State for Add / Edit Product
   const [productForm, setProductForm] = useState({
     name: '',
     description: '',
@@ -167,6 +172,69 @@ export const AdminPage: React.FC = () => {
     setActiveSection('products');
   };
 
+  // Open Edit Product View
+  const handleOpenEditProduct = (product: Product) => {
+    setEditingProduct(product);
+    setProductForm({
+      name: product.name,
+      description: product.description,
+      price: String(product.price),
+      originalPrice: product.originalPrice ? String(product.originalPrice) : '',
+      category: product.category,
+      subCategory: product.subCategory || '',
+      image: product.image,
+      inStock: product.inStock !== false,
+      isTrending: product.isTrending || false,
+      isNew: product.isNew !== false,
+    });
+    setActiveSection('edit-product');
+  };
+
+  // Submit Edit Product Handler
+  const handleUpdateProductSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingProduct) return;
+
+    const updatedFields: Partial<Product> = {
+      name: productForm.name,
+      description: productForm.description,
+      price: parseFloat(productForm.price) || 0,
+      originalPrice: productForm.originalPrice ? parseFloat(productForm.originalPrice) : undefined,
+      category: productForm.category,
+      subCategory: productForm.subCategory,
+      image: productForm.image,
+      inStock: productForm.inStock,
+      isTrending: productForm.isTrending,
+      isNew: productForm.isNew,
+    };
+
+    await updateProductAPI(editingProduct.id, updatedFields, token);
+
+    setProducts(
+      products.map((p) =>
+        p.id === editingProduct.id ? ({ ...p, ...updatedFields } as Product) : p
+      )
+    );
+
+    setSuccessMessage(`Product "${productForm.name}" updated successfully in MongoDB Atlas!`);
+    setTimeout(() => setSuccessMessage(null), 4000);
+
+    setEditingProduct(null);
+    setProductForm({
+      name: '',
+      description: '',
+      price: '',
+      originalPrice: '',
+      category: 'dresses-fashion',
+      subCategory: '',
+      image: '',
+      inStock: true,
+      isTrending: false,
+      isNew: true,
+    });
+    setActiveSection('products');
+  };
+
   const handleDeleteCategory = async (id: string) => {
     await deleteCategoryAPI(id, token);
     setCategories(categories.filter((c) => c.id !== id));
@@ -217,7 +285,7 @@ export const AdminPage: React.FC = () => {
             <button
               onClick={() => setActiveSection('products')}
               className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-colors ${
-                activeSection === 'products' || activeSection === 'add-product'
+                activeSection === 'products' || activeSection === 'add-product' || activeSection === 'edit-product'
                   ? 'bg-[#E8BFC3] text-[#332522] font-bold'
                   : 'text-[#FFF9F5]/80 hover:bg-[#FFF9F5]/10 hover:text-[#E8BFC3]'
               }`}
@@ -537,8 +605,8 @@ export const AdminPage: React.FC = () => {
           </div>
         )}
 
-        {/* SECTION: PRODUCTS MANAGEMENT */}
-        {(activeSection === 'products' || activeSection === 'add-product') && (
+        {/* SECTION: PRODUCTS MANAGEMENT & EDIT PRODUCT */}
+        {(activeSection === 'products' || activeSection === 'add-product' || activeSection === 'edit-product') && (
           <div className="max-w-5xl mx-auto space-y-8">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <div>
@@ -576,7 +644,7 @@ export const AdminPage: React.FC = () => {
                   </button>
                 </div>
 
-                <form onSubmit={handleAddProductSubmit} className="space-y-4">
+                <form onSubmit={handleAddProductSubmit} className="space-y-5">
                   <div>
                     <label className="block text-xs font-bold text-[#332522] uppercase tracking-wider mb-1">Product Name</label>
                     <input
@@ -635,15 +703,30 @@ export const AdminPage: React.FC = () => {
                     </div>
                   </div>
 
+                  {/* Image Link Input & Live Preview Box */}
                   <div>
-                    <label className="block text-xs font-bold text-[#332522] uppercase tracking-wider mb-1">Image URL</label>
-                    <input
-                      type="url"
-                      placeholder="https://images.unsplash.com/..."
-                      value={productForm.image}
-                      onChange={(e) => setProductForm({ ...productForm, image: e.target.value })}
-                      className="w-full bg-[#FFF9F5] text-sm px-4 py-3 rounded-xl border border-[#D9A6AB]/40"
-                    />
+                    <label className="block text-xs font-bold text-[#332522] uppercase tracking-wider mb-1">
+                      Product Image Link (URL)
+                    </label>
+                    <div className="flex gap-4 items-start">
+                      <input
+                        type="url"
+                        placeholder="https://images.unsplash.com/photo-..."
+                        value={productForm.image}
+                        onChange={(e) => setProductForm({ ...productForm, image: e.target.value })}
+                        className="flex-1 bg-[#FFF9F5] text-sm px-4 py-3 rounded-xl border border-[#D9A6AB]/40"
+                      />
+                      {productForm.image ? (
+                        <div className="w-16 h-16 rounded-xl overflow-hidden border border-[#D9A6AB]/40 shrink-0 bg-[#FFF9F5]">
+                          <img src={productForm.image} alt="Preview" className="w-full h-full object-cover" />
+                        </div>
+                      ) : (
+                        <div className="w-16 h-16 rounded-xl border border-dashed border-[#D9A6AB]/50 shrink-0 bg-[#FFF9F5] flex flex-col items-center justify-center text-[#C6A16B]">
+                          <ImageIcon className="w-5 h-5" />
+                          <span className="text-[9px]">Preview</span>
+                        </div>
+                      )}
+                    </div>
                   </div>
 
                   <div>
@@ -697,6 +780,164 @@ export const AdminPage: React.FC = () => {
               </div>
             )}
 
+            {/* Form: EDIT EXISTING PRODUCT */}
+            {activeSection === 'edit-product' && editingProduct && (
+              <div className="bg-white p-6 sm:p-8 rounded-3xl border-2 border-[#C6A16B] shadow-xl relative">
+                <div className="border-b border-[#D9A6AB]/20 pb-4 mb-6 flex justify-between items-center">
+                  <h2 className="text-xl font-bold font-serif text-[#332522] flex items-center gap-2">
+                    <Edit3 className="w-5 h-5 text-[#C6A16B]" /> Edit Product: <span className="text-[#C6A16B]">{editingProduct.name}</span>
+                  </h2>
+                  <button
+                    onClick={() => {
+                      setEditingProduct(null);
+                      setActiveSection('products');
+                    }}
+                    className="p-1 text-[#332522]/60 hover:text-[#332522]"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+
+                <form onSubmit={handleUpdateProductSubmit} className="space-y-5">
+                  <div>
+                    <label className="block text-xs font-bold text-[#332522] uppercase tracking-wider mb-1">Product Name</label>
+                    <input
+                      type="text"
+                      required
+                      value={productForm.name}
+                      onChange={(e) => setProductForm({ ...productForm, name: e.target.value })}
+                      className="w-full bg-[#FFF9F5] text-sm px-4 py-3 rounded-xl border border-[#D9A6AB]/40 font-semibold"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-bold text-[#332522] uppercase tracking-wider mb-1">Category</label>
+                      <select
+                        value={productForm.category}
+                        onChange={(e) => setProductForm({ ...productForm, category: e.target.value })}
+                        className="w-full bg-[#FFF9F5] text-sm px-4 py-3 rounded-xl border border-[#D9A6AB]/40 font-medium"
+                      >
+                        <option value="dresses-fashion">Dresses & Fashion</option>
+                        <option value="jewellery-accessories">Jewellery & Accessories</option>
+                        <option value="home-decor">Home Decor</option>
+                        <option value="art-crafts">Art & Crafts</option>
+                        <option value="korean-goodies">Korean Goodies</option>
+                      </select>
+                    </div>
+
+                    {productForm.category === 'jewellery-accessories' && (
+                      <div>
+                        <label className="block text-xs font-bold text-[#332522] uppercase tracking-wider mb-1">Sub-Category Item Type</label>
+                        <select
+                          value={productForm.subCategory}
+                          onChange={(e) => setProductForm({ ...productForm, subCategory: e.target.value })}
+                          className="w-full bg-[#FFF9F5] text-sm px-4 py-3 rounded-xl border border-[#D9A6AB]/40 font-medium"
+                        >
+                          <option value="">Select Item Sub-Category...</option>
+                          {accessorySubCategories.map((sub) => (
+                            <option key={sub} value={sub}>{sub}</option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
+
+                    <div>
+                      <label className="block text-xs font-bold text-[#332522] uppercase tracking-wider mb-1">Price ($)</label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        required
+                        value={productForm.price}
+                        onChange={(e) => setProductForm({ ...productForm, price: e.target.value })}
+                        className="w-full bg-[#FFF9F5] text-sm px-4 py-3 rounded-xl border border-[#D9A6AB]/40 font-bold"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-[#332522] uppercase tracking-wider mb-1">Product Image Link (URL)</label>
+                    <div className="flex gap-4 items-start">
+                      <input
+                        type="url"
+                        value={productForm.image}
+                        onChange={(e) => setProductForm({ ...productForm, image: e.target.value })}
+                        className="flex-1 bg-[#FFF9F5] text-sm px-4 py-3 rounded-xl border border-[#D9A6AB]/40"
+                      />
+                      {productForm.image && (
+                        <div className="w-16 h-16 rounded-xl overflow-hidden border border-[#D9A6AB]/40 shrink-0 bg-[#FFF9F5]">
+                          <img src={productForm.image} alt="Preview" className="w-full h-full object-cover" />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-[#332522] uppercase tracking-wider mb-1">Description</label>
+                    <textarea
+                      rows={3}
+                      required
+                      value={productForm.description}
+                      onChange={(e) => setProductForm({ ...productForm, description: e.target.value })}
+                      className="w-full bg-[#FFF9F5] text-sm px-4 py-3 rounded-xl border border-[#D9A6AB]/40"
+                    />
+                  </div>
+
+                  <div className="flex flex-wrap gap-6 pt-2">
+                    <label className="flex items-center space-x-2 text-sm font-semibold text-[#332522] cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={productForm.inStock}
+                        onChange={(e) => setProductForm({ ...productForm, inStock: e.target.checked })}
+                        className="w-4 h-4 accent-[#C6A16B]"
+                      />
+                      <span>In Stock</span>
+                    </label>
+
+                    <label className="flex items-center space-x-2 text-sm font-semibold text-[#332522] cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={productForm.isTrending}
+                        onChange={(e) => setProductForm({ ...productForm, isTrending: e.target.checked })}
+                        className="w-4 h-4 accent-[#C6A16B]"
+                      />
+                      <span>Mark as Trending</span>
+                    </label>
+
+                    <label className="flex items-center space-x-2 text-sm font-semibold text-[#332522] cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={productForm.isNew}
+                        onChange={(e) => setProductForm({ ...productForm, isNew: e.target.checked })}
+                        className="w-4 h-4 accent-[#C6A16B]"
+                      />
+                      <span>Mark as New Arrival</span>
+                    </label>
+                  </div>
+
+                  <div className="flex gap-4 pt-4 border-t border-[#D9A6AB]/20">
+                    <button
+                      type="submit"
+                      className="flex-1 bg-[#C6A16B] text-[#332522] py-3.5 rounded-xl font-bold hover:bg-[#E8BFC3] transition-colors shadow-md text-base"
+                    >
+                      Update Product Details
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEditingProduct(null);
+                        setActiveSection('products');
+                      }}
+                      className="px-6 py-3.5 rounded-xl border border-[#D9A6AB]/50 font-bold text-sm text-[#332522] hover:bg-[#FFF9F5]"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </form>
+              </div>
+            )}
+
+            {/* Inventory Table with Edit & Delete Actions */}
             <div className="bg-white rounded-3xl border border-[#D9A6AB]/30 shadow-xs overflow-hidden">
               <table className="w-full text-left text-sm text-[#332522]">
                 <thead className="bg-[#FFF9F5] text-xs font-bold uppercase tracking-wider text-[#332522]/70 border-b border-[#D9A6AB]/30">
@@ -710,17 +951,35 @@ export const AdminPage: React.FC = () => {
                 </thead>
                 <tbody className="divide-y divide-[#D9A6AB]/20">
                   {filteredProducts.map((p) => (
-                    <tr key={p.id}>
+                    <tr key={p.id} className="hover:bg-[#FFF9F5]/60 transition-colors">
                       <td className="py-4 px-6 flex items-center space-x-3">
                         <img src={p.image} alt={p.name} className="w-10 h-10 rounded object-cover" />
-                        <span className="font-bold">{p.name}</span>
+                        <div>
+                          <span className="font-bold">{p.name}</span>
+                          {p.inStock === false && (
+                            <span className="ml-2 text-[10px] font-bold text-red-600 bg-red-50 px-1.5 py-0.5 rounded border border-red-200">
+                              Out of Stock
+                            </span>
+                          )}
+                        </div>
                       </td>
                       <td className="py-4 px-6 text-xs font-semibold">{p.category}</td>
                       <td className="py-4 px-6 text-xs text-[#C6A16B] font-bold">{p.subCategory || '—'}</td>
                       <td className="py-4 px-6 font-bold">${p.price.toFixed(2)}</td>
-                      <td className="py-4 px-6 text-right">
-                        <button onClick={() => handleDeleteProduct(p.id)} className="text-red-500 hover:text-red-700">
-                          <Trash2 className="w-4 h-4 ml-auto" />
+                      <td className="py-4 px-6 text-right space-x-2">
+                        <button
+                          onClick={() => handleOpenEditProduct(p)}
+                          className="p-2 text-[#C6A16B] hover:text-[#332522] hover:bg-[#FFF9F5] rounded-lg transition-colors inline-flex items-center gap-1 font-bold text-xs"
+                          title="Edit Product Details"
+                        >
+                          <Edit3 className="w-4 h-4" /> Edit
+                        </button>
+                        <button
+                          onClick={() => handleDeleteProduct(p.id)}
+                          className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors inline-flex items-center gap-1"
+                          title="Delete Product"
+                        >
+                          <Trash2 className="w-4 h-4" />
                         </button>
                       </td>
                     </tr>
