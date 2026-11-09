@@ -1,0 +1,11 @@
+# Server Dependencies
+node_modules/
+
+# Server Build & Environment
+dist/
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log

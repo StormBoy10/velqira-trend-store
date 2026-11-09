@@ -1,0 +1,26 @@
+@import "tailwindcss";
+
+@theme {
+  --color-main-bg: #FFF9F5;
+  --color-primary-accent: #E8BFC3;
+  --color-secondary-accent: #D9A6AB;
+  --color-text-main: #332522;
+  --color-gold: #C6A16B;
+  --color-card-bg: #FFFFFF;
+}
+
+:root {
+  --bg-main: #FFF9F5;
+  --accent-primary: #E8BFC3;
+  --accent-secondary: #D9A6AB;
+  --text-main: #332522;
+  --accent-gold: #C6A16B;
+  --card-bg: #FFFFFF;
+}
+
+body {
+  background-color: #FFF9F5;
+  color: #332522;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  margin: 0;
+}
