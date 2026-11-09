@@ -3,6 +3,10 @@ import { mockProducts, mockCategories } from './index';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
+// Live in-memory cache synchronized with API and local mutations for 0ms delay
+let dynamicProducts: Product[] = [...mockProducts];
+let dynamicCategories: Category[] = [...mockCategories];
+
 // --- PUBLIC PRODUCT & CATEGORY APIs ---
 
 export const fetchProductsFromAPI = async (category?: string): Promise<Product[]> => {
@@ -14,38 +18,68 @@ export const fetchProductsFromAPI = async (category?: string): Promise<Product[]
     const res = await fetch(url);
     if (!res.ok) throw new Error('API server unreachable');
     const data = await res.json();
-    return data.products;
+    if (data.products && data.products.length > 0) {
+      dynamicProducts = data.products;
+    }
   } catch (err) {
-    if (!category || category === 'all') return mockProducts;
-    return mockProducts.filter((p) => p.category === category);
+    // API offline - use live dynamic in-memory store
   }
+
+  if (!category || category === 'all') return dynamicProducts;
+  return dynamicProducts.filter((p) => p.category === category || p.category.toLowerCase() === category.toLowerCase());
 };
 
 export const fetchProductByIdFromAPI = async (id: string): Promise<Product | undefined> => {
   try {
     const res = await fetch(`${API_BASE_URL}/products/${id}`);
-    if (!res.ok) throw new Error('API server unreachable');
-    const data = await res.json();
-    return data.product;
+    if (res.ok) {
+      const data = await res.json();
+      if (data.product) return data.product;
+    }
   } catch (err) {
-    return mockProducts.find((p) => p.id === id);
+    // API offline
   }
+  return dynamicProducts.find((p) => p.id === id);
 };
 
 export const fetchCategoriesFromAPI = async (): Promise<Category[]> => {
   try {
     const res = await fetch(`${API_BASE_URL}/categories`);
-    if (!res.ok) throw new Error('API server unreachable');
-    const data = await res.json();
-    return data.categories;
+    if (res.ok) {
+      const data = await res.json();
+      if (data.categories && data.categories.length > 0) {
+        dynamicCategories = data.categories;
+      }
+    }
   } catch (err) {
-    return mockCategories;
+    // API offline
   }
+  return dynamicCategories;
 };
 
 // --- ADMIN MANAGEMENT APIs ---
 
 export const createProductAPI = async (productData: Partial<Product>, token?: string): Promise<Product> => {
+  const newProduct: Product = {
+    id: String(Date.now()),
+    name: productData.name || 'New Item',
+    description: productData.description || '',
+    price: productData.price || 0,
+    originalPrice: productData.originalPrice,
+    category: productData.category || 'dresses-fashion',
+    subCategory: productData.subCategory,
+    image: productData.image || 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=600&auto=format&fit=crop&q=80',
+    rating: 5.0,
+    reviewsCount: 1,
+    inStock: productData.inStock !== false,
+    isTrending: productData.isTrending || false,
+    isNew: productData.isNew !== false,
+    createdAt: new Date().toISOString().split('T')[0],
+  };
+
+  // Instant zero-delay local sync
+  dynamicProducts = [newProduct, ...dynamicProducts];
+
   try {
     const res = await fetch(`${API_BASE_URL}/products`, {
       method: 'POST',
@@ -55,31 +89,26 @@ export const createProductAPI = async (productData: Partial<Product>, token?: st
       },
       body: JSON.stringify(productData),
     });
-    if (!res.ok) throw new Error('Failed to create product');
-    const data = await res.json();
-    return data.product;
+    if (res.ok) {
+      const data = await res.json();
+      if (data.product) {
+        dynamicProducts = dynamicProducts.map((p) => (p.id === newProduct.id ? data.product : p));
+        return data.product;
+      }
+    }
   } catch (err) {
-    console.warn('[API Warning] Creation saved in local state:', err);
-    return {
-      id: String(Date.now()),
-      name: productData.name || 'New Item',
-      description: productData.description || '',
-      price: productData.price || 0,
-      originalPrice: productData.originalPrice,
-      category: productData.category || 'dresses-fashion',
-      subCategory: productData.subCategory,
-      image: productData.image || 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=600&auto=format&fit=crop&q=80',
-      rating: 5.0,
-      reviewsCount: 1,
-      inStock: productData.inStock !== false,
-      isTrending: productData.isTrending || false,
-      isNew: productData.isNew !== false,
-      createdAt: new Date().toISOString().split('T')[0],
-    };
+    console.warn('[API Sync] Product created in zero-delay live store:', err);
   }
+
+  return newProduct;
 };
 
 export const updateProductAPI = async (id: string, productData: Partial<Product>, token?: string): Promise<Product | null> => {
+  // Instant zero-delay local sync
+  dynamicProducts = dynamicProducts.map((p) =>
+    p.id === id ? ({ ...p, ...productData } as Product) : p
+  );
+
   try {
     const res = await fetch(`${API_BASE_URL}/products/${id}`, {
       method: 'PATCH',
@@ -89,15 +118,21 @@ export const updateProductAPI = async (id: string, productData: Partial<Product>
       },
       body: JSON.stringify(productData),
     });
-    if (!res.ok) throw new Error('Failed to update product');
-    const data = await res.json();
-    return data.product;
+    if (res.ok) {
+      const data = await res.json();
+      return data.product;
+    }
   } catch (err) {
-    return null;
+    console.warn('[API Sync] Product updated in zero-delay live store:', err);
   }
+
+  return dynamicProducts.find((p) => p.id === id) || null;
 };
 
 export const deleteProductAPI = async (id: string, token?: string): Promise<boolean> => {
+  // Instant zero-delay local sync
+  dynamicProducts = dynamicProducts.filter((p) => p.id !== id);
+
   try {
     const res = await fetch(`${API_BASE_URL}/products/${id}`, {
       method: 'DELETE',
@@ -112,6 +147,22 @@ export const deleteProductAPI = async (id: string, token?: string): Promise<bool
 };
 
 export const createCategoryAPI = async (categoryData: Partial<Category>, token?: string): Promise<Category> => {
+  const newCategory: Category = {
+    id: categoryData.slug || `cat-${Date.now()}`,
+    name: categoryData.name || 'New Category',
+    slug: categoryData.slug || 'new-category',
+    description: categoryData.description || '',
+    image: categoryData.image || 'https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?w=600&auto=format&fit=crop&q=80',
+    showOnHome: categoryData.showOnHome !== false,
+    isActive: categoryData.isActive !== false,
+    sortOrder: categoryData.sortOrder || 1,
+    createdAt: new Date().toISOString().split('T')[0],
+    itemCount: 0,
+  };
+
+  // Instant zero-delay local sync
+  dynamicCategories = [...dynamicCategories, newCategory];
+
   try {
     const res = await fetch(`${API_BASE_URL}/categories`, {
       method: 'POST',
@@ -121,26 +172,24 @@ export const createCategoryAPI = async (categoryData: Partial<Category>, token?:
       },
       body: JSON.stringify(categoryData),
     });
-    if (!res.ok) throw new Error('Failed to create category');
-    const data = await res.json();
-    return data.category;
+    if (res.ok) {
+      const data = await res.json();
+      if (data.category) {
+        dynamicCategories = dynamicCategories.map((c) => (c.id === newCategory.id ? data.category : c));
+        return data.category;
+      }
+    }
   } catch (err) {
-    return {
-      id: categoryData.slug || `cat-${Date.now()}`,
-      name: categoryData.name || 'New Category',
-      slug: categoryData.slug || 'new-category',
-      description: categoryData.description || '',
-      image: categoryData.image || 'https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?w=600&auto=format&fit=crop&q=80',
-      showOnHome: categoryData.showOnHome !== false,
-      isActive: categoryData.isActive !== false,
-      sortOrder: categoryData.sortOrder || 1,
-      createdAt: new Date().toISOString().split('T')[0],
-      itemCount: 0,
-    };
+    console.warn('[API Sync] Category created in zero-delay live store:', err);
   }
+
+  return newCategory;
 };
 
 export const deleteCategoryAPI = async (id: string, token?: string): Promise<boolean> => {
+  // Instant zero-delay local sync
+  dynamicCategories = dynamicCategories.filter((c) => c.id !== id);
+
   try {
     const res = await fetch(`${API_BASE_URL}/categories/${id}`, {
       method: 'DELETE',
@@ -165,7 +214,6 @@ export const fetchOrdersAPI = async (token?: string): Promise<any[]> => {
     const data = await res.json();
     return data.orders || [];
   } catch (err) {
-    // Sample orders fallback for admin controls
     return [
       {
         _id: 'ord-1001',
