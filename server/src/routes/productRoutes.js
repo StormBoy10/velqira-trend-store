@@ -1,6 +1,7 @@
 import express from 'express';
 import { Product } from '../models/Product.js';
 import { protect, adminOnly } from '../middleware/auth.js';
+import { broadcastEvent } from '../events.js';
 
 const router = express.Router();
 
@@ -51,6 +52,7 @@ router.get('/:id', async (req, res) => {
 router.post('/', protect, adminOnly, async (req, res) => {
   try {
     const product = await Product.create(req.body);
+    broadcastEvent('PRODUCT_CREATED', product);
     res.status(201).json({ success: true, product });
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });
@@ -67,6 +69,7 @@ router.patch('/:id', protect, adminOnly, async (req, res) => {
     if (!product) {
       return res.status(404).json({ success: false, message: 'Product not found' });
     }
+    broadcastEvent('PRODUCT_UPDATED', product);
     res.json({ success: true, product });
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });
@@ -80,6 +83,7 @@ router.delete('/:id', protect, adminOnly, async (req, res) => {
     if (!product) {
       return res.status(404).json({ success: false, message: 'Product not found' });
     }
+    broadcastEvent('PRODUCT_DELETED', { id: req.params.id });
     res.json({ success: true, message: 'Product deactivated successfully', product });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });

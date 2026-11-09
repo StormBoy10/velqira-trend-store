@@ -1,6 +1,7 @@
 import express from 'express';
 import { Category } from '../models/Category.js';
 import { protect, adminOnly } from '../middleware/auth.js';
+import { broadcastEvent } from '../events.js';
 
 const router = express.Router();
 
@@ -53,6 +54,7 @@ router.post('/', protect, adminOnly, async (req, res) => {
       sortOrder: sortOrder || 0,
     });
 
+    broadcastEvent('CATEGORY_CREATED', category);
     res.status(201).json({ success: true, category });
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });
@@ -69,6 +71,7 @@ router.patch('/:id', protect, adminOnly, async (req, res) => {
     if (!category) {
       return res.status(404).json({ success: false, message: 'Category not found' });
     }
+    broadcastEvent('CATEGORY_UPDATED', category);
     res.json({ success: true, category });
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });
@@ -87,6 +90,7 @@ router.delete('/:id', protect, adminOnly, async (req, res) => {
     if (!category) {
       return res.status(404).json({ success: false, message: 'Category not found' });
     }
+    broadcastEvent('CATEGORY_DELETED', { id: req.params.id });
     res.json({ success: true, message: 'Category deactivated successfully', category });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });

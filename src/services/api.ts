@@ -32,9 +32,29 @@ const saveStoredCategories = (categories: Category[]) => {
   } catch (e) {}
 };
 
-// Live in-memory cache synchronized with LocalStorage & API
+// Live in-memory cache synchronized with LocalStorage & Real-Time API
 let dynamicProducts: Product[] = loadStoredProducts();
 let dynamicCategories: Category[] = loadStoredCategories();
+
+// Real-time Server-Sent Events (SSE) live updates listener
+export const initLiveStream = (onUpdate?: () => void) => {
+  try {
+    const eventSource = new EventSource(`${API_BASE_URL}/live-updates`);
+    eventSource.onmessage = (event) => {
+      try {
+        const payload = JSON.parse(event.data);
+        if (payload.type === 'PRODUCT_CREATED' || payload.type === 'PRODUCT_UPDATED') {
+          fetchProductsFromAPI().then(() => onUpdate && onUpdate());
+        } else if (payload.type === 'CATEGORY_CREATED' || payload.type === 'CATEGORY_UPDATED') {
+          fetchCategoriesFromAPI().then(() => onUpdate && onUpdate());
+        }
+      } catch (err) {}
+    };
+    return () => eventSource.close();
+  } catch (err) {
+    return () => {};
+  }
+};
 
 // --- PUBLIC PRODUCT & CATEGORY APIs ---
 

@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { connectDB } from './config/db.js';
+import { addClient } from './events.js';
 
 import authRoutes from './routes/authRoutes.js';
 import productRoutes from './routes/productRoutes.js';
@@ -24,6 +25,9 @@ if (process.env.MONGO_URI) {
 app.use(cors({ origin: process.env.CLIENT_URL || '*', credentials: true }));
 app.use(express.json());
 
+// Real-Time Server-Sent Events (SSE) Live Stream Endpoint
+app.get('/api/live-updates', addClient);
+
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
@@ -34,17 +38,17 @@ app.use('/api/orders', orderRoutes);
 app.get('/api/health', (req, res) => {
   res.json({
     status: 'OK',
-    message: 'Velqira Store API Server is active and operational',
+    message: 'Velqira Store Real-Time API Server is active and operational',
     timestamp: new Date().toISOString(),
   });
 });
 
 // Root endpoint
 app.get('/', (req, res) => {
-  res.send('Velqira Store RESTful API Endpoint');
+  res.send('Velqira Store Real-Time RESTful API Endpoint');
 });
 
 // Start Express Server
 app.listen(PORT, () => {
-  console.log(`[Express API] Server running on http://localhost:${PORT}`);
+  console.log(`[Express API] Real-time server running on http://localhost:${PORT}`);
 });
