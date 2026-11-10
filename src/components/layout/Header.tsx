@@ -13,7 +13,7 @@ export const Header: React.FC<HeaderProps> = ({ cartCount = 0 }) => {
   const navLinks = [
     { name: 'Home', path: '/' },
     { name: 'Shop', path: '/shop' },
-    { name: 'Categories', path: '/shop?category=all' },
+    { name: 'Categories', path: '/categories' },
     { name: 'Trending', path: '/shop?filter=trending' },
     { name: 'About Us', path: '/about' },
   ];
@@ -61,20 +61,12 @@ export const Header: React.FC<HeaderProps> = ({ cartCount = 0 }) => {
 
         {/* Actions */}
         <div className="flex items-center space-x-3 sm:space-x-4">
-          <button
-            type="button"
-            className="p-2 text-[#332522] hover:text-[#C6A16B] transition-colors"
-            aria-label="Search"
-          >
+          <Link to="/shop" className="p-2 text-[#332522] hover:text-[#C6A16B] transition-colors" aria-label="Search">
             <Search className="w-5 h-5" />
-          </button>
-          <button
-            type="button"
-            className="p-2 text-[#332522] hover:text-[#C6A16B] transition-colors"
-            aria-label="Account"
-          >
+          </Link>
+          <Link to="/admin" className="p-2 text-[#332522] hover:text-[#C6A16B] transition-colors" aria-label="Account">
             <User className="w-5 h-5" />
-          </button>
+          </Link>
           <Link
             to="/cart"
             className="p-2 text-[#332522] hover:text-[#C6A16B] transition-colors relative"
