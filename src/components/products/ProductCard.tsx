@@ -9,14 +9,17 @@ interface ProductCardProps {
 }
 
 export const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
+  if (!product || typeof product !== 'object') return null;
+
   const isAvailable = product.inStock !== false;
+  const productPrice = typeof product.price === 'number' ? product.price : parseFloat(product.price as any) || 0;
 
   return (
     <div className="group relative bg-white border border-[#D9A6AB]/30 rounded-xl overflow-hidden shadow-xs hover:shadow-md transition-all flex flex-col h-full">
       <div className="aspect-square bg-[#FFF9F5] overflow-hidden relative">
         <img
-          src={product.image}
-          alt={product.name}
+          src={product.image || 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=600&auto=format&fit=crop&q=80'}
+          alt={product.name || 'Product'}
           className={`w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-300 ${
             !isAvailable ? 'opacity-60 grayscale' : ''
           }`}
@@ -45,24 +48,24 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }
         <div>
           <div className="flex items-center space-x-1 text-[#C6A16B] text-xs mb-1">
             <Star className="w-3.5 h-3.5 fill-current" />
-            <span className="font-medium text-[#332522]">{product.rating}</span>
-            <span className="text-[#332522]/50">({product.reviewsCount})</span>
+            <span className="font-medium text-[#332522]">{product.rating || 5.0}</span>
+            <span className="text-[#332522]/50">({product.reviewsCount || 0})</span>
           </div>
 
           <Link to={`/product/${product.id}`}>
             <h3 className="text-base font-semibold font-serif text-[#332522] hover:text-[#C6A16B] transition-colors line-clamp-1">
-              {product.name}
+              {product.name || 'Untitled Product'}
             </h3>
           </Link>
-          <p className="text-sm text-[#332522]/70 mt-1 line-clamp-2">{product.description}</p>
+          <p className="text-sm text-[#332522]/70 mt-1 line-clamp-2">{product.description || ''}</p>
         </div>
 
         <div className="mt-4 flex items-center justify-between pt-3 border-t border-[#D9A6AB]/15">
           <div className="flex items-baseline space-x-2">
-            <span className="text-lg font-bold text-[#332522]">${product.price.toFixed(2)}</span>
+            <span className="text-lg font-bold text-[#332522]">${productPrice.toFixed(2)}</span>
             {product.originalPrice && (
               <span className="text-sm text-[#332522]/40 line-through">
-                ${product.originalPrice.toFixed(2)}
+                ${Number(product.originalPrice).toFixed(2)}
               </span>
             )}
           </div>

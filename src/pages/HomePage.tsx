@@ -17,20 +17,21 @@ export const HomePage: React.FC<HomePageProps> = ({ onAddToCart }) => {
   const [categories, setCategories] = useState<Category[]>([]);
 
   useEffect(() => {
-    getProducts().then(setProducts);
-    getCategories().then(setCategories);
+    getProducts().then((data) => setProducts(Array.isArray(data) ? data : []));
+    getCategories().then((data) => setCategories(Array.isArray(data) ? data : []));
   }, []);
 
-  const trendingProducts = products.filter((p) => p.isTrending);
-  const newArrivals = products.filter((p) => p.isNew);
+  const validProducts = (products || []).filter((p) => p && typeof p === 'object');
+  const trendingProducts = validProducts.filter((p) => p.isTrending);
+  const newArrivals = validProducts.filter((p) => p.isNew);
 
   return (
     <main className="overflow-hidden">
       {/* 3. Large animated hero section */}
       <Hero />
 
-      {/* 4. Five product category cards */}
-      <CategorySection categories={categories} />
+      {/* 4. Category cards */}
+      <CategorySection categories={categories || []} />
 
       {/* 5. Trending products */}
       <TrendingProducts products={trendingProducts} onAddToCart={onAddToCart} />
