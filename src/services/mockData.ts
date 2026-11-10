@@ -18,6 +18,15 @@ export const accessorySubCategories = [
   'Phone Accessories',
 ];
 
+export const koreanGoodiesSubCategories = [
+  'Korean Stationery',
+  'Cute Accessories',
+  'Korean Home Decor',
+  'Kawaii Lifestyle',
+  'Dressed Jewellery',
+  'Plush & Toys',
+];
+
 export const mockCategories: Category[] = [
   {
     id: 'dresses-fashion',
@@ -43,7 +52,7 @@ export const mockCategories: Category[] = [
     id: 'home-decor',
     name: 'Home Decor',
     image: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=600&auto=format&fit=crop&q=80',
-    description: 'Decorative items, candles, vases, and room accessories',
+    description: 'Decorative items, candles, vases, ambient night lamps, and room accessories',
     itemCount: 28,
     showOnHome: true,
     isActive: true,
@@ -60,11 +69,13 @@ export const mockCategories: Category[] = [
   {
     id: 'korean-goodies',
     name: 'Korean Goodies',
-    image: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=600&auto=format&fit=crop&q=80',
-    description: 'Stationery, plush toys, keychains, and cute accessories',
+    slug: 'korean-goodies',
+    image: 'https://images.unsplash.com/photo-1563245372-f21724e3856d?w=600&auto=format&fit=crop&q=80',
+    description: 'Stationery, plush toys, keychains, kawaii bottles, and cute accessories',
     itemCount: 31,
     showOnHome: true,
     isActive: true,
+    subCategories: koreanGoodiesSubCategories,
   }
 ];
 
@@ -76,6 +87,7 @@ export const mockProducts: Product[] = [
     price: 28.50,
     originalPrice: 35.00,
     category: 'korean-goodies',
+    subCategory: 'Plush & Toys',
     image: 'https://images.unsplash.com/photo-1563245372-f21724e3856d?w=600&auto=format&fit=crop&q=80',
     rating: 4.9,
     reviewsCount: 165,
@@ -84,6 +96,39 @@ export const mockProducts: Product[] = [
     isNew: true,
     inStock: true,
     createdAt: '2025-02-02'
+  },
+  {
+    id: 'kg-2',
+    name: 'Korean Aesthetic Bunny Night Lamp',
+    description: 'Soft warm glow rechargeable LED bunny room lamp with bubble candle decor set.',
+    price: 32.00,
+    originalPrice: 40.00,
+    category: 'korean-goodies',
+    subCategory: 'Korean Home Decor',
+    image: 'https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=600&auto=format&fit=crop&q=80',
+    rating: 4.9,
+    reviewsCount: 92,
+    isFeatured: true,
+    isTrending: true,
+    isNew: true,
+    inStock: true,
+    createdAt: '2025-02-04'
+  },
+  {
+    id: 'kg-3',
+    name: 'Pastel Strawberry Thermos Water Bottle',
+    description: 'Kawaii insulated stainless steel water bottle with cute bear strap and stickers.',
+    price: 26.00,
+    category: 'korean-goodies',
+    subCategory: 'Kawaii Lifestyle',
+    image: 'https://images.unsplash.com/photo-1583485088034-697b5bc54ccd?w=600&auto=format&fit=crop&q=80',
+    rating: 4.8,
+    reviewsCount: 114,
+    isFeatured: true,
+    isTrending: true,
+    isNew: true,
+    inStock: true,
+    createdAt: '2025-02-03'
   },
   {
     id: 'acc-1',
@@ -120,23 +165,6 @@ export const mockProducts: Product[] = [
     createdAt: '2025-01-10'
   },
   {
-    id: 'acc-5',
-    name: '18k Gold Plated Chunky Hoop Earrings',
-    description: 'Polished hollow gold hoop earrings offering lightweight comfort and timeless shimmer.',
-    price: 48.00,
-    originalPrice: 60.00,
-    category: 'jewellery-accessories',
-    subCategory: 'Earrings',
-    image: 'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=600&auto=format&fit=crop&q=80',
-    rating: 4.8,
-    reviewsCount: 185,
-    isFeatured: true,
-    isTrending: true,
-    isNew: false,
-    inStock: true,
-    createdAt: '2025-01-20'
-  },
-  {
     id: 'dr-1',
     name: 'Silk Wrap Floral Midi Dress',
     description: 'Elegant silk wrap midi dress featuring delicate floral motifs and a flattering waist tie.',
@@ -166,20 +194,5 @@ export const mockProducts: Product[] = [
     isNew: true,
     inStock: true,
     createdAt: '2025-02-01'
-  },
-  {
-    id: 'ac-1',
-    name: 'Handmade Botanical Painting Journal',
-    description: 'Linen-bound handmade paper journal ideal for watercolor sketches and creative thoughts.',
-    price: 34.00,
-    category: 'art-crafts',
-    image: 'https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=600&auto=format&fit=crop&q=80',
-    rating: 4.7,
-    reviewsCount: 39,
-    isFeatured: false,
-    isTrending: false,
-    isNew: true,
-    inStock: true,
-    createdAt: '2025-02-03'
   }
 ];
