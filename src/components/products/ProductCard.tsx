@@ -61,11 +61,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }
         </div>
 
         <div className="mt-4 flex items-center justify-between pt-3 border-t border-[#D9A6AB]/15">
-          <div className="flex items-baseline space-x-2">
-            <span className="text-lg font-bold text-[#332522]">${productPrice.toFixed(2)}</span>
+          <div className="flex items-baseline space-x-1.5">
+            <span className="text-lg font-bold text-[#332522]">₹{productPrice.toFixed(2)}</span>
             {product.originalPrice && (
               <span className="text-sm text-[#332522]/40 line-through">
-                ${Number(product.originalPrice).toFixed(2)}
+                ₹{Number(product.originalPrice).toFixed(2)}
               </span>
             )}
           </div>

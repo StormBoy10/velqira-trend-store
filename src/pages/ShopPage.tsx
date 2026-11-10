@@ -22,7 +22,7 @@ export const ShopPage: React.FC<ShopPageProps> = ({ onAddToCart }) => {
 
   const [searchInputValue, setSearchInputValue] = useState(searchQuery);
   const [sortBy, setSortBy] = useState<string>('newest');
-  const [priceRange, setPriceRange] = useState<{ min: number; max: number }>({ min: 0, max: 300 });
+  const [priceRange, setPriceRange] = useState<{ min: number; max: number }>({ min: 0, max: 15000 });
   const [inStockOnly, setInStockOnly] = useState<boolean>(false);
   const [visibleCount, setVisibleCount] = useState<number>(6);
 
@@ -134,7 +134,7 @@ export const ShopPage: React.FC<ShopPageProps> = ({ onAddToCart }) => {
     setSearchParams({});
     setSearchInputValue('');
     setSortBy('newest');
-    setPriceRange({ min: 0, max: 300 });
+    setPriceRange({ min: 0, max: 15000 });
     setInStockOnly(false);
     setVisibleCount(6);
   };
@@ -201,7 +201,7 @@ export const ShopPage: React.FC<ShopPageProps> = ({ onAddToCart }) => {
             <div className="flex items-center space-x-2 mb-3">
               <Sparkles className="w-4 h-4 text-[#C6A16B]" />
               <span className="text-xs font-bold uppercase tracking-wider text-[#332522]">
-                Filter Jewellery & Accessories Items ({activeSubCategories.length}):
+                Filter Items ({activeSubCategories.length}):
               </span>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -235,16 +235,16 @@ export const ShopPage: React.FC<ShopPageProps> = ({ onAddToCart }) => {
         {/* Filter Controls Row & Sort */}
         <div className="bg-white p-4 sm:p-6 rounded-2xl border border-[#D9A6AB]/30 shadow-xs mb-8 grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
 
-          {/* Price Range Slider */}
+          {/* Price Range Slider in INR */}
           <div className="md:col-span-5 flex items-center space-x-4">
             <span className="text-xs font-bold text-[#332522] uppercase tracking-wider flex items-center gap-1">
-              <SlidersHorizontal className="w-3.5 h-3.5 text-[#C6A16B]" /> Max Price: ${priceRange.max}
+              <SlidersHorizontal className="w-3.5 h-3.5 text-[#C6A16B]" /> Max Price: ₹{priceRange.max}
             </span>
             <input
               type="range"
-              min="10"
-              max="300"
-              step="5"
+              min="100"
+              max="15000"
+              step="100"
               value={priceRange.max}
               onChange={(e) => setPriceRange({ ...priceRange, max: Number(e.target.value) })}
               className="flex-1 accent-[#C6A16B] cursor-pointer"

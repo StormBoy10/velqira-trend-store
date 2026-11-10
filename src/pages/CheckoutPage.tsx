@@ -18,12 +18,12 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ cart, onClearCart })
     address: '',
     city: '',
     postalCode: '',
-    country: 'United States',
+    country: 'India',
     paymentMethod: 'credit-card',
   });
 
   const subtotal = cart.reduce((acc, item) => acc + item.product.price * item.quantity, 0);
-  const shipping = subtotal > 100 ? 0 : 15;
+  const shipping = subtotal > 499 ? 0 : 50;
   const total = subtotal + shipping;
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -159,7 +159,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ cart, onClearCart })
                       defaultChecked
                       className="accent-[#C6A16B]"
                     />
-                    <span className="text-sm font-semibold text-[#332522]">Credit or Debit Card</span>
+                    <span className="text-sm font-semibold text-[#332522]">UPI / Credit Card / Netbanking</span>
                   </label>
                   <p className="text-xs text-[#332522]/60 pl-6">Secure end-to-end encrypted checkout.</p>
                 </div>
@@ -169,7 +169,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ cart, onClearCart })
                 type="submit"
                 className="w-full mt-6 bg-[#E8BFC3] text-[#332522] py-4 rounded-xl font-bold hover:bg-[#D9A6AB] transition-colors shadow-xs"
               >
-                Complete Order (${total.toFixed(2)})
+                Complete Order (₹{total.toFixed(2)})
               </button>
             </form>
           </div>
@@ -187,7 +187,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ cart, onClearCart })
                       <p className="text-xs text-[#332522]/60">Qty: {quantity}</p>
                     </div>
                   </div>
-                  <span className="font-bold text-[#332522]">${(product.price * quantity).toFixed(2)}</span>
+                  <span className="font-bold text-[#332522]">₹{(product.price * quantity).toFixed(2)}</span>
                 </div>
               ))}
             </div>
@@ -195,15 +195,15 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ cart, onClearCart })
             <div className="border-t border-[#D9A6AB]/30 pt-4 space-y-2 text-sm text-[#332522]">
               <div className="flex justify-between">
                 <span>Subtotal</span>
-                <span>${subtotal.toFixed(2)}</span>
+                <span>₹{subtotal.toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
                 <span>Shipping</span>
-                <span>{shipping === 0 ? <strong className="text-[#C6A16B]">FREE</strong> : `$${shipping.toFixed(2)}`}</span>
+                <span>{shipping === 0 ? <strong className="text-[#C6A16B]">FREE</strong> : `₹${shipping.toFixed(2)}`}</span>
               </div>
               <div className="border-t border-[#D9A6AB]/30 pt-3 flex justify-between font-bold text-base text-[#332522]">
                 <span>Total Due</span>
-                <span>${total.toFixed(2)}</span>
+                <span>₹{total.toFixed(2)}</span>
               </div>
             </div>
 

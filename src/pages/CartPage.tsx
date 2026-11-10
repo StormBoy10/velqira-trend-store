@@ -44,7 +44,7 @@ export const CartPage: React.FC<CartPageProps> = ({ cart, onUpdateQuantity, onRe
                 />
                 <div className="flex-1">
                   <h3 className="font-semibold font-serif text-[#332522]">{product.name}</h3>
-                  <p className="text-sm text-[#332522]/70">${product.price.toFixed(2)}</p>
+                  <p className="text-sm text-[#332522]/70">₹{product.price.toFixed(2)}</p>
                   <div className="flex items-center space-x-2 mt-2">
                     <button
                       onClick={() => onUpdateQuantity(product.id, -1)}
@@ -62,7 +62,7 @@ export const CartPage: React.FC<CartPageProps> = ({ cart, onUpdateQuantity, onRe
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="font-bold text-[#332522]">${(product.price * quantity).toFixed(2)}</p>
+                  <p className="font-bold text-[#332522]">₹{(product.price * quantity).toFixed(2)}</p>
                   <button
                     onClick={() => onRemoveItem(product.id)}
                     className="text-red-500 hover:text-red-700 mt-2 text-xs flex items-center ml-auto font-medium"
@@ -79,7 +79,7 @@ export const CartPage: React.FC<CartPageProps> = ({ cart, onUpdateQuantity, onRe
             <h2 className="text-lg font-bold text-[#332522] mb-4 font-serif">Order Summary</h2>
             <div className="flex justify-between py-2 text-sm text-[#332522]/80">
               <span>Subtotal</span>
-              <span className="font-semibold text-[#332522]">${subtotal.toFixed(2)}</span>
+              <span className="font-semibold text-[#332522]">₹{subtotal.toFixed(2)}</span>
             </div>
             <div className="flex justify-between py-2 text-sm text-[#332522]/80">
               <span>Shipping</span>
@@ -87,7 +87,7 @@ export const CartPage: React.FC<CartPageProps> = ({ cart, onUpdateQuantity, onRe
             </div>
             <div className="border-t border-[#D9A6AB]/30 mt-4 pt-4 flex justify-between font-bold text-[#332522]">
               <span>Total</span>
-              <span>${subtotal.toFixed(2)}</span>
+              <span>₹{subtotal.toFixed(2)}</span>
             </div>
             <Link
               to="/checkout"

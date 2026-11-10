@@ -464,7 +464,7 @@ export const AdminPage: React.FC = () => {
                 </div>
                 <div>
                   <p className="text-xs font-bold uppercase tracking-wider text-[#332522]/60">Total Sales</p>
-                  <p className="text-2xl font-bold font-serif text-[#332522]">${totalRevenue.toFixed(2)}</p>
+                  <p className="text-2xl font-bold font-serif text-[#332522]">₹{totalRevenue.toFixed(2)}</p>
                 </div>
               </div>
             </div>
@@ -905,12 +905,12 @@ export const AdminPage: React.FC = () => {
                     )}
 
                     <div>
-                      <label className="block text-xs font-bold text-[#332522] uppercase tracking-wider mb-1">Price ($)</label>
+                      <label className="block text-xs font-bold text-[#332522] uppercase tracking-wider mb-1">Price (₹)</label>
                       <input
                         type="number"
                         step="0.01"
                         required
-                        placeholder="68.00"
+                        placeholder="499.00"
                         value={productForm.price}
                         onChange={(e) => setProductForm({ ...productForm, price: e.target.value })}
                         className="w-full bg-[#FFF9F5] text-sm px-4 py-3 rounded-xl border border-[#D9A6AB]/40"
@@ -1058,7 +1058,7 @@ export const AdminPage: React.FC = () => {
                     )}
 
                     <div>
-                      <label className="block text-xs font-bold text-[#332522] uppercase tracking-wider mb-1">Price ($)</label>
+                      <label className="block text-xs font-bold text-[#332522] uppercase tracking-wider mb-1">Price (₹)</label>
                       <input
                         type="number"
                         step="0.01"
@@ -1180,7 +1180,7 @@ export const AdminPage: React.FC = () => {
                       </td>
                       <td className="py-4 px-6 text-xs font-semibold">{p.category}</td>
                       <td className="py-4 px-6 text-xs text-[#C6A16B] font-bold">{p.subCategory || '—'}</td>
-                      <td className="py-4 px-6 font-bold">${p.price.toFixed(2)}</td>
+                      <td className="py-4 px-6 font-bold">₹{p.price.toFixed(2)}</td>
                       <td className="py-4 px-6 text-right space-x-2">
                         <button
                           onClick={() => handleOpenEditProduct(p)}
@@ -1233,7 +1233,7 @@ export const AdminPage: React.FC = () => {
                     </div>
 
                     <div className="text-right">
-                      <p className="text-lg font-bold text-[#332522]">${order.totalPrice.toFixed(2)}</p>
+                      <p className="text-lg font-bold text-[#332522]">₹{order.totalPrice.toFixed(2)}</p>
                       <p className="text-xs text-[#332522]/60 flex items-center gap-1 justify-end mt-1">
                         <Clock className="w-3 h-3 text-[#C6A16B]" /> {order.createdAt}
                       </p>

@@ -60,10 +60,10 @@ export const ProductPage: React.FC<ProductPageProps> = ({ onAddToCart }) => {
             </div>
 
             <div className="flex items-baseline space-x-3 mt-6">
-              <span className="text-3xl font-bold text-[#332522]">${product.price.toFixed(2)}</span>
+              <span className="text-3xl font-bold text-[#332522]">₹{product.price.toFixed(2)}</span>
               {product.originalPrice && (
                 <span className="text-lg text-[#332522]/40 line-through">
-                  ${product.originalPrice.toFixed(2)}
+                  ₹{product.originalPrice.toFixed(2)}
                 </span>
               )}
             </div>
@@ -72,7 +72,7 @@ export const ProductPage: React.FC<ProductPageProps> = ({ onAddToCart }) => {
 
             <button
               onClick={() => onAddToCart && onAddToCart(product)}
-              className="mt-8 flex items-center justify-center w-full py-4 bg-[#E8BFC3] text-[#332522] rounded-xl font-bold hover:bg-[#D9A6AB] transition-colors shadow-xs"
+              className="mt-8 flex items-center justify-center w-full py-4 bg-[#E8BFC3] text-[#332522] rounded-xl font-bold hover:bg-[#D9A6AB] transition-colors shadow-xs cursor-pointer"
             >
               <ShoppingBag className="w-5 h-5 mr-2" />
               Add to Cart
