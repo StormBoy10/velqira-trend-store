@@ -291,6 +291,33 @@ export const createCategoryAPI = async (categoryData: Partial<Category>, token?:
   return newCategory;
 };
 
+export const updateCategoryAPI = async (id: string, categoryData: Partial<Category>, token?: string): Promise<Category | null> => {
+  if (!Array.isArray(dynamicCategories)) dynamicCategories = [...mockCategories];
+  dynamicCategories = sanitizeCategories(
+    dynamicCategories.map((c) => (c && (c.id === id || c.slug === id) ? ({ ...c, ...categoryData } as Category) : c))
+  );
+  saveStoredCategories(dynamicCategories);
+
+  try {
+    const res = await fetch(`${API_BASE_URL}/categories/${id}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: JSON.stringify(categoryData),
+    });
+    if (res.ok) {
+      const data = await res.json();
+      return data.category;
+    }
+  } catch (err) {
+    console.warn('[API Sync] Category updated permanently in persistent storage:', err);
+  }
+
+  return dynamicCategories.find((c) => c && (c.id === id || c.slug === id)) || null;
+};
+
 export const deleteCategoryAPI = async (id: string, token?: string): Promise<boolean> => {
   if (!Array.isArray(dynamicCategories)) dynamicCategories = [...mockCategories];
   dynamicCategories = sanitizeCategories(dynamicCategories.filter((c) => c && c.id !== id));

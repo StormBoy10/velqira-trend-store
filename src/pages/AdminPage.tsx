@@ -27,6 +27,7 @@ import {
   updateProductAPI,
   deleteProductAPI,
   createCategoryAPI,
+  updateCategoryAPI,
   deleteCategoryAPI,
   fetchOrdersAPI
 } from '../services/api';
@@ -39,10 +40,11 @@ export const AdminPage: React.FC = () => {
   const [orders, setOrders] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeSection, setActiveSection] = useState<
-    'dashboard' | 'products' | 'categories' | 'add-category' | 'add-product' | 'edit-product' | 'orders' | 'customers' | 'settings'
+    'dashboard' | 'products' | 'categories' | 'add-category' | 'edit-category' | 'add-product' | 'edit-product' | 'orders' | 'customers' | 'settings'
   >('dashboard');
 
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const token = localStorage.getItem('velqira_admin_token') || undefined;
 
@@ -121,6 +123,62 @@ export const AdminPage: React.FC = () => {
     setSuccessMessage(`Category "${created.name}" saved in MongoDB Atlas! Frontend updates automatically.`);
     setTimeout(() => setSuccessMessage(null), 5000);
 
+    setCategoryForm({
+      name: '',
+      slug: '',
+      description: '',
+      image: '',
+      showOnHome: true,
+      isActive: true,
+      sortOrder: 1,
+    });
+    setActiveSection('categories');
+  };
+
+  // Open Edit Category View
+  const handleOpenEditCategory = (cat: Category) => {
+    setEditingCategory(cat);
+    setCategoryForm({
+      name: cat.name,
+      slug: cat.slug || cat.id,
+      description: cat.description || '',
+      image: cat.image,
+      showOnHome: cat.showOnHome !== false,
+      isActive: cat.isActive !== false,
+      sortOrder: cat.sortOrder || 1,
+    });
+    setActiveSection('edit-category');
+  };
+
+  // Submit Edit Category Handler
+  const handleUpdateCategorySubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingCategory) return;
+
+    const updatedFields: Partial<Category> = {
+      name: categoryForm.name,
+      slug: categoryForm.slug,
+      description: categoryForm.description,
+      image: categoryForm.image,
+      showOnHome: categoryForm.showOnHome,
+      isActive: categoryForm.isActive,
+      sortOrder: Number(categoryForm.sortOrder) || 1,
+    };
+
+    await updateCategoryAPI(editingCategory.id, updatedFields, token);
+
+    setCategories(
+      categories.map((c) =>
+        c.id === editingCategory.id || c.slug === editingCategory.id
+          ? ({ ...c, ...updatedFields } as Category)
+          : c
+      )
+    );
+
+    setSuccessMessage(`Category "${categoryForm.name}" updated successfully in MongoDB Atlas!`);
+    setTimeout(() => setSuccessMessage(null), 4000);
+
+    setEditingCategory(null);
     setCategoryForm({
       name: '',
       slug: '',
@@ -297,7 +355,7 @@ export const AdminPage: React.FC = () => {
             <button
               onClick={() => setActiveSection('categories')}
               className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-colors ${
-                activeSection === 'categories' || activeSection === 'add-category'
+                activeSection === 'categories' || activeSection === 'add-category' || activeSection === 'edit-category'
                   ? 'bg-[#E8BFC3] text-[#332522] font-bold'
                   : 'text-[#FFF9F5]/80 hover:bg-[#FFF9F5]/10 hover:text-[#E8BFC3]'
               }`}
@@ -439,7 +497,7 @@ export const AdminPage: React.FC = () => {
         )}
 
         {/* SECTION: CATEGORY MANAGEMENT */}
-        {(activeSection === 'categories' || activeSection === 'add-category') && (
+        {(activeSection === 'categories' || activeSection === 'add-category' || activeSection === 'edit-category') && (
           <div className="max-w-5xl mx-auto space-y-8">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <div>
@@ -506,14 +564,26 @@ export const AdminPage: React.FC = () => {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-[#332522] uppercase tracking-wider mb-1">Category Image URL:</label>
-                    <input
-                      type="url"
-                      placeholder="https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?w=600&auto=format&fit=crop&q=80"
-                      value={categoryForm.image}
-                      onChange={(e) => setCategoryForm({ ...categoryForm, image: e.target.value })}
-                      className="w-full bg-[#FFF9F5] text-[#332522] text-sm px-4 py-3 rounded-xl border border-[#D9A6AB]/40 focus:outline-none focus:border-[#C6A16B]"
-                    />
+                    <label className="block text-xs font-bold text-[#332522] uppercase tracking-wider mb-1">Category Image Link (URL):</label>
+                    <div className="flex gap-4 items-start">
+                      <input
+                        type="url"
+                        placeholder="https://images.unsplash.com/photo-..."
+                        value={categoryForm.image}
+                        onChange={(e) => setCategoryForm({ ...categoryForm, image: e.target.value })}
+                        className="flex-1 bg-[#FFF9F5] text-[#332522] text-sm px-4 py-3 rounded-xl border border-[#D9A6AB]/40 focus:outline-none focus:border-[#C6A16B]"
+                      />
+                      {categoryForm.image ? (
+                        <div className="w-16 h-16 rounded-xl overflow-hidden border border-[#D9A6AB]/40 shrink-0 bg-[#FFF9F5]">
+                          <img src={categoryForm.image} alt="Preview" className="w-full h-full object-cover" />
+                        </div>
+                      ) : (
+                        <div className="w-16 h-16 rounded-xl border border-dashed border-[#D9A6AB]/50 shrink-0 bg-[#FFF9F5] flex flex-col items-center justify-center text-[#C6A16B]">
+                          <ImageIcon className="w-5 h-5" />
+                          <span className="text-[9px]">Preview</span>
+                        </div>
+                      )}
+                    </div>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
@@ -559,6 +629,142 @@ export const AdminPage: React.FC = () => {
               </div>
             )}
 
+            {/* Form: EDIT CATEGORY */}
+            {activeSection === 'edit-category' && editingCategory && (
+              <div className="bg-white p-6 sm:p-8 rounded-3xl border-2 border-[#C6A16B] shadow-xl relative">
+                <div className="border-b border-[#D9A6AB]/20 pb-4 mb-6 flex justify-between items-center">
+                  <h2 className="text-xl font-bold font-serif text-[#332522] flex items-center gap-2">
+                    <Edit3 className="w-5 h-5 text-[#C6A16B]" /> Edit Category Selection Image & Details: <span className="text-[#C6A16B]">{editingCategory.name}</span>
+                  </h2>
+                  <button
+                    onClick={() => {
+                      setEditingCategory(null);
+                      setActiveSection('categories');
+                    }}
+                    className="p-1 text-[#332522]/60 hover:text-[#332522]"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+
+                <form onSubmit={handleUpdateCategorySubmit} className="space-y-5">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <div>
+                      <label className="block text-xs font-bold text-[#332522] uppercase tracking-wider mb-1">Category Name:</label>
+                      <input
+                        type="text"
+                        required
+                        value={categoryForm.name}
+                        onChange={(e) => setCategoryForm({ ...categoryForm, name: e.target.value })}
+                        className="w-full bg-[#FFF9F5] text-[#332522] text-sm px-4 py-3 rounded-xl border border-[#D9A6AB]/40 font-bold"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-[#332522] uppercase tracking-wider mb-1">Slug:</label>
+                      <input
+                        type="text"
+                        required
+                        value={categoryForm.slug}
+                        onChange={(e) => setCategoryForm({ ...categoryForm, slug: e.target.value })}
+                        className="w-full bg-[#FFF9F5] text-[#332522] text-sm px-4 py-3 rounded-xl border border-[#D9A6AB]/40 font-mono"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-[#332522] uppercase tracking-wider mb-1">Description:</label>
+                    <textarea
+                      rows={3}
+                      required
+                      value={categoryForm.description}
+                      onChange={(e) => setCategoryForm({ ...categoryForm, description: e.target.value })}
+                      className="w-full bg-[#FFF9F5] text-[#332522] text-sm px-4 py-3 rounded-xl border border-[#D9A6AB]/40"
+                    />
+                  </div>
+
+                  {/* EDIT CATEGORY COVER IMAGE LINK WITH LIVE THUMBNAIL PREVIEW */}
+                  <div>
+                    <label className="block text-xs font-bold text-[#332522] uppercase tracking-wider mb-1">
+                      Main Category Selection Image Link (URL):
+                    </label>
+                    <div className="flex gap-4 items-start">
+                      <input
+                        type="url"
+                        required
+                        placeholder="https://images.unsplash.com/photo-..."
+                        value={categoryForm.image}
+                        onChange={(e) => setCategoryForm({ ...categoryForm, image: e.target.value })}
+                        className="flex-1 bg-[#FFF9F5] text-[#332522] text-sm px-4 py-3 rounded-xl border border-[#D9A6AB]/40 font-mono"
+                      />
+                      {categoryForm.image && (
+                        <div className="w-20 h-20 rounded-xl overflow-hidden border border-[#C6A16B] shrink-0 bg-[#FFF9F5] shadow-xs">
+                          <img src={categoryForm.image} alt="Category Preview" className="w-full h-full object-cover" />
+                        </div>
+                      )}
+                    </div>
+                    <p className="text-[11px] text-[#332522]/60 mt-1">
+                      💡 Paste any high-res image link to immediately update the main homepage category selection cover card.
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+                    <div>
+                      <label className="block text-xs font-bold text-[#332522] uppercase tracking-wider mb-1">Display on Homepage:</label>
+                      <select
+                        value={categoryForm.showOnHome ? 'yes' : 'no'}
+                        onChange={(e) => setCategoryForm({ ...categoryForm, showOnHome: e.target.value === 'yes' })}
+                        className="w-full bg-[#FFF9F5] text-[#332522] text-sm px-4 py-2.5 rounded-xl border border-[#D9A6AB]/40 font-semibold"
+                      >
+                        <option value="yes">Yes (Show Card)</option>
+                        <option value="no">No (Hide Card)</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-[#332522] uppercase tracking-wider mb-1">Status:</label>
+                      <select
+                        value={categoryForm.isActive ? 'active' : 'inactive'}
+                        onChange={(e) => setCategoryForm({ ...categoryForm, isActive: e.target.value === 'active' })}
+                        className="w-full bg-[#FFF9F5] text-[#332522] text-sm px-4 py-2.5 rounded-xl border border-[#D9A6AB]/40 font-semibold"
+                      >
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-[#332522] uppercase tracking-wider mb-1">Sort Position:</label>
+                      <input
+                        type="number"
+                        value={categoryForm.sortOrder}
+                        onChange={(e) => setCategoryForm({ ...categoryForm, sortOrder: Number(e.target.value) })}
+                        className="w-full bg-[#FFF9F5] text-[#332522] text-sm px-4 py-2.5 rounded-xl border border-[#D9A6AB]/40"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex gap-4 pt-4 border-t border-[#D9A6AB]/20">
+                    <button
+                      type="submit"
+                      className="flex-1 bg-[#C6A16B] text-[#332522] py-3.5 rounded-xl font-bold hover:bg-[#E8BFC3] transition-colors shadow-md text-base"
+                    >
+                      Update Category Details & Cover Image
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEditingCategory(null);
+                        setActiveSection('categories');
+                      }}
+                      className="px-6 py-3.5 rounded-xl border border-[#D9A6AB]/50 font-bold text-sm text-[#332522] hover:bg-[#FFF9F5]"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </form>
+              </div>
+            )}
+
             {/* Category Cards List */}
             <div className="bg-white p-6 sm:p-8 rounded-3xl border border-[#D9A6AB]/30 shadow-xs">
               <h2 className="text-xl font-bold font-serif text-[#332522] mb-6">Existing Store Categories</h2>
@@ -566,9 +772,9 @@ export const AdminPage: React.FC = () => {
                 {categories.map((cat) => (
                   <div key={cat.id} className="border border-[#D9A6AB]/30 rounded-2xl overflow-hidden bg-[#FFF9F5] p-4 flex flex-col justify-between shadow-xs">
                     <div className="flex items-center space-x-3 mb-3">
-                      <img src={cat.image} alt={cat.name} className="w-14 h-14 rounded-xl object-cover bg-white" />
-                      <div>
-                        <h3 className="font-bold font-serif text-base text-[#332522]">{cat.name}</h3>
+                      <img src={cat.image} alt={cat.name} className="w-14 h-14 rounded-xl object-cover bg-white shrink-0 border border-[#D9A6AB]/30" />
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-bold font-serif text-base text-[#332522] truncate">{cat.name}</h3>
                         <p className="text-xs font-mono text-[#C6A16B]">/{cat.slug || cat.id}</p>
                       </div>
                     </div>
@@ -594,9 +800,18 @@ export const AdminPage: React.FC = () => {
                         )}
                       </div>
 
-                      <button onClick={() => handleDeleteCategory(cat.id)} className="text-red-500 hover:text-red-700 p-1" title="Remove Category">
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+                      <div className="flex items-center space-x-1">
+                        <button
+                          onClick={() => handleOpenEditCategory(cat)}
+                          className="p-1.5 text-[#C6A16B] hover:text-[#332522] hover:bg-[#FFF9F5] rounded-lg transition-colors font-bold flex items-center gap-1"
+                          title="Edit Category Image & Details"
+                        >
+                          <Edit3 className="w-4 h-4" /> Edit
+                        </button>
+                        <button onClick={() => handleDeleteCategory(cat.id)} className="text-red-500 hover:text-red-700 p-1.5" title="Remove Category">
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
                     </div>
                   </div>
                 ))}
