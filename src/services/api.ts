@@ -3,32 +3,42 @@ import { mockProducts, mockCategories } from './index';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
-// Persistent storage helpers so changes NEVER revert after browser refresh or server restart
+// Persistent storage helpers with strict array validation to prevent white screen crashes
 const loadStoredProducts = (): Product[] => {
   try {
     const saved = localStorage.getItem('velqira_dynamic_products');
-    if (saved) return JSON.parse(saved);
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    }
   } catch (e) {}
   return [...mockProducts];
 };
 
 const saveStoredProducts = (products: Product[]) => {
   try {
-    localStorage.setItem('velqira_dynamic_products', JSON.stringify(products));
+    if (Array.isArray(products)) {
+      localStorage.setItem('velqira_dynamic_products', JSON.stringify(products));
+    }
   } catch (e) {}
 };
 
 const loadStoredCategories = (): Category[] => {
   try {
     const saved = localStorage.getItem('velqira_dynamic_categories');
-    if (saved) return JSON.parse(saved);
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    }
   } catch (e) {}
   return [...mockCategories];
 };
 
 const saveStoredCategories = (categories: Category[]) => {
   try {
-    localStorage.setItem('velqira_dynamic_categories', JSON.stringify(categories));
+    if (Array.isArray(categories)) {
+      localStorage.setItem('velqira_dynamic_categories', JSON.stringify(categories));
+    }
   } catch (e) {}
 };
 
@@ -39,6 +49,7 @@ let dynamicCategories: Category[] = loadStoredCategories();
 // Real-time Server-Sent Events (SSE) live updates listener
 export const initLiveStream = (onUpdate?: () => void) => {
   try {
+    if (typeof EventSource === 'undefined') return () => {};
     const eventSource = new EventSource(`${API_BASE_URL}/live-updates`);
     eventSource.onmessage = (event) => {
       try {
@@ -49,6 +60,9 @@ export const initLiveStream = (onUpdate?: () => void) => {
           fetchCategoriesFromAPI().then(() => onUpdate && onUpdate());
         }
       } catch (err) {}
+    };
+    eventSource.onerror = () => {
+      eventSource.close();
     };
     return () => eventSource.close();
   } catch (err) {
@@ -67,17 +81,21 @@ export const fetchProductsFromAPI = async (category?: string): Promise<Product[]
     const res = await fetch(url);
     if (res.ok) {
       const data = await res.json();
-      if (data.products && data.products.length > 0) {
+      if (data && Array.isArray(data.products) && data.products.length > 0) {
         dynamicProducts = data.products;
         saveStoredProducts(dynamicProducts);
       }
     }
   } catch (err) {
-    // API offline - use persistent dynamic store
+    // API offline
   }
 
+  if (!Array.isArray(dynamicProducts)) dynamicProducts = [...mockProducts];
+
   if (!category || category === 'all') return dynamicProducts;
-  return dynamicProducts.filter((p) => p.category === category || p.category.toLowerCase() === category.toLowerCase());
+  return dynamicProducts.filter(
+    (p) => p && p.category && (p.category === category || p.category.toLowerCase() === category.toLowerCase())
+  );
 };
 
 export const fetchProductByIdFromAPI = async (id: string): Promise<Product | undefined> => {
@@ -85,12 +103,13 @@ export const fetchProductByIdFromAPI = async (id: string): Promise<Product | und
     const res = await fetch(`${API_BASE_URL}/products/${id}`);
     if (res.ok) {
       const data = await res.json();
-      if (data.product) return data.product;
+      if (data && data.product) return data.product;
     }
   } catch (err) {
     // API offline
   }
-  return dynamicProducts.find((p) => p.id === id);
+  if (!Array.isArray(dynamicProducts)) dynamicProducts = [...mockProducts];
+  return dynamicProducts.find((p) => p && p.id === id);
 };
 
 export const fetchCategoriesFromAPI = async (): Promise<Category[]> => {
@@ -98,7 +117,7 @@ export const fetchCategoriesFromAPI = async (): Promise<Category[]> => {
     const res = await fetch(`${API_BASE_URL}/categories`);
     if (res.ok) {
       const data = await res.json();
-      if (data.categories && data.categories.length > 0) {
+      if (data && Array.isArray(data.categories) && data.categories.length > 0) {
         dynamicCategories = data.categories;
         saveStoredCategories(dynamicCategories);
       }
@@ -106,6 +125,7 @@ export const fetchCategoriesFromAPI = async (): Promise<Category[]> => {
   } catch (err) {
     // API offline
   }
+  if (!Array.isArray(dynamicCategories)) dynamicCategories = [...mockCategories];
   return dynamicCategories;
 };
 
@@ -129,7 +149,7 @@ export const createProductAPI = async (productData: Partial<Product>, token?: st
     createdAt: new Date().toISOString().split('T')[0],
   };
 
-  // Persistent Local & API Sync
+  if (!Array.isArray(dynamicProducts)) dynamicProducts = [...mockProducts];
   dynamicProducts = [newProduct, ...dynamicProducts];
   saveStoredProducts(dynamicProducts);
 
@@ -144,7 +164,7 @@ export const createProductAPI = async (productData: Partial<Product>, token?: st
     });
     if (res.ok) {
       const data = await res.json();
-      if (data.product) {
+      if (data && data.product) {
         dynamicProducts = dynamicProducts.map((p) => (p.id === newProduct.id ? data.product : p));
         saveStoredProducts(dynamicProducts);
         return data.product;
@@ -158,7 +178,7 @@ export const createProductAPI = async (productData: Partial<Product>, token?: st
 };
 
 export const updateProductAPI = async (id: string, productData: Partial<Product>, token?: string): Promise<Product | null> => {
-  // Persistent Local & API Sync
+  if (!Array.isArray(dynamicProducts)) dynamicProducts = [...mockProducts];
   dynamicProducts = dynamicProducts.map((p) =>
     p.id === id ? ({ ...p, ...productData } as Product) : p
   );
@@ -185,7 +205,7 @@ export const updateProductAPI = async (id: string, productData: Partial<Product>
 };
 
 export const deleteProductAPI = async (id: string, token?: string): Promise<boolean> => {
-  // Persistent Local & API Sync
+  if (!Array.isArray(dynamicProducts)) dynamicProducts = [...mockProducts];
   dynamicProducts = dynamicProducts.filter((p) => p.id !== id);
   saveStoredProducts(dynamicProducts);
 
@@ -216,7 +236,7 @@ export const createCategoryAPI = async (categoryData: Partial<Category>, token?:
     itemCount: 0,
   };
 
-  // Persistent Local & API Sync
+  if (!Array.isArray(dynamicCategories)) dynamicCategories = [...mockCategories];
   dynamicCategories = [...dynamicCategories, newCategory];
   saveStoredCategories(dynamicCategories);
 
@@ -231,7 +251,7 @@ export const createCategoryAPI = async (categoryData: Partial<Category>, token?:
     });
     if (res.ok) {
       const data = await res.json();
-      if (data.category) {
+      if (data && data.category) {
         dynamicCategories = dynamicCategories.map((c) => (c.id === newCategory.id ? data.category : c));
         saveStoredCategories(dynamicCategories);
         return data.category;
@@ -245,7 +265,7 @@ export const createCategoryAPI = async (categoryData: Partial<Category>, token?:
 };
 
 export const deleteCategoryAPI = async (id: string, token?: string): Promise<boolean> => {
-  // Persistent Local & API Sync
+  if (!Array.isArray(dynamicCategories)) dynamicCategories = [...mockCategories];
   dynamicCategories = dynamicCategories.filter((c) => c.id !== id);
   saveStoredCategories(dynamicCategories);
 
