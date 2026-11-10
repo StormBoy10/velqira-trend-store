@@ -27,6 +27,18 @@ export const koreanGoodiesSubCategories = [
   'Plush & Toys',
 ];
 
+export const homeDecorSubCategories = [
+  'Hanging Plants',
+  'Wall Art & Frames',
+  'Mirrors',
+  'Lamps & Lights',
+  'Candles',
+  'Cushions',
+  'Vases & Flowers',
+  'Decorative Trays',
+  'Showpieces',
+];
+
 export const mockCategories: Category[] = [
   {
     id: 'dresses-fashion',
@@ -53,17 +65,18 @@ export const mockCategories: Category[] = [
     id: 'home-decor',
     name: 'Home Decor',
     slug: 'home-decor',
-    image: 'https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=800&auto=format&fit=crop&q=80',
-    description: 'Decorative items, candles, vases, ambient night lamps, and room accessories',
+    image: 'https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=800&auto=format&fit=crop&q=80',
+    description: 'Wall art & frames, lamps & lights, candles, cushions, mirrors, vases & flowers',
     itemCount: 28,
     showOnHome: true,
     isActive: true,
+    subCategories: homeDecorSubCategories,
   },
   {
     id: 'art-crafts',
     name: 'Art & Crafts',
     slug: 'art-crafts',
-    image: 'https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=800&auto=format&fit=crop&q=80',
+    image: 'https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?w=800&auto=format&fit=crop&q=80',
     description: 'Handmade products, craft supplies, and creative gifts',
     itemCount: 19,
     showOnHome: true,
@@ -107,7 +120,7 @@ export const mockProducts: Product[] = [
     price: 32.00,
     originalPrice: 40.00,
     category: 'home-decor',
-    subCategory: 'Korean Home Decor',
+    subCategory: 'Lamps & Lights',
     image: 'https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=600&auto=format&fit=crop&q=80',
     rating: 4.9,
     reviewsCount: 92,
@@ -189,6 +202,7 @@ export const mockProducts: Product[] = [
     description: 'Minimalist matte ceramic vase with warm cream tones perfect for dried florals.',
     price: 54.00,
     category: 'home-decor',
+    subCategory: 'Vases & Flowers',
     image: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=600&auto=format&fit=crop&q=80',
     rating: 4.9,
     reviewsCount: 52,
