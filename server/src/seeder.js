@@ -23,6 +23,15 @@ const accessorySubCategories = [
   'Phone Accessories',
 ];
 
+const koreanGoodiesSubCategories = [
+  'Korean Stationery',
+  'Cute Accessories',
+  'Korean Home Decor',
+  'Kawaii Lifestyle',
+  'Dressed Jewellery',
+  'Plush & Toys',
+];
+
 const initialCategories = [
   {
     name: 'Dresses & Fashion',
@@ -46,8 +55,8 @@ const initialCategories = [
   {
     name: 'Home Decor',
     slug: 'home-decor',
-    description: 'Decorative items, candles, vases, and room accessories',
-    image: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=600&auto=format&fit=crop&q=80',
+    description: 'Decorative items, candles, vases, ambient night lamps, and room accessories',
+    image: 'https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=600&auto=format&fit=crop&q=80',
     showOnHome: true,
     isActive: true,
     sortOrder: 3,
@@ -64,11 +73,12 @@ const initialCategories = [
   {
     name: 'Korean Goodies',
     slug: 'korean-goodies',
-    description: 'Stationery, plush toys, keychains, and cute accessories',
-    image: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=600&auto=format&fit=crop&q=80',
+    description: 'Stationery, plush toys, keychains, kawaii bottles, and cute accessories',
+    image: 'https://images.unsplash.com/photo-1563245372-f21724e3856d?w=600&auto=format&fit=crop&q=80',
     showOnHome: true,
     isActive: true,
     sortOrder: 5,
+    subCategories: koreanGoodiesSubCategories,
   },
 ];
 
@@ -89,18 +99,18 @@ const initialProducts = [
     stock: 25,
   },
   {
-    name: 'Rose Gold Rectangle Mesh Watch',
-    description: 'Minimalist rectangular rose gold watch with adjustable stainless steel mesh strap.',
-    price: 145.0,
-    originalPrice: 175.0,
-    category: 'jewellery-accessories',
-    subCategory: 'Watches',
-    image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&auto=format&fit=crop&q=80',
+    name: 'Korean Aesthetic Bunny Night Lamp',
+    description: 'Soft warm glow rechargeable LED bunny room lamp with bubble candle decor set.',
+    price: 32.0,
+    originalPrice: 40.0,
+    category: 'home-decor',
+    subCategory: 'Korean Home Decor',
+    image: 'https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=600&auto=format&fit=crop&q=80',
     rating: 4.9,
-    reviewsCount: 112,
+    reviewsCount: 92,
     isFeatured: true,
     isTrending: true,
-    isNewArrival: false,
+    isNewArrival: true,
     stock: 18,
   },
   {

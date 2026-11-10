@@ -51,7 +51,8 @@ export const mockCategories: Category[] = [
   {
     id: 'home-decor',
     name: 'Home Decor',
-    image: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=600&auto=format&fit=crop&q=80',
+    slug: 'home-decor',
+    image: 'https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=600&auto=format&fit=crop&q=80',
     description: 'Decorative items, candles, vases, ambient night lamps, and room accessories',
     itemCount: 28,
     showOnHome: true,
@@ -103,7 +104,7 @@ export const mockProducts: Product[] = [
     description: 'Soft warm glow rechargeable LED bunny room lamp with bubble candle decor set.',
     price: 32.00,
     originalPrice: 40.00,
-    category: 'korean-goodies',
+    category: 'home-decor',
     subCategory: 'Korean Home Decor',
     image: 'https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=600&auto=format&fit=crop&q=80',
     rating: 4.9,
