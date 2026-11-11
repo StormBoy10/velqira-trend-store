@@ -4,59 +4,50 @@ import { ArrowRight, Sparkles } from 'lucide-react';
 
 export const Hero: React.FC = () => {
   return (
-    <section className="relative w-full h-[580px] sm:h-[680px] overflow-hidden text-[#332522] border-b border-[#C6A16B]/30 group">
+    <section className="relative bg-[#FFF9F5] text-[#332522] overflow-hidden py-20 sm:py-28 border-b border-[#D9A6AB]/30">
 
-      {/* LUXURY CHAMPAGNE SILK DRAPE BACKGROUND IMAGE */}
-      <div className="absolute inset-0 z-0">
-        <img
-          src="https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=1600&auto=format&fit=crop&q=85"
-          alt="Velqira Champagne Silk Background"
-          className="w-full h-full object-cover object-center transform scale-100 hover:scale-105 transition-transform duration-10000 ease-out"
-        />
-        {/* Soft Warm Cream Gradient Overlay for Crystal Clear Typography */}
-        <div className="absolute inset-0 bg-gradient-to-r from-[#FFF9F5]/95 via-[#FFF9F5]/85 to-[#FFF9F5]/40" />
+      {/* Subtle Background Glow Accent */}
+      <div className="absolute inset-0 opacity-25 pointer-events-none">
+        <div className="absolute -top-10 right-10 w-96 h-96 bg-[#E8BFC3] rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-0 left-10 w-96 h-96 bg-[#C6A16B] rounded-full blur-3xl"></div>
       </div>
 
-      {/* FRONT CONTENT (Positioned directly in front of the luxury silk background) */}
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex flex-col justify-center items-start">
-        <div className="max-w-2xl">
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
 
-          {/* Badge */}
-          <div className="inline-flex items-center space-x-2 text-xs font-bold uppercase tracking-widest text-[#C6A16B] bg-[#E8BFC3]/40 backdrop-blur-md px-4 py-1.5 rounded-full mb-6 border border-[#C6A16B]/40 shadow-xs">
+        {/* Left Typography Container */}
+        <div className="lg:col-span-7 flex flex-col items-start">
+          <div className="inline-flex items-center space-x-2 text-xs font-bold uppercase tracking-widest text-[#C6A16B] bg-[#E8BFC3]/30 px-3.5 py-1.5 rounded-full mb-6 border border-[#C6A16B]/30 shadow-xs">
             <Sparkles className="w-3.5 h-3.5 text-[#C6A16B]" />
             <span>Curated Luxe Essentials 2025</span>
           </div>
 
-          {/* Exact Title */}
-          <h1 className="text-4xl sm:text-6xl font-extrabold font-serif tracking-tight text-[#332522] leading-[1.12]">
+          <h1 className="text-4xl sm:text-6xl font-extrabold font-serif tracking-tight text-[#332522] leading-[1.15]">
             Artisanal Grace. <br />
             <span className="italic font-normal text-[#C6A16B]">Modern Elegance.</span>
           </h1>
 
-          {/* Exact Subtitle */}
-          <p className="mt-6 text-lg sm:text-xl text-[#332522]/85 leading-relaxed font-normal">
+          <p className="mt-6 text-lg sm:text-xl text-[#332522]/80 leading-relaxed max-w-xl">
             Discover handpicked collections designed for refined living. Blending soft aesthetics, natural tones, and timeless quality.
           </p>
 
-          {/* Action Buttons */}
-          <div className="mt-8 flex flex-col sm:flex-row gap-4">
+          <div className="mt-8 flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
             <Link
               to="/shop"
-              className="inline-flex items-center justify-center px-8 py-4 border border-transparent text-base font-bold rounded-xl text-[#332522] bg-[#E8BFC3] hover:bg-[#D9A6AB] transition-all shadow-md hover:shadow-lg cursor-pointer"
+              className="inline-flex items-center justify-center px-8 py-4 border border-transparent text-base font-bold rounded-xl text-[#332522] bg-[#E8BFC3] hover:bg-[#D9A6AB] transition-all shadow-sm hover:shadow-md cursor-pointer"
             >
               Explore Collection
               <ArrowRight className="ml-2 w-5 h-5 text-[#332522]" />
             </Link>
             <Link
               to="/categories"
-              className="inline-flex items-center justify-center px-8 py-4 border border-[#C6A16B]/40 text-base font-bold rounded-xl text-[#332522] bg-white/80 backdrop-blur-md hover:bg-white transition-all shadow-xs cursor-pointer"
+              className="inline-flex items-center justify-center px-8 py-4 border border-[#D9A6AB]/60 text-base font-bold rounded-xl text-[#332522] bg-white/70 hover:bg-white transition-all shadow-xs cursor-pointer"
             >
               Browse Categories
             </Link>
           </div>
 
-          {/* Trust Stats summary */}
-          <div className="mt-12 pt-8 border-t border-[#C6A16B]/30 grid grid-cols-3 gap-6 max-w-md">
+          {/* Trust Highlights */}
+          <div className="mt-12 pt-8 border-t border-[#D9A6AB]/30 grid grid-cols-3 gap-6 w-full max-w-md">
             <div>
               <p className="text-2xl font-bold font-serif text-[#332522]">100%</p>
               <p className="text-xs text-[#332522]/70 font-medium">Authentic Quality</p>
@@ -70,10 +61,42 @@ export const Hero: React.FC = () => {
               <p className="text-xs text-[#332522]/70 font-medium">Express Shipping</p>
             </div>
           </div>
-
         </div>
-      </div>
 
+        {/* Right VELQIRA Silk Emblem Card with Perfect Aspect Ratio */}
+        <div className="lg:col-span-5 relative flex justify-center">
+          <div className="relative w-full max-w-md aspect-[4/5] rounded-3xl overflow-hidden shadow-2xl border-4 border-white bg-white group transition-transform duration-500 hover:scale-[1.02]">
+
+            {/* VELQIRA Silk Texture Banner */}
+            <img
+              src="https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=800&auto=format&fit=crop&q=80"
+              alt="VELQIRA Silk Signature Emblem"
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#332522]/60 via-transparent to-transparent" />
+
+            {/* Overlaid Logo Typography Emblem */}
+            <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center">
+              <span className="text-2xl text-[#C6A16B] font-bold mb-1">✦</span>
+              <h2 className="text-4xl sm:text-5xl font-extrabold font-serif tracking-widest text-[#FFF9F5] drop-shadow-md">
+                VELQIRA
+              </h2>
+              <span className="text-xs font-bold uppercase tracking-widest text-[#E8BFC3] mt-2 bg-black/30 backdrop-blur-md px-3.5 py-1 rounded-full border border-white/20">
+                Signature Collection
+              </span>
+            </div>
+
+            {/* Floating Tag Card */}
+            <div className="absolute bottom-6 left-6 right-6 p-4 bg-white/95 backdrop-blur-md rounded-2xl border border-[#D9A6AB]/40 shadow-xl">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-[#C6A16B]">Featured Choice</span>
+              <p className="text-base font-bold font-serif text-[#332522]">Velqira Pro & Natural Living Line</p>
+              <p className="text-xs text-[#332522]/75 mt-0.5">Explore sustainable craftsmanship for everyday comfort.</p>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
     </section>
   );
 };
