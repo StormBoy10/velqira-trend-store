@@ -22,7 +22,7 @@ export const ShopPage: React.FC<ShopPageProps> = ({ onAddToCart }) => {
 
   const [searchInputValue, setSearchInputValue] = useState(searchQuery);
   const [sortBy, setSortBy] = useState<string>('newest');
-  const [priceRange, setPriceRange] = useState<{ min: number; max: number }>({ min: 0, max: 15000 });
+  const [priceRange, setPriceRange] = useState<{ min: number; max: number }>({ min: 0, max: 20000 });
   const [inStockOnly, setInStockOnly] = useState<boolean>(false);
   const [visibleCount, setVisibleCount] = useState<number>(6);
 
@@ -134,7 +134,7 @@ export const ShopPage: React.FC<ShopPageProps> = ({ onAddToCart }) => {
     setSearchParams({});
     setSearchInputValue('');
     setSortBy('newest');
-    setPriceRange({ min: 0, max: 15000 });
+    setPriceRange({ min: 0, max: 20000 });
     setInStockOnly(false);
     setVisibleCount(6);
   };
@@ -242,9 +242,9 @@ export const ShopPage: React.FC<ShopPageProps> = ({ onAddToCart }) => {
             </span>
             <input
               type="range"
-              min="100"
-              max="15000"
-              step="100"
+              min="0"
+              max="20000"
+              step="500"
               value={priceRange.max}
               onChange={(e) => setPriceRange({ ...priceRange, max: Number(e.target.value) })}
               className="flex-1 accent-[#C6A16B] cursor-pointer"
