@@ -40,8 +40,8 @@ export const Footer: React.FC = () => {
             <ul className="space-y-2.5 text-sm text-[#FFF9F5]/80 font-medium">
               <li><Link to="/" className="hover:text-[#E8BFC3] transition-colors">Home</Link></li>
               <li><Link to="/shop" className="hover:text-[#E8BFC3] transition-colors">Shop All</Link></li>
-              <li><Link to="/shop?filter=trending" className="hover:text-[#E8BFC3] transition-colors">Trending</Link></li>
-              <li><Link to="/shop?filter=new" className="hover:text-[#E8BFC3] transition-colors">New Arrivals</Link></li>
+              <li><Link to="/categories" className="hover:text-[#E8BFC3] transition-colors">Categories</Link></li>
+              <li><Link to="/trending" className="hover:text-[#E8BFC3] transition-colors">Trending</Link></li>
               <li><Link to="/about" className="hover:text-[#E8BFC3] transition-colors">About Us</Link></li>
               <li><Link to="/admin" className="hover:text-[#E8BFC3] transition-colors font-bold text-[#C6A16B]">Admin Portal</Link></li>
             </ul>

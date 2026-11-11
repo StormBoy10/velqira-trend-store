@@ -7,6 +7,7 @@ import { Footer } from './components/layout/Footer';
 import { HomePage } from './pages/HomePage';
 import { ShopPage } from './pages/ShopPage';
 import { CategoriesPage } from './pages/CategoriesPage';
+import { TrendingPage } from './pages/TrendingPage';
 import { ProductPage } from './pages/ProductPage';
 import { CartPage } from './pages/CartPage';
 import { CheckoutPage } from './pages/CheckoutPage';
@@ -86,6 +87,7 @@ export function App() {
             <Route path="/" element={<HomePage onAddToCart={handleAddToCart} />} />
             <Route path="/shop" element={<ShopPage onAddToCart={handleAddToCart} />} />
             <Route path="/categories" element={<CategoriesPage />} />
+            <Route path="/trending" element={<TrendingPage onAddToCart={handleAddToCart} />} />
             <Route path="/product/:id" element={<ProductPage onAddToCart={handleAddToCart} />} />
             <Route
               path="/cart"

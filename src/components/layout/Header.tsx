@@ -14,7 +14,7 @@ export const Header: React.FC<HeaderProps> = ({ cartCount = 0 }) => {
     { name: 'Home', path: '/' },
     { name: 'Shop', path: '/shop' },
     { name: 'Categories', path: '/categories' },
-    { name: 'Trending', path: '/shop?filter=trending' },
+    { name: 'Trending', path: '/trending' },
     { name: 'About Us', path: '/about' },
   ];
 
