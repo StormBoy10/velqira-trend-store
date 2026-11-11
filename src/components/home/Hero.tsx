@@ -4,21 +4,23 @@ import { ArrowRight, Sparkles } from 'lucide-react';
 
 export const Hero: React.FC = () => {
   return (
-    <section className="relative w-full aspect-[21/9] min-h-[520px] max-h-[660px] overflow-hidden text-[#332522] border-b border-[#C6A16B]/30 group flex items-center">
+    <section className="relative w-full min-h-[580px] sm:min-h-[660px] overflow-hidden text-[#332522] border-b border-[#C6A16B]/30 flex items-center justify-center">
 
-      {/* VELQIRA CHAMPAGNE GOLD SILK SATIN BACKGROUND IMAGE */}
-      <div className="absolute inset-0 z-0">
+      {/* VELQIRA CHAMPAGNE SILK BACKGROUND WITH BALANCED BLUR EFFECT */}
+      <div className="absolute inset-0 z-0 overflow-hidden">
+        {/* Silk Texture Image with Subtle Scale and Balanced Soft Blur */}
         <img
-          src="https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=2000&auto=format&fit=crop&q=90"
+          src="https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=1600&auto=format&fit=crop&q=85"
           alt="VELQIRA Silk Signature Background"
-          className="w-full h-full object-cover object-center transform scale-100 hover:scale-105 transition-transform duration-10000 ease-out"
+          className="w-full h-full object-cover object-center transform scale-105 filter blur-[2px] opacity-90 transition-transform duration-10000 ease-out"
         />
-        {/* Soft Warm Editorial Cream Overlay for crystal clear text readability */}
-        <div className="absolute inset-0 bg-gradient-to-r from-[#FFF9F5]/90 via-[#FFF9F5]/75 to-transparent" />
+
+        {/* Balanced Soft Warm Gradient Overlay for Readable Typography */}
+        <div className="absolute inset-0 bg-gradient-to-r from-[#FFF9F5]/92 via-[#FFF9F5]/80 to-[#FFF9F5]/45 backdrop-blur-[1px]" />
       </div>
 
-      {/* FRONT TEXT CONTENT (Positioned in front of the champagne silk background) */}
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full h-full flex flex-col justify-center items-start py-12">
+      {/* FRONT TEXT CONTENT (Positioned directly in front of the blurred champagne silk background) */}
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full h-full flex flex-col justify-center items-start py-16">
         <div className="max-w-2xl">
 
           {/* Badge */}
@@ -27,18 +29,18 @@ export const Hero: React.FC = () => {
             <span>Curated Luxe Essentials 2025</span>
           </div>
 
-          {/* Headline */}
+          {/* Exact Title */}
           <h1 className="text-4xl sm:text-6xl font-extrabold font-serif tracking-tight text-[#332522] leading-[1.12]">
             Artisanal Grace. <br />
             <span className="italic font-normal text-[#C6A16B]">Modern Elegance.</span>
           </h1>
 
-          {/* Subtitle */}
+          {/* Exact Subtitle */}
           <p className="mt-6 text-lg sm:text-xl text-[#332522]/85 leading-relaxed font-normal">
             Discover handpicked collections designed for refined living. Blending soft aesthetics, natural tones, and timeless quality.
           </p>
 
-          {/* Buttons */}
+          {/* Action Buttons */}
           <div className="mt-8 flex flex-col sm:flex-row gap-4">
             <Link
               to="/shop"
