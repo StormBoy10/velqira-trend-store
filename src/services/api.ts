@@ -5,9 +5,8 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
 
 // Sanitize helper to ensure array items are valid non-null objects
 const sanitizeProducts = (arr: any[]): Product[] => {
-  if (!Array.isArray(arr)) return [...mockProducts];
-  const valid = arr.filter((p) => p && typeof p === 'object' && p.id && p.name);
-  return valid.length > 0 ? valid : [...mockProducts];
+  if (!Array.isArray(arr)) return [];
+  return arr.filter((p) => p && typeof p === 'object' && p.id && p.name);
 };
 
 const sanitizeCategories = (arr: any[]): Category[] => {
@@ -20,7 +19,7 @@ const sanitizeCategories = (arr: any[]): Category[] => {
 const loadStoredProducts = (): Product[] => {
   try {
     const saved = localStorage.getItem('velqira_dynamic_products');
-    if (saved) {
+    if (saved !== null) {
       const parsed = JSON.parse(saved);
       return sanitizeProducts(parsed);
     }
@@ -89,6 +88,12 @@ export const initLiveStream = (onUpdate?: () => void) => {
   }
 };
 
+// Clear all default products helper
+export const clearDefaultProductsAPI = (): void => {
+  dynamicProducts = [];
+  saveStoredProducts([]);
+};
+
 // --- PUBLIC PRODUCT & CATEGORY APIs ---
 
 export const fetchProductsFromAPI = async (category?: string): Promise<Product[]> => {
@@ -100,17 +105,13 @@ export const fetchProductsFromAPI = async (category?: string): Promise<Product[]
     const res = await fetch(url);
     if (res.ok) {
       const data = await res.json();
-      if (data && Array.isArray(data.products) && data.products.length > 0) {
+      if (data && Array.isArray(data.products)) {
         dynamicProducts = sanitizeProducts(data.products);
         saveStoredProducts(dynamicProducts);
       }
     }
   } catch (err) {
     // API offline
-  }
-
-  if (!Array.isArray(dynamicProducts) || dynamicProducts.length === 0) {
-    dynamicProducts = [...mockProducts];
   }
 
   if (!category || category === 'all') return dynamicProducts;
@@ -129,7 +130,6 @@ export const fetchProductByIdFromAPI = async (id: string): Promise<Product | und
   } catch (err) {
     // API offline
   }
-  if (!Array.isArray(dynamicProducts)) dynamicProducts = [...mockProducts];
   return dynamicProducts.find((p) => p && p.id === id);
 };
 
@@ -172,7 +172,6 @@ export const createProductAPI = async (productData: Partial<Product>, token?: st
     createdAt: new Date().toISOString().split('T')[0],
   };
 
-  if (!Array.isArray(dynamicProducts)) dynamicProducts = [...mockProducts];
   dynamicProducts = sanitizeProducts([newProduct, ...dynamicProducts]);
   saveStoredProducts(dynamicProducts);
 
@@ -203,7 +202,6 @@ export const createProductAPI = async (productData: Partial<Product>, token?: st
 };
 
 export const updateProductAPI = async (id: string, productData: Partial<Product>, token?: string): Promise<Product | null> => {
-  if (!Array.isArray(dynamicProducts)) dynamicProducts = [...mockProducts];
   dynamicProducts = sanitizeProducts(
     dynamicProducts.map((p) => (p && p.id === id ? ({ ...p, ...productData } as Product) : p))
   );
@@ -230,7 +228,6 @@ export const updateProductAPI = async (id: string, productData: Partial<Product>
 };
 
 export const deleteProductAPI = async (id: string, token?: string): Promise<boolean> => {
-  if (!Array.isArray(dynamicProducts)) dynamicProducts = [...mockProducts];
   dynamicProducts = sanitizeProducts(dynamicProducts.filter((p) => p && p.id !== id));
   saveStoredProducts(dynamicProducts);
 
