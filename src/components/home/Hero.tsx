@@ -3,8 +3,8 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Sparkles } from 'lucide-react';
 
 const heroImages = [
+  '/images/NEW HERO.jpg',
   '/images/Velqira Satin Gold Logo.jpg',
-  '/images/ideology.jpeg',
 ];
 
 export const Hero: React.FC = () => {
@@ -21,7 +21,7 @@ export const Hero: React.FC = () => {
   return (
     <section className="relative flex h-[580px] sm:h-[680px] lg:h-[750px] sm:aspect-[4/3] lg:aspect-[16/9] max-h-[750px] w-full items-center justify-center overflow-hidden border-b border-[#C6A16B]/30 text-[#332522]">
 
-      {/* Background slideshow featuring uploaded user images */}
+      {/* Background slideshow featuring user uploaded NEW HERO image */}
       <div className="absolute inset-0 overflow-hidden">
         <AnimatePresence mode="sync">
           <motion.img
