@@ -5,6 +5,7 @@ import { TrendingProducts } from '../components/home/TrendingProducts';
 import { NewArrivals } from '../components/home/NewArrivals';
 import { BrandStory } from '../components/home/BrandStory';
 import { NewsletterSection } from '../components/home/NewsletterSection';
+import { Reveal } from '../components/motion/Reveal';
 import { getProducts, getCategories } from '../services';
 import type { Product, Category } from '../types';
 
@@ -27,23 +28,33 @@ export const HomePage: React.FC<HomePageProps> = ({ onAddToCart }) => {
 
   return (
     <main className="overflow-hidden">
-      {/* 3. Large animated hero section */}
       <Hero />
 
-      {/* 4. Category cards */}
-      <CategorySection categories={categories || []} />
+      <Reveal>
+        <CategorySection categories={categories || []} />
+      </Reveal>
 
-      {/* 5. Trending products */}
-      <TrendingProducts products={trendingProducts} onAddToCart={onAddToCart} />
+      <Reveal delay={0.1}>
+        <TrendingProducts
+          products={trendingProducts}
+          onAddToCart={onAddToCart}
+        />
+      </Reveal>
 
-      {/* 6. New arrivals */}
-      <NewArrivals products={newArrivals} onAddToCart={onAddToCart} />
+      <Reveal delay={0.1}>
+        <NewArrivals
+          products={newArrivals}
+          onAddToCart={onAddToCart}
+        />
+      </Reveal>
 
-      {/* 7. Editorial brand-story section */}
-      <BrandStory />
+      <Reveal>
+        <BrandStory />
+      </Reveal>
 
-      {/* 8. Newsletter signup */}
-      <NewsletterSection />
+      <Reveal>
+        <NewsletterSection />
+      </Reveal>
     </main>
   );
 };

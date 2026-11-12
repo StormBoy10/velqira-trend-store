@@ -1,76 +1,60 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React from 'react';
+import { motion, useReducedMotion } from 'motion/react';
 
 interface RevealProps {
   children: React.ReactNode;
-  width?: 'fit-content' | '100%';
-  delay?: number; // Delay in seconds, e.g. 0.2
-  duration?: number; // Duration in seconds, e.g. 0.6
+  delay?: number;
+  duration?: number;
   direction?: 'up' | 'down' | 'left' | 'right' | 'none';
   className?: string;
 }
 
 export const Reveal: React.FC<RevealProps> = ({
   children,
-  width = '100%',
   delay = 0,
-  duration = 0.6,
+  duration = 0.65,
   direction = 'up',
   className = '',
 }) => {
-  const [isVisible, setIsVisible] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
+  const reduceMotion = useReducedMotion();
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-          if (ref.current) observer.unobserve(ref.current);
-        }
-      },
-      { threshold: 0.15 }
-    );
-
-    if (ref.current) {
-      observer.observe(ref.current);
-    }
-
-    return () => {
-      if (ref.current) observer.unobserve(ref.current);
-    };
-  }, []);
-
-  const getTransformStyle = () => {
-    if (isVisible) return 'translate(0, 0)';
-    switch (direction) {
-      case 'up':
-        return 'translateY(30px)';
-      case 'down':
-        return 'translateY(-30px)';
-      case 'left':
-        return 'translateX(30px)';
-      case 'right':
-        return 'translateX(-30px)';
-      case 'none':
-      default:
-        return 'translate(0, 0)';
-    }
+  const offsets = {
+    up: { x: 0, y: 28 },
+    down: { x: 0, y: -28 },
+    left: { x: 28, y: 0 },
+    right: { x: -28, y: 0 },
+    none: { x: 0, y: 0 },
   };
 
+  const initialOffset = offsets[direction];
+
   return (
-    <div
-      ref={ref}
-      style={{
-        width: width === 'fit-content' ? 'fit-content' : '100%',
-        opacity: isVisible ? 1 : 0,
-        transform: getTransformStyle(),
-        transition: `opacity ${duration}s cubic-bezier(0.16, 1, 0.3, 1) ${delay}s, transform ${duration}s cubic-bezier(0.16, 1, 0.3, 1) ${delay}s`,
-      }}
+    <motion.div
       className={className}
+      initial={
+        reduceMotion
+          ? false
+          : {
+              opacity: 0,
+              ...initialOffset,
+            }
+      }
+      whileInView={{
+        opacity: 1,
+        x: 0,
+        y: 0,
+      }}
+      viewport={{
+        once: true,
+        amount: 0.15,
+      }}
+      transition={{
+        duration: reduceMotion ? 0 : duration,
+        delay: reduceMotion ? 0 : delay,
+        ease: [0.22, 1, 0.36, 1],
+      }}
     >
       {children}
-    </div>
+    </motion.div>
   );
 };
-
-export default Reveal;
