@@ -4,7 +4,7 @@ import { AnnouncementBar } from './components/layout/AnnouncementBar';
 import { Header } from './components/layout/Header';
 import { Footer } from './components/layout/Footer';
 
-import { HomePageSlideTest } from './pages/HomePageSlideTest';
+import { HomePage } from './pages/HomePage';
 import { ShopPage } from './pages/ShopPage';
 import { CategoriesPage } from './pages/CategoriesPage';
 import { TrendingPage } from './pages/TrendingPage';
@@ -84,7 +84,7 @@ export function App() {
 
         <div className="flex-grow">
           <Routes>
-            <Route path="/" element={<HomePageSlideTest onAddToCart={handleAddToCart} />} />
+            <Route path="/" element={<HomePage onAddToCart={handleAddToCart} />} />
             <Route path="/shop" element={<ShopPage onAddToCart={handleAddToCart} />} />
             <Route path="/categories" element={<CategoriesPage />} />
             <Route path="/trending" element={<TrendingPage onAddToCart={handleAddToCart} />} />
