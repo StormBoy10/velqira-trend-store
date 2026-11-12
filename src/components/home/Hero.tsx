@@ -3,8 +3,8 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Sparkles } from 'lucide-react';
 
 const heroImages = [
-  '/images/hero-1.jpg',
-  '/images/hero-2.jpg',
+  'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1600&auto=format&fit=crop&q=85',
+  'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=1600&auto=format&fit=crop&q=85',
 ];
 
 export const Hero: React.FC = () => {
@@ -36,9 +36,9 @@ export const Hero: React.FC = () => {
           />
         </AnimatePresence>
 
-        {/* Soft overlay */}
-        <div className="absolute inset-0 bg-[#FFF9F5]/15" />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#FFF9F5]/10 via-transparent to-[#FFF9F5]/15" />
+        {/* Soft light overlay */}
+        <div className="absolute inset-0 bg-[#FFF9F5]/45" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#FFF9F5]/30 via-transparent to-[#FFF9F5]/40" />
       </div>
 
       {/* Hero content */}
@@ -52,33 +52,22 @@ export const Hero: React.FC = () => {
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3, duration: 0.8 }}
-          className="mb-8 inline-flex items-center space-x-2 rounded-full border border-[#C6A16B]/40 bg-[#FFF9F5]/65 px-5 py-2 text-sm font-extrabold uppercase tracking-widest text-[#C6A16B] shadow-sm backdrop-blur-md sm:text-base"
+          className="mb-8 inline-flex items-center space-x-2 rounded-full border border-[#C6A16B]/40 bg-[#FFF9F5]/80 px-5 py-2 text-sm font-extrabold uppercase tracking-widest text-[#C6A16B] shadow-sm backdrop-blur-md sm:text-base"
         >
-          <Sparkles className="h-4 w-4" />
+          <Sparkles className="h-4 w-4 text-[#C6A16B]" />
           <span>Curated Luxe Essentials 2026</span>
         </motion.div>
 
-        <h1 className="text-5xl font-black leading-[1.08] tracking-tight sm:text-7xl lg:text-8xl">
-          <span className="block text-[#332522]">
-            Artisanal Grace.
-          </span>
-
-          {/* Image texture inside text */}
-          <span
-            className="block bg-cover bg-center bg-clip-text font-normal italic text-transparent"
-            style={{
-              backgroundImage: `url(${heroImages[activeImage]})`,
-            }}
-          >
-            Modern Elegance.
-          </span>
+        <h1 className="text-5xl font-black leading-[1.08] tracking-tight sm:text-7xl lg:text-8xl font-serif text-[#332522]">
+          Artisanal Grace. <br />
+          <span className="italic font-normal text-[#C6A16B]">Modern Elegance.</span>
         </h1>
 
         <motion.p
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.7, duration: 0.9 }}
-          className="mt-8 max-w-3xl text-xl leading-relaxed text-[#332522] sm:text-2xl lg:text-3xl"
+          className="mt-8 max-w-3xl text-xl leading-relaxed text-[#332522]/90 sm:text-2xl lg:text-3xl font-serif"
         >
           Discover handpicked collections designed for refined living.
           Blending soft aesthetics, natural tones, and timeless quality.
@@ -92,7 +81,7 @@ export const Hero: React.FC = () => {
             key={index}
             onClick={() => setActiveImage(index)}
             aria-label={`Show background image ${index + 1}`}
-            className={`h-2 rounded-full transition-all duration-500 ${
+            className={`h-2 rounded-full transition-all duration-500 cursor-pointer ${
               activeImage === index
                 ? 'w-8 bg-[#C6A16B]'
                 : 'w-2 bg-[#332522]/40'
