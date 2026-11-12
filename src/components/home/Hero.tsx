@@ -28,17 +28,17 @@ export const Hero: React.FC = () => {
             key={activeImage}
             src={heroImages[activeImage]}
             alt="VELQIRA luxury collection"
-            initial={{ opacity: 0, scale: 1.08 }}
-            animate={{ opacity: 0.65, scale: 1 }}
-            exit={{ opacity: 0, scale: 1.04 }}
+            initial={{ opacity: 0, scale: 1 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 1 }}
             transition={{ duration: 1.8, ease: 'easeInOut' }}
-            className="absolute inset-0 h-full w-full object-cover"
+            className="absolute inset-0 w-full h-full object-cover object-center"
           />
         </AnimatePresence>
 
         {/* Soft overlay */}
-        <div className="absolute inset-0 bg-[#FFF9F5]/55 backdrop-blur-[1px]" />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#FFF9F5]/45 via-transparent to-[#FFF9F5]/60" />
+        <div className="absolute inset-0 bg-[#FFF9F5]/15" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#FFF9F5]/10 via-transparent to-[#FFF9F5]/15" />
       </div>
 
       {/* Hero content */}
