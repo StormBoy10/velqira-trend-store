@@ -19,7 +19,7 @@ export const Hero: React.FC = () => {
   }, []);
 
   return (
-    <section className="relative flex min-h-[580px] sm:min-h-[680px] lg:min-h-[750px] w-full items-center justify-center overflow-hidden border-b border-[#C6A16B]/30 text-[#332522]">
+    <section className="relative flex h-[580px] sm:h-[680px] lg:h-[750px] sm:aspect-[4/3] lg:aspect-[16/9] max-h-[750px] w-full items-center justify-center overflow-hidden border-b border-[#C6A16B]/30 text-[#332522]">
 
       {/* Background slideshow */}
       <div className="absolute inset-0 overflow-hidden">
