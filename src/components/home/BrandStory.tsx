@@ -10,14 +10,20 @@ export const BrandStory: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
 
-          {/* Left Column: Image Collage */}
+          {/* Left Column: Image Collage with VELQIRA Champagne Silk Signature */}
           <div className="lg:col-span-6 relative">
-            <div className="relative rounded-3xl overflow-hidden shadow-2xl border border-[#C6A16B]/30">
+            <div className="relative rounded-3xl overflow-hidden shadow-2xl border-2 border-[#C6A16B]/40 bg-[#FFF9F5]/5">
               <img
-                src="https://images.unsplash.com/photo-1513519245088-0e12902e5a38?w=800&auto=format&fit=crop&q=80"
-                alt="Velqira Craftsmanship Studio"
+                src="https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=800&auto=format&fit=crop&q=80"
+                alt="Velqira Signature Silk Emblem"
                 className="w-full h-[480px] object-cover"
               />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#332522]/80 via-transparent to-transparent flex flex-col items-center justify-center p-6 text-center">
+                <span className="text-2xl text-[#C6A16B] font-bold mb-1">✦</span>
+                <h3 className="text-4xl sm:text-5xl font-extrabold font-serif tracking-widest text-[#FFF9F5] drop-shadow-lg">
+                  VELQIRA
+                </h3>
+              </div>
             </div>
             {/* Overlaid Badge */}
             <div className="absolute -bottom-6 -right-2 sm:right-6 bg-[#E8BFC3] text-[#332522] p-6 rounded-2xl shadow-xl max-w-xs border border-[#C6A16B]/40">
