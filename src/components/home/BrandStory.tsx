@@ -1,5 +1,6 @@
 import React from 'react';
 import { Award, Compass, HeartHandshake } from 'lucide-react';
+import heroImage from '../../assets/hero.png';
 
 export const BrandStory: React.FC = () => {
   return (
@@ -10,13 +11,13 @@ export const BrandStory: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
 
-          {/* Left Column: Image Frame with Exact VELQIRA Champagne Silk Satin Logo */}
+          {/* Left Column: Image Frame with Exact User-Uploaded VELQIRA Champagne Silk Asset */}
           <div className="lg:col-span-6 relative">
             <div className="relative rounded-3xl overflow-hidden shadow-2xl border-2 border-[#C6A16B]/40 bg-[#EADCD0]">
               <img
-                src="/images/velqira-editorial-silk.svg"
+                src={heroImage}
                 alt="VELQIRA Champagne Silk Signature"
-                className="w-full h-[480px] object-cover"
+                className="w-full h-[480px] object-cover object-center"
               />
             </div>
             {/* Overlaid Badge */}
