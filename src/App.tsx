@@ -1,5 +1,11 @@
 import { useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from 'react-router-dom';
+
 import { AnnouncementBar } from './components/layout/AnnouncementBar';
 import { Header } from './components/layout/Header';
 import { Footer } from './components/layout/Footer';
@@ -17,10 +23,20 @@ import { AdminLoginPage } from './pages/AdminLoginPage';
 import { NotFoundPage } from './pages/NotFoundPage';
 
 import type { CartItem, Product } from './types';
+import type { ReactNode } from 'react';
+
+interface InnerPageProps {
+  children: ReactNode;
+}
+
+function InnerPage({ children }: InnerPageProps) {
+  return <div className="inner-page">{children}</div>;
+}
 
 export function App() {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
   const [adminToken, setAdminToken] = useState<string | null>(
     localStorage.getItem('velqira_admin_token')
   );
@@ -32,14 +48,21 @@ export function App() {
 
   const handleAddToCart = (product: Product) => {
     setCart((prev) => {
-      const existing = prev.find((item) => item.product.id === product.id);
+      const existing = prev.find(
+        (item) => item.product.id === product.id
+      );
+
       if (existing) {
         return prev.map((item) =>
-          item.product.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
+          item.product.id === product.id
+            ? { ...item, quantity: item.quantity + 1 }
+            : item
         );
       }
+
       return [...prev, { product, quantity: 1 }];
     });
+
     triggerToast(`Added "${product.name}" to cart!`);
   };
 
@@ -49,8 +72,12 @@ export function App() {
         .map((item) => {
           if (item.product.id === productId) {
             const newQty = item.quantity + delta;
-            return newQty > 0 ? { ...item, quantity: newQty } : null;
+
+            return newQty > 0
+              ? { ...item, quantity: newQty }
+              : null;
           }
+
           return item;
         })
         .filter((item): item is CartItem => item !== null)
@@ -58,7 +85,10 @@ export function App() {
   };
 
   const handleRemoveItem = (productId: string) => {
-    setCart((prev) => prev.filter((item) => item.product.id !== productId));
+    setCart((prev) =>
+      prev.filter((item) => item.product.id !== productId)
+    );
+
     triggerToast('Item removed from cart.');
   };
 
@@ -66,12 +96,17 @@ export function App() {
     setCart([]);
   };
 
-  const totalCartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+  const totalCartCount = cart.reduce(
+    (sum, item) => sum + item.quantity,
+    0
+  );
 
   return (
     <Router>
       <div className="min-h-screen flex flex-col font-sans text-[#332522] bg-[#FFF9F5] relative">
+
         <AnnouncementBar />
+
         <Header cartCount={totalCartCount} />
 
         {/* Toast Notification */}
@@ -82,40 +117,128 @@ export function App() {
           </div>
         )}
 
-        <div className="flex-grow velqira-page-bg">
+        <div className="flex-grow">
+
           <Routes>
-            <Route path="/" element={<HomePage onAddToCart={handleAddToCart} />} />
-            <Route path="/shop" element={<ShopPage onAddToCart={handleAddToCart} />} />
-            <Route path="/categories" element={<CategoriesPage />} />
-            <Route path="/trending" element={<TrendingPage onAddToCart={handleAddToCart} />} />
-            <Route path="/product/:id" element={<ProductPage onAddToCart={handleAddToCart} />} />
+
+            {/* HOME PAGE — ORIGINAL DESIGN UNCHANGED */}
+            <Route
+              path="/"
+              element={<HomePage onAddToCart={handleAddToCart} />}
+            />
+
+            {/* ELEGANT INNER PAGES */}
+
+            <Route
+              path="/shop"
+              element={
+                <InnerPage>
+                  <ShopPage onAddToCart={handleAddToCart} />
+                </InnerPage>
+              }
+            />
+
+            <Route
+              path="/categories"
+              element={
+                <InnerPage>
+                  <CategoriesPage />
+                </InnerPage>
+              }
+            />
+
+            <Route
+              path="/trending"
+              element={
+                <InnerPage>
+                  <TrendingPage onAddToCart={handleAddToCart} />
+                </InnerPage>
+              }
+            />
+
+            <Route
+              path="/product/:id"
+              element={
+                <InnerPage>
+                  <ProductPage onAddToCart={handleAddToCart} />
+                </InnerPage>
+              }
+            />
+
             <Route
               path="/cart"
               element={
-                <CartPage
-                  cart={cart}
-                  onUpdateQuantity={handleUpdateQuantity}
-                  onRemoveItem={handleRemoveItem}
-                />
+                <InnerPage>
+                  <CartPage
+                    cart={cart}
+                    onUpdateQuantity={handleUpdateQuantity}
+                    onRemoveItem={handleRemoveItem}
+                  />
+                </InnerPage>
               }
             />
+
             <Route
               path="/checkout"
-              element={<CheckoutPage cart={cart} onClearCart={handleClearCart} />}
+              element={
+                <InnerPage>
+                  <CheckoutPage
+                    cart={cart}
+                    onClearCart={handleClearCart}
+                  />
+                </InnerPage>
+              }
             />
-            <Route path="/about" element={<AboutPage />} />
+
+            <Route
+              path="/about"
+              element={
+                <InnerPage>
+                  <AboutPage />
+                </InnerPage>
+              }
+            />
+
+            {/* ADMIN PAGES */}
+
             <Route
               path="/admin-login"
-              element={<AdminLoginPage onLoginSuccess={(token) => setAdminToken(token)} />}
+              element={
+                <InnerPage>
+                  <AdminLoginPage
+                    onLoginSuccess={(token) => setAdminToken(token)}
+                  />
+                </InnerPage>
+              }
             />
+
             <Route
               path="/admin"
-              element={adminToken ? <AdminPage /> : <Navigate to="/admin-login" replace />}
+              element={
+                adminToken ? (
+                  <InnerPage>
+                    <AdminPage />
+                  </InnerPage>
+                ) : (
+                  <Navigate to="/admin-login" replace />
+                )
+              }
             />
-            <Route path="*" element={<NotFoundPage />} />
+
+            <Route
+              path="*"
+              element={
+                <InnerPage>
+                  <NotFoundPage />
+                </InnerPage>
+              }
+            />
+
           </Routes>
         </div>
+
         <Footer />
+
       </div>
     </Router>
   );
