@@ -17,8 +17,8 @@ export const CategorySection: React.FC<CategorySectionProps> = ({
   );
 
   return (
-    <section className="py-20 sm:py-24 bg-[#F7F4EE] border-b border-[#DED6C9]">
-      <div className="max-w-7xl mx-auto px-5 sm:px-8 lg:px-10">
+    <section className="boho-section bg-[#F7F4EE] border-b border-[#DED6C9]">
+      <div className="boho-container">
 
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-12 gap-5">
           <div>
@@ -46,7 +46,7 @@ export const CategorySection: React.FC<CategorySectionProps> = ({
         </div>
 
         {homeCategories.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 lg:gap-7">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-10">
             {homeCategories.map((category) => (
               <div
                 key={category.id}

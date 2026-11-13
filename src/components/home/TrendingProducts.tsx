@@ -14,8 +14,8 @@ export const TrendingProducts: React.FC<TrendingProductsProps> = ({
   onAddToCart,
 }) => {
   return (
-    <section className="py-20 sm:py-24 bg-[#F7F4EE] border-b border-[#DED6C9]">
-      <div className="max-w-7xl mx-auto px-5 sm:px-8 lg:px-10">
+    <section className="boho-section bg-[#F7F4EE] border-b border-[#DED6C9]">
+      <div className="boho-container">
 
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-12 gap-5">
           <div>
@@ -43,7 +43,7 @@ export const TrendingProducts: React.FC<TrendingProductsProps> = ({
         </div>
 
         {products.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-x-7 lg:gap-x-10 gap-y-12">
             {products.map((product) => (
               <ProductCard
                 key={product.id}

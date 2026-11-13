@@ -14,28 +14,26 @@ export const NewsletterSection: React.FC = () => {
   };
 
   return (
-    <section className="py-20 bg-[#FFF9F5] border-b border-[#D9A6AB]/30">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <div className="bg-white p-8 sm:p-14 rounded-3xl border border-[#D9A6AB]/40 shadow-xl relative overflow-hidden">
-          {/* Subtle Corner Accent Decor */}
-          <div className="absolute top-0 right-0 w-32 h-32 bg-[#E8BFC3]/30 rounded-full blur-2xl pointer-events-none"></div>
+    <section className="boho-section bg-[#F7F4EE] border-b border-[#DED6C9]">
+      <div className="boho-container text-center">
+        <div className="bg-[#EEE9DF] p-8 sm:p-14 lg:p-16 border border-[#DED6C9] max-w-4xl mx-auto relative overflow-hidden">
 
-          <div className="w-12 h-12 bg-[#FFF9F5] border border-[#C6A16B]/40 rounded-full flex items-center justify-center mx-auto mb-4 text-[#C6A16B]">
-            <Mail className="w-6 h-6" />
+          <div className="w-12 h-12 bg-[#F7F4EE] border border-[#A18B70]/40 flex items-center justify-center mx-auto mb-5 text-[#A18B70]">
+            <Mail className="w-5 h-5" />
           </div>
 
-          <span className="text-xs font-bold uppercase tracking-widest text-[#C6A16B]">Join The Velqira Circle</span>
-          <h2 className="text-3xl sm:text-4xl font-bold font-serif text-[#332522] mt-1">
+          <span className="text-[11px] font-medium uppercase tracking-[0.24em] text-[#927B60]">Join The Velqira Circle</span>
+          <h2 className="text-3xl sm:text-4xl font-serif text-[#38352F] mt-2">
             Enjoy 15% Off Your First Order
           </h2>
-          <p className="text-sm sm:text-base text-[#332522]/70 mt-3 max-w-lg mx-auto">
+          <p className="text-sm sm:text-base text-[#777064] mt-3 max-w-lg mx-auto leading-relaxed">
             Subscribe to receive private sale invitations, early access to new seasonal collections, and curated editorial content.
           </p>
 
           {subscribed ? (
-            <div className="mt-8 p-4 bg-[#FFF9F5] border border-[#C6A16B]/40 rounded-2xl flex items-center justify-center space-x-2 text-[#332522] font-semibold max-w-md mx-auto">
-              <CheckCircle className="w-5 h-5 text-[#C6A16B]" />
-              <span>Thank you for subscribing! Your welcome code has been sent.</span>
+            <div className="mt-8 p-4 bg-[#F7F4EE] border border-[#A18B70]/40 flex items-center justify-center space-x-2 text-[#38352F] font-semibold max-w-md mx-auto text-xs uppercase tracking-wider">
+              <CheckCircle className="w-4 h-4 text-[#A18B70]" />
+              <span>Thank you for subscribing! Welcome code sent.</span>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="mt-8 flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
@@ -45,19 +43,19 @@ export const NewsletterSection: React.FC = () => {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Enter your email address"
                 required
-                className="flex-1 bg-[#FFF9F5] text-[#332522] placeholder-[#332522]/40 text-sm px-4 py-3.5 rounded-xl border border-[#D9A6AB]/50 focus:outline-none focus:border-[#C6A16B] transition-colors"
+                className="flex-1 bg-[#F7F4EE] text-[#38352F] placeholder-[#999184] text-xs px-4 py-4 border border-[#BDB3A4] focus:outline-none focus:border-[#927B60] transition-colors"
               />
               <button
                 type="submit"
-                className="bg-[#E8BFC3] text-[#332522] px-7 py-3.5 text-sm font-bold rounded-xl hover:bg-[#D9A6AB] transition-colors shadow-xs"
+                className="boho-button"
               >
                 Subscribe
               </button>
             </form>
           )}
 
-          <p className="text-xs text-[#332522]/50 mt-4">
-            We respect your privacy. Unsubscribe at any time with one click.
+          <p className="text-[10px] uppercase tracking-wider text-[#999184] mt-5">
+            We respect your privacy. Unsubscribe at any time.
           </p>
         </div>
       </div>

@@ -252,3 +252,30 @@ input:focus, select:focus, textarea:focus {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* VELQIRA - Wide editorial page layout */
+.boho-container {
+  width: 94%;
+  max-width: 1680px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+@media (max-width: 768px) {
+  .boho-container {
+    width: 92%;
+  }
+}
+
+/* Wider spacing between editorial sections */
+.boho-section {
+  padding-top: 96px;
+  padding-bottom: 96px;
+}
+
+@media (max-width: 768px) {
+  .boho-section {
+    padding-top: 60px;
+    padding-bottom: 60px;
+  }
+}
