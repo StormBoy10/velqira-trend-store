@@ -82,7 +82,7 @@ export function App() {
           </div>
         )}
 
-        <div className="flex-grow">
+        <div className="flex-grow velqira-page-bg">
           <Routes>
             <Route path="/" element={<HomePage onAddToCart={handleAddToCart} />} />
             <Route path="/shop" element={<ShopPage onAddToCart={handleAddToCart} />} />
