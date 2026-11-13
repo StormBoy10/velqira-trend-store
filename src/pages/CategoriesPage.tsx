@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowUpRight, Sparkles, Layers } from 'lucide-react';
+import { ArrowUpRight, Sparkles } from 'lucide-react';
 import { fetchCategoriesFromAPI } from '../services/api';
 import type { Category } from '../types';
 
@@ -8,101 +8,167 @@ export const CategoriesPage: React.FC = () => {
   const [categories, setCategories] = useState<Category[]>([]);
 
   useEffect(() => {
-    fetchCategoriesFromAPI().then((data) => setCategories(Array.isArray(data) ? data : []));
+    fetchCategoriesFromAPI()
+      .then((data) => setCategories(Array.isArray(data) ? data : []))
+      .catch((error) =>
+        console.error('Failed to load categories:', error)
+      );
   }, []);
 
-  const activeCategories = categories.filter((c) => c && c.isActive !== false);
+  const activeCategories = categories.filter(
+    (category) => category && category.isActive !== false
+  );
 
   return (
-    <div className="bg-[#FFF9F5] min-h-screen py-16">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <main className="min-h-screen bg-[#F7F4EE] py-12 sm:py-16 lg:py-20">
+      <div className="w-full max-w-[1800px] mx-auto px-5 sm:px-8 xl:px-12 2xl:px-16">
 
-        {/* Page Header */}
-        <div className="text-center max-w-2xl mx-auto mb-16">
-          <div className="inline-flex items-center space-x-2 text-xs font-bold uppercase tracking-widest text-[#C6A16B] bg-[#E8BFC3]/30 px-3.5 py-1.5 rounded-full mb-3 border border-[#C6A16B]/30">
-            <Layers className="w-3.5 h-3.5 text-[#C6A16B]" />
-            <span>Store Directory</span>
+        {/* Editorial heading */}
+        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8 mb-12 lg:mb-16">
+          <div className="max-w-3xl">
+            <p className="text-[11px] uppercase tracking-[0.25em] text-[#927B60] font-medium mb-4">
+              Find your favourites
+            </p>
+
+            <h1 className="font-serif text-4xl sm:text-5xl lg:text-7xl font-normal text-[#38352F] leading-tight">
+              Explore our
+              <br className="hidden sm:block" />
+              collections.
+            </h1>
           </div>
-          <h1 className="text-4xl sm:text-5xl font-bold font-serif text-[#332522]">
-            Category Collections
-          </h1>
-          <p className="text-base text-[#332522]/80 mt-3 leading-relaxed">
-            Explore our curated departments designed to bring warm minimalism and luxury functionality to your everyday routine.
-          </p>
+
+          <div className="max-w-md lg:pb-2">
+            <p className="text-sm sm:text-base text-[#777064] leading-relaxed">
+              A considered collection of beautiful things, from
+              everyday essentials to distinctive pieces that make
+              your personal style feel like your own.
+            </p>
+
+            <div className="mt-5 flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-[#927B60]">
+              <Sparkles className="w-4 h-4" />
+              <span>Curated by Velqira</span>
+            </div>
+          </div>
         </div>
 
-        {/* Categories Showcase Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {activeCategories.map((category) => {
-            const slug = category.slug || category.id;
-            return (
-              <div
-                key={category.id}
-                className="bg-white rounded-3xl overflow-hidden border border-[#D9A6AB]/30 shadow-xs hover:shadow-xl transition-all flex flex-col justify-between group"
-              >
-                <div className="aspect-[4/3] relative overflow-hidden bg-[#FFF9F5]">
-                  <img
-                    src={category.image}
-                    alt={category.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#332522]/70 via-transparent to-transparent" />
+        <div className="flex justify-between items-center border-y border-[#D8D0C3] py-4 mb-8">
+          <span className="text-[10px] uppercase tracking-[0.18em] text-[#777064]">
+            Our departments
+          </span>
 
-                  {category.itemCount !== undefined && (
-                    <span className="absolute top-4 right-4 bg-white/95 backdrop-blur-md text-[#332522] text-xs font-bold px-3 py-1 rounded-full shadow-xs border border-[#D9A6AB]/30">
-                      {category.itemCount} Products
-                    </span>
-                  )}
+          <span className="text-[10px] uppercase tracking-[0.18em] text-[#927B60]">
+            {activeCategories.length} collections
+          </span>
+        </div>
 
-                  <div className="absolute bottom-4 left-4 right-4 text-[#FFF9F5]">
-                    <h2 className="text-2xl font-bold font-serif">{category.name}</h2>
-                  </div>
-                </div>
+        {/* Category grid */}
+        {activeCategories.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-6 lg:gap-7">
 
-                <div className="p-6 flex-1 flex flex-col justify-between">
-                  <p className="text-sm text-[#332522]/75 leading-relaxed mb-4">
-                    {category.description || 'Curated high quality items for your daily lifestyle.'}
-                  </p>
+            {activeCategories.map((category, index) => {
+              const slug = category.slug || category.id;
 
-                  {/* Sub-Categories list if available */}
-                  {category.subCategories && category.subCategories.length > 0 && (
-                    <div className="mb-6 pt-4 border-t border-[#D9A6AB]/20">
-                      <div className="flex items-center space-x-1 text-xs font-bold text-[#C6A16B] uppercase tracking-wider mb-2">
-                        <Sparkles className="w-3.5 h-3.5 text-[#C6A16B]" />
-                        <span>Included Sub-Lines ({category.subCategories.length}):</span>
-                      </div>
-                      <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto pr-1">
-                        {category.subCategories.slice(0, 8).map((sub) => (
-                          <Link
-                            key={sub}
-                            to={`/shop?category=${slug}&sub=${encodeURIComponent(sub)}`}
-                            className="text-[11px] font-semibold bg-[#FFF9F5] text-[#332522]/80 px-2.5 py-1 rounded-md border border-[#D9A6AB]/30 hover:bg-[#E8BFC3] hover:text-[#332522] transition-colors"
-                          >
-                            {sub}
-                          </Link>
-                        ))}
-                        {category.subCategories.length > 8 && (
-                          <span className="text-[11px] text-[#C6A16B] font-bold self-center">
-                            +{category.subCategories.length - 8} more
+              return (
+                <article
+                  key={category.id}
+                  className="group min-w-0"
+                >
+                  <Link
+                    to={`/shop?category=${encodeURIComponent(slug)}`}
+                    className="block"
+                  >
+                    <div className="relative aspect-[4/5] overflow-hidden bg-[#E8E1D5]">
+                      <img
+                        src={
+                          category.image ||
+                          'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=900&auto=format&fit=crop&q=85'
+                        }
+                        alt={category.name}
+                        loading="lazy"
+                        className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                      />
+
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#27241F]/75 via-transparent to-transparent opacity-80 group-hover:opacity-95 transition-opacity duration-500" />
+
+                      {category.itemCount !== undefined && (
+                        <span className="absolute top-4 left-4 bg-[#F7F4EE]/95 text-[#38352F] px-3 py-2 text-[9px] uppercase tracking-[0.15em]">
+                          {category.itemCount} products
+                        </span>
+                      )}
+
+                      <span className="absolute top-4 right-4 text-white/90 text-xs font-serif">
+                        {String(index + 1).padStart(2, '0')}
+                      </span>
+
+                      <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-7 text-[#F7F4EE]">
+                        <p className="text-[9px] uppercase tracking-[0.2em] text-white/75 mb-2">
+                          Discover the collection
+                        </p>
+
+                        <div className="flex items-end justify-between gap-3">
+                          <h2 className="font-serif text-2xl sm:text-3xl font-normal leading-tight">
+                            {category.name}
+                          </h2>
+
+                          <span className="shrink-0 flex items-center justify-center w-10 h-10 rounded-full border border-white/60 group-hover:bg-[#F7F4EE] group-hover:text-[#38352F] transition-all duration-300">
+                            <ArrowUpRight className="w-5 h-5" />
                           </span>
-                        )}
+                        </div>
                       </div>
                     </div>
-                  )}
-
-                  <Link
-                    to={`/shop?category=${slug}`}
-                    className="w-full bg-[#E8BFC3] text-[#332522] py-3 rounded-xl font-bold text-sm hover:bg-[#D9A6AB] transition-colors flex items-center justify-center space-x-1 shadow-xs"
-                  >
-                    <span>Browse {category.name}</span>
-                    <ArrowUpRight className="w-4 h-4" />
                   </Link>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+
+                  <div className="pt-4 pb-2">
+                    <p className="text-sm text-[#777064] leading-relaxed line-clamp-2">
+                      {category.description ||
+                        'Explore thoughtfully selected pieces from this collection.'}
+                    </p>
+
+                    {category.subCategories &&
+                      category.subCategories.length > 0 && (
+                        <div className="mt-4 flex flex-wrap gap-x-3 gap-y-2">
+                          {category.subCategories
+                            .slice(0, 5)
+                            .map((subCategory) => (
+                              <Link
+                                key={subCategory}
+                                to={`/shop?category=${encodeURIComponent(
+                                  slug
+                                )}&sub=${encodeURIComponent(subCategory)}`}
+                                className="text-[10px] text-[#927B60] border-b border-[#CFC5B6] pb-1 hover:text-[#38352F] hover:border-[#38352F] transition-colors"
+                              >
+                                {subCategory}
+                              </Link>
+                            ))}
+
+                          {category.subCategories.length > 5 && (
+                            <Link
+                              to={`/shop?category=${encodeURIComponent(slug)}`}
+                              className="text-[10px] text-[#38352F] font-semibold"
+                            >
+                              +{category.subCategories.length - 5} more
+                            </Link>
+                          )}
+                        </div>
+                      )}
+                  </div>
+                </article>
+              );
+            })}
+
+          </div>
+        ) : (
+          <div className="py-24 text-center border-y border-[#D8D0C3]">
+            <h2 className="font-serif text-2xl text-[#38352F]">
+              Collections coming soon
+            </h2>
+            <p className="text-sm text-[#777064] mt-2">
+              Our collections will appear here once available.
+            </p>
+          </div>
+        )}
+
       </div>
-    </div>
+    </main>
   );
 };

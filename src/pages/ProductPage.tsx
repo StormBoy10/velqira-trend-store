@@ -1,6 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Star, ShoppingBag, ArrowLeft } from 'lucide-react';
+import {
+  Star,
+  ShoppingBag,
+  ArrowLeft,
+  Check,
+} from 'lucide-react';
+
 import { getProductById } from '../services';
 import type { Product } from '../types';
 
@@ -8,78 +14,242 @@ interface ProductPageProps {
   onAddToCart?: (product: Product) => void;
 }
 
-export const ProductPage: React.FC<ProductPageProps> = ({ onAddToCart }) => {
+export const ProductPage: React.FC<ProductPageProps> = ({
+  onAddToCart,
+}) => {
   const { id } = useParams<{ id: string }>();
+
   const [product, setProduct] = useState<Product | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (id) {
-      getProductById(id).then((p) => setProduct(p || null));
-    }
+    let cancelled = false;
+
+    const loadProduct = async () => {
+      setLoading(true);
+      setProduct(null);
+
+      try {
+        if (id) {
+          const result = await getProductById(id);
+
+          if (!cancelled) {
+            setProduct(result || null);
+          }
+        }
+      } catch (error) {
+        console.error('Failed to load product:', error);
+
+        if (!cancelled) {
+          setProduct(null);
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    };
+
+    loadProduct();
+
+    return () => {
+      cancelled = true;
+    };
   }, [id]);
 
-  if (!product) {
+  if (loading) {
     return (
-      <div className="bg-[#FFF9F5] min-h-screen py-16 text-center">
-        <h2 className="text-2xl font-bold font-serif text-[#332522]">Product Not Found</h2>
-        <Link to="/shop" className="text-sm font-semibold text-[#C6A16B] hover:underline mt-4 inline-block">
-          &larr; Return to Shop
-        </Link>
-      </div>
+      <main className="min-h-screen bg-[#F7F4EE] flex items-center justify-center">
+        <p className="font-serif text-xl text-[#777064]">
+          Discovering your selection...
+        </p>
+      </main>
     );
   }
 
-  return (
-    <div className="bg-[#FFF9F5] min-h-screen">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <Link to="/shop" className="inline-flex items-center text-sm font-semibold text-[#332522]/70 hover:text-[#C6A16B] mb-8 transition-colors">
-          <ArrowLeft className="w-4 h-4 mr-1" />
-          Back to Products
-        </Link>
+  if (!product) {
+    return (
+      <main className="min-h-screen bg-[#F7F4EE] flex flex-col items-center justify-center text-center px-5">
+        <p className="text-[10px] uppercase tracking-[0.2em] text-[#927B60] mb-3">
+          Velqira collection
+        </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 bg-white p-6 sm:p-8 rounded-2xl border border-[#D9A6AB]/30 shadow-xs">
-          {/* Product Image */}
-          <div className="aspect-square bg-[#FFF9F5] rounded-xl overflow-hidden shadow-xs">
-            <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
+        <h2 className="text-3xl sm:text-4xl font-serif text-[#38352F]">
+          Product not found
+        </h2>
+
+        <Link
+          to="/shop"
+          className="mt-6 text-xs uppercase tracking-[0.16em] text-[#927B60] border-b border-[#927B60] pb-2"
+        >
+          Return to shop
+        </Link>
+      </main>
+    );
+  }
+
+  const isAvailable = product.inStock !== false;
+  const price = Number(product.price) || 0;
+  const originalPrice = Number(product.originalPrice);
+  const hasOriginalPrice =
+    Number.isFinite(originalPrice) && originalPrice > price;
+
+  return (
+    <main className="min-h-screen bg-[#F7F4EE] py-8 sm:py-12 lg:py-16">
+      <div className="w-full max-w-[1800px] mx-auto px-5 sm:px-8 xl:px-12 2xl:px-16">
+
+        {/* Breadcrumb */}
+        <div className="flex flex-wrap items-center justify-between gap-4 mb-8 lg:mb-12">
+          <Link
+            to="/shop"
+            className="inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.17em] text-[#777064] hover:text-[#38352F] transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back to collection
+          </Link>
+
+          <span className="text-[10px] uppercase tracking-[0.17em] text-[#927B60]">
+            Velqira Trend Store
+          </span>
+        </div>
+
+        {/* Product layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 xl:gap-24 items-start">
+
+          {/* Product image */}
+          <div className="min-w-0">
+            <div className="relative w-full aspect-[4/5] max-h-[950px] overflow-hidden bg-[#E8E1D5]">
+              <img
+                src={
+                  product.image ||
+                  'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=1200&auto=format&fit=crop&q=85'
+                }
+                alt={product.name}
+                className="w-full h-full object-cover object-center"
+              />
+
+              {product.isNew && (
+                <span className="absolute top-5 left-5 bg-[#F7F4EE] text-[#38352F] px-4 py-2 text-[9px] uppercase tracking-[0.18em]">
+                  New arrival
+                </span>
+              )}
+
+              {!isAvailable && (
+                <span className="absolute top-5 right-5 bg-[#38352F] text-[#F7F4EE] px-4 py-2 text-[9px] uppercase tracking-[0.18em]">
+                  Sold out
+                </span>
+              )}
+            </div>
           </div>
 
-          {/* Product Details */}
-          <div className="flex flex-col justify-center">
-            <span className="text-xs font-bold uppercase text-[#C6A16B] tracking-wider">
-              {product.category}
-            </span>
-            <h1 className="text-3xl font-bold font-serif text-[#332522] mt-2">{product.name}</h1>
+          {/* Product information */}
+          <div className="lg:sticky lg:top-24 py-2 lg:py-8 xl:py-12">
 
-            <div className="flex items-center space-x-2 mt-3 text-sm">
-              <div className="flex items-center text-[#C6A16B]">
+            <p className="text-[10px] uppercase tracking-[0.25em] text-[#927B60] mb-5">
+              {product.category || 'The collection'}
+            </p>
+
+            <h1 className="font-serif text-4xl sm:text-5xl xl:text-6xl font-normal text-[#38352F] leading-tight">
+              {product.name}
+            </h1>
+
+            {product.subCategory && (
+              <p className="text-xs uppercase tracking-[0.16em] text-[#927B60] mt-4">
+                {product.subCategory}
+              </p>
+            )}
+
+            <div className="flex flex-wrap items-center gap-3 mt-6">
+              <div className="flex items-center gap-1.5 text-[#927B60]">
                 <Star className="w-4 h-4 fill-current" />
-                <span className="ml-1 font-bold text-[#332522]">{product.rating}</span>
+
+                <span className="text-sm font-semibold text-[#38352F]">
+                  {product.rating || 5.0}
+                </span>
               </div>
-              <span className="text-[#D9A6AB]">|</span>
-              <span className="text-[#332522]/70">{product.reviewsCount} Customer Reviews</span>
+
+              <span className="w-px h-4 bg-[#CFC5B6]" />
+
+              <span className="text-xs text-[#777064]">
+                {product.reviewsCount || 0} customer reviews
+              </span>
             </div>
 
-            <div className="flex items-baseline space-x-3 mt-6">
-              <span className="text-3xl font-bold text-[#332522]">₹{product.price.toFixed(2)}</span>
-              {product.originalPrice && (
-                <span className="text-lg text-[#332522]/40 line-through">
-                  ₹{product.originalPrice.toFixed(2)}
+            <div className="mt-8 flex flex-wrap items-baseline gap-4 border-y border-[#D8D0C3] py-6">
+              <span className="font-serif text-3xl sm:text-4xl text-[#38352F]">
+                ₹{price.toFixed(2)}
+              </span>
+
+              {hasOriginalPrice && (
+                <>
+                  <span className="text-lg text-[#999184] line-through">
+                    ₹{originalPrice.toFixed(2)}
+                  </span>
+
+                  <span className="text-[9px] uppercase tracking-[0.15em] text-[#927B60]">
+                    Special price
+                  </span>
+                </>
+              )}
+            </div>
+
+            <div className="mt-8">
+              <p className="text-[10px] uppercase tracking-[0.2em] text-[#927B60] font-semibold mb-3">
+                Product details
+              </p>
+
+              <p className="text-sm sm:text-base text-[#6F695F] leading-8">
+                {product.description ||
+                  'A thoughtfully selected piece from the Velqira collection.'}
+              </p>
+            </div>
+
+            <div className="mt-8 flex items-center gap-3 text-xs">
+              {isAvailable ? (
+                <>
+                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-[#E4E7D9] text-[#596347]">
+                    <Check className="w-3.5 h-3.5" />
+                  </span>
+
+                  <span className="text-[#596347]">
+                    Available to order
+                  </span>
+                </>
+              ) : (
+                <span className="text-[#927B60]">
+                  Currently unavailable
                 </span>
               )}
             </div>
 
-            <p className="text-[#332522]/80 mt-6 leading-relaxed">{product.description}</p>
-
             <button
-              onClick={() => onAddToCart && onAddToCart(product)}
-              className="mt-8 flex items-center justify-center w-full py-4 bg-[#E8BFC3] text-[#332522] rounded-xl font-bold hover:bg-[#D9A6AB] transition-colors shadow-xs cursor-pointer"
+              type="button"
+              onClick={() => {
+                if (isAvailable && onAddToCart) {
+                  onAddToCart(product);
+                }
+              }}
+              disabled={!isAvailable || !onAddToCart}
+              className={`mt-8 w-full min-h-14 flex items-center justify-center gap-3 text-[11px] uppercase tracking-[0.2em] font-semibold transition-colors ${
+                isAvailable && onAddToCart
+                  ? 'bg-[#38352F] text-[#F7F4EE] hover:bg-[#927B60]'
+                  : 'bg-[#D8D0C3] text-[#777064] cursor-not-allowed'
+              }`}
             >
-              <ShoppingBag className="w-5 h-5 mr-2" />
-              Add to Cart
+              <ShoppingBag className="w-4 h-4" />
+
+              {isAvailable
+                ? 'Add to shopping bag'
+                : 'Currently unavailable'}
             </button>
+
+            <p className="text-[10px] text-center text-[#999184] mt-4 leading-relaxed">
+              Artisanal Grace. Modern Elegance.
+            </p>
+
           </div>
         </div>
       </div>
-    </div>
+    </main>
   );
 };
