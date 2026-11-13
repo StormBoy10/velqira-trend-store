@@ -4,7 +4,9 @@ import { Sparkles } from 'lucide-react';
 
 const heroImages = [
   '/images/NEW HEROS.jpg',
-  '/images/Velqira Satin Gold Logo.jpg',
+  'https://images.unsplash.com/photo-1528459801416-a9e53bbf4e17?w=1920&auto=format&fit=crop&q=85',
+  'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1920&auto=format&fit=crop&q=85',
+  'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=1920&auto=format&fit=crop&q=85',
 ];
 
 export const Hero: React.FC = () => {
@@ -21,24 +23,24 @@ export const Hero: React.FC = () => {
   return (
     <section className="relative flex h-[580px] sm:h-[680px] lg:h-[750px] sm:aspect-[4/3] lg:aspect-[16/9] max-h-[750px] w-full items-center justify-center overflow-hidden border-b border-[#C6A16B]/30 text-[#332522]">
 
-      {/* Background slideshow featuring user uploaded NEW HEROS image */}
+      {/* Background slideshow featuring high-definition luxury editorial themes */}
       <div className="absolute inset-0 overflow-hidden">
         <AnimatePresence mode="sync">
           <motion.img
             key={activeImage}
             src={heroImages[activeImage]}
             alt="VELQIRA luxury collection"
-            initial={{ opacity: 0, scale: 1.02 }}
+            initial={{ opacity: 0, scale: 1.03 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 1 }}
-            transition={{ duration: 1.5, ease: 'easeInOut' }}
+            transition={{ duration: 1.6, ease: 'easeInOut' }}
             className="absolute inset-0 w-full h-full object-cover object-center"
           />
         </AnimatePresence>
 
-        {/* Soft elegant warm cream overlay tuned for practical readability */}
-        <div className="absolute inset-0 bg-[#FFF9F5]/40 backdrop-blur-[1px]" />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#FFF9F5]/30 via-transparent to-[#FFF9F5]/50" />
+        {/* Soft elegant warm cream overlay for pristine luxury contrast */}
+        <div className="absolute inset-0 bg-[#FFF9F5]/45 backdrop-blur-[1px]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#FFF9F5]/35 via-transparent to-[#FFF9F5]/55" />
       </div>
 
       {/* Hero content */}
