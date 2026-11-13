@@ -9,32 +9,55 @@ interface TrendingProductsProps {
   onAddToCart?: (product: Product) => void;
 }
 
-export const TrendingProducts: React.FC<TrendingProductsProps> = ({ products, onAddToCart }) => {
+export const TrendingProducts: React.FC<TrendingProductsProps> = ({
+  products,
+  onAddToCart,
+}) => {
   return (
-    <section className="py-20 bg-[#FFF9F5] border-b border-[#D9A6AB]/20">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-12">
+    <section className="py-20 sm:py-24 bg-[#F7F4EE] border-b border-[#DED6C9]">
+      <div className="max-w-7xl mx-auto px-5 sm:px-8 lg:px-10">
+
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-12 gap-5">
           <div>
-            <div className="flex items-center space-x-1.5 text-xs font-bold uppercase tracking-widest text-[#C6A16B] mb-1">
-              <Flame className="w-4 h-4 text-[#D9A6AB] fill-[#D9A6AB]" />
-              <span>Most Popular Choice</span>
+            <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.22em] font-medium text-[#927B60] mb-3">
+              <Flame className="w-4 h-4" />
+              <span>Customer favourites</span>
             </div>
-            <h2 className="text-3xl sm:text-4xl font-bold text-[#332522] font-serif">Trending Now</h2>
-            <p className="text-sm text-[#332522]/70 mt-1">Discover the most sought-after products this season</p>
+
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-normal font-serif text-[#38352F]">
+              Trending now
+            </h2>
+
+            <p className="text-sm sm:text-base text-[#777064] mt-3">
+              Discover the pieces everyone is loving this season.
+            </p>
           </div>
+
           <Link
             to="/shop?filter=trending"
-            className="mt-4 sm:mt-0 text-sm font-bold text-[#332522] hover:text-[#C6A16B] transition-colors inline-flex items-center"
+            className="group inline-flex items-center gap-2 text-xs uppercase tracking-[0.16em] font-medium text-[#38352F] border-b border-[#A18B70] pb-2 hover:text-[#927B60] transition-colors"
           >
-            Shop All Trending <ArrowRight className="w-4 h-4 ml-1" />
+            Shop trending
+            <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {products.map((product) => (
-            <ProductCard key={product.id} product={product} onAddToCart={onAddToCart} />
-          ))}
-        </div>
+        {products.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10">
+            {products.map((product) => (
+              <ProductCard
+                key={product.id}
+                product={product}
+                onAddToCart={onAddToCart}
+              />
+            ))}
+          </div>
+        ) : (
+          <p className="py-12 text-center font-serif text-xl text-[#777064]">
+            New favourites will be arriving soon.
+          </p>
+        )}
+
       </div>
     </section>
   );

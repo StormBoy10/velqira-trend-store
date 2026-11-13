@@ -8,82 +8,132 @@ interface ProductCardProps {
   onAddToCart?: (product: Product) => void;
 }
 
-export const ProductCard: React.FC<ProductCardProps> = ({ product, onAddToCart }) => {
+export const ProductCard: React.FC<ProductCardProps> = ({
+  product,
+  onAddToCart,
+}) => {
   if (!product || typeof product !== 'object') return null;
 
   const isAvailable = product.inStock !== false;
-  const productPrice = typeof product.price === 'number' ? product.price : parseFloat(product.price as any) || 0;
+
+  const productPrice =
+    typeof product.price === 'number'
+      ? product.price
+      : parseFloat(String(product.price)) || 0;
+
+  const originalPrice = Number(product.originalPrice);
 
   return (
-    <div className="group relative bg-white border border-[#D9A6AB]/30 rounded-xl overflow-hidden shadow-xs hover:shadow-md transition-all flex flex-col h-full">
-      <div className="aspect-square bg-[#FFF9F5] overflow-hidden relative">
-        <img
-          src={product.image || 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=600&auto=format&fit=crop&q=80'}
-          alt={product.name || 'Product'}
-          className={`w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-300 ${
-            !isAvailable ? 'opacity-60 grayscale' : ''
-          }`}
-        />
+    <article className="group relative flex h-full flex-col">
 
-        {/* Badges */}
-        <div className="absolute top-2 left-2 flex flex-col gap-1">
+      {/* Product image */}
+      <div className="relative aspect-square overflow-hidden bg-[#E8E1D5]">
+
+        <Link
+          to={`/product/${product.id}`}
+          className="block h-full w-full"
+          aria-label={`View ${product.name || 'product'}`}
+        >
+          <img
+            src={
+              product.image ||
+              'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=800&auto=format&fit=crop&q=85'
+            }
+            alt={product.name || 'Product'}
+            loading="lazy"
+            className={`h-full w-full object-cover object-center transition-all duration-700 ease-out group-hover:scale-105 ${
+              !isAvailable ? 'opacity-60 grayscale' : ''
+            }`}
+          />
+        </Link>
+
+        {/* Product labels */}
+        <div className="absolute top-3 left-3 flex flex-col items-start gap-2 pointer-events-none">
+
           {product.isNew && (
-            <span className="bg-[#E8BFC3] text-[#332522] text-[10px] px-2 py-0.5 font-bold uppercase rounded-md shadow-xs">
-              New
+            <span className="bg-[#F7F4EE] text-[#38352F] text-[9px] px-3 py-1.5 uppercase tracking-[0.16em] font-medium">
+              New arrival
             </span>
           )}
-          {!isAvailable ? (
-            <span className="bg-[#332522] text-[#FFF9F5] text-[10px] px-2 py-0.5 font-bold uppercase rounded-md shadow-xs">
-              Out of Stock
-            </span>
-          ) : (
-            <span className="bg-[#C6A16B]/20 text-[#332522] border border-[#C6A16B]/40 text-[10px] px-2 py-0.5 font-semibold uppercase rounded-md backdrop-blur-xs">
-              In Stock
+
+          {!isAvailable && (
+            <span className="bg-[#38352F] text-[#F7F4EE] text-[9px] px-3 py-1.5 uppercase tracking-[0.16em] font-medium">
+              Sold out
             </span>
           )}
+
         </div>
+
+        {/* Add to cart overlay */}
+        <button
+          type="button"
+          onClick={() => {
+            if (isAvailable && onAddToCart) {
+              onAddToCart(product);
+            }
+          }}
+          disabled={!isAvailable || !onAddToCart}
+          aria-label={
+            !isAvailable
+              ? 'Out of stock'
+              : 'Add to cart'
+          }
+          title={
+            !isAvailable
+              ? 'Out of stock'
+              : 'Add to cart'
+          }
+          className={`absolute bottom-4 right-4 flex h-11 w-11 items-center justify-center rounded-full shadow-sm transition-all duration-300 ${
+            isAvailable && onAddToCart
+              ? 'bg-[#F7F4EE] text-[#38352F] hover:bg-[#38352F] hover:text-[#F7F4EE] hover:scale-105'
+              : 'bg-[#D6D0C5] text-[#8B857B] cursor-not-allowed'
+          }`}
+        >
+          <ShoppingBag className="w-4 h-4" />
+        </button>
       </div>
 
-      <div className="p-4 flex flex-col flex-1 justify-between">
-        <div>
-          <div className="flex items-center space-x-1 text-[#C6A16B] text-xs mb-1">
-            <Star className="w-3.5 h-3.5 fill-current" />
-            <span className="font-medium text-[#332522]">{product.rating || 5.0}</span>
-            <span className="text-[#332522]/50">({product.reviewsCount || 0})</span>
-          </div>
+      {/* Product information */}
+      <div className="flex flex-1 flex-col pt-4">
 
-          <Link to={`/product/${product.id}`}>
-            <h3 className="text-base font-semibold font-serif text-[#332522] hover:text-[#C6A16B] transition-colors line-clamp-1">
-              {product.name || 'Untitled Product'}
-            </h3>
-          </Link>
-          <p className="text-sm text-[#332522]/70 mt-1 line-clamp-2">{product.description || ''}</p>
+        <div className="flex items-center gap-1.5 mb-2 text-[11px]">
+          <Star className="w-3 h-3 fill-[#A18B70] text-[#A18B70]" />
+
+          <span className="font-medium text-[#38352F]">
+            {product.rating || 5.0}
+          </span>
+
+          <span className="text-[#999184]">
+            ({product.reviewsCount || 0} reviews)
+          </span>
         </div>
 
-        <div className="mt-4 flex items-center justify-between pt-3 border-t border-[#D9A6AB]/15">
-          <div className="flex items-baseline space-x-1.5">
-            <span className="text-lg font-bold text-[#332522]">₹{productPrice.toFixed(2)}</span>
-            {product.originalPrice && (
-              <span className="text-sm text-[#332522]/40 line-through">
-                ₹{Number(product.originalPrice).toFixed(2)}
+        <Link to={`/product/${product.id}`}>
+          <h3 className="font-serif text-lg sm:text-xl text-[#38352F] leading-snug transition-colors duration-300 group-hover:text-[#927B60] line-clamp-1">
+            {product.name || 'Untitled Product'}
+          </h3>
+        </Link>
+
+        <p className="mt-1.5 text-sm text-[#777064] leading-relaxed line-clamp-2">
+          {product.description || ''}
+        </p>
+
+        <div className="mt-auto flex items-center gap-3 pt-4">
+          <span className="text-base font-medium text-[#38352F]">
+            ₹{productPrice.toFixed(2)}
+          </span>
+
+          {Number.isFinite(originalPrice) &&
+            originalPrice > productPrice && (
+              <span className="text-sm text-[#9999184] line-through">
+                ₹{originalPrice.toFixed(2)}
               </span>
             )}
-          </div>
-
-          <button
-            onClick={() => isAvailable && onAddToCart && onAddToCart(product)}
-            disabled={!isAvailable}
-            className={`p-2.5 rounded-full transition-colors ${
-              isAvailable
-                ? 'bg-[#E8BFC3] text-[#332522] hover:bg-[#D9A6AB] cursor-pointer'
-                : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-            }`}
-            title={isAvailable ? 'Add to cart' : 'Out of stock'}
-          >
-            <ShoppingBag className="w-4 h-4" />
-          </button>
         </div>
+
+        <div className="mt-3 h-px w-full bg-[#D8D0C3] transition-colors duration-300 group-hover:bg-[#A18B70]" />
+
       </div>
-    </div>
+    </article>
   );
 };

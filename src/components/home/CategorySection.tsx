@@ -8,36 +8,62 @@ interface CategorySectionProps {
   categories: Category[];
 }
 
-export const CategorySection: React.FC<CategorySectionProps> = ({ categories }) => {
-  // Display categories configured for homepage
-  const homeCategories = categories.filter((c) => c.showOnHome !== false && c.isActive !== false);
+export const CategorySection: React.FC<CategorySectionProps> = ({
+  categories,
+}) => {
+  const homeCategories = categories.filter(
+    (category) =>
+      category.showOnHome !== false && category.isActive !== false
+  );
 
   return (
-    <section className="py-20 bg-[#FFF9F5] border-b border-[#D9A6AB]/20">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-12">
+    <section className="py-20 sm:py-24 bg-[#F7F4EE] border-b border-[#DED6C9]">
+      <div className="max-w-7xl mx-auto px-5 sm:px-8 lg:px-10">
+
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-12 gap-5">
           <div>
-            <span className="text-xs font-bold uppercase tracking-widest text-[#C6A16B]">Curated Collections</span>
-            <h2 className="text-3xl sm:text-4xl font-bold text-[#332522] font-serif mt-1">Shop By Category</h2>
-            <p className="text-sm text-[#332522]/70 mt-1 max-w-md">
-              Discover our signature lines crafted to bring elegance and functionality into your world.
+            <span className="text-[11px] font-medium uppercase tracking-[0.24em] text-[#927B60]">
+              Curated for your lifestyle
+            </span>
+
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-normal text-[#38352F] font-serif mt-3">
+              Shop by category
+            </h2>
+
+            <p className="text-sm sm:text-base text-[#777064] mt-3 max-w-lg leading-relaxed">
+              Thoughtfully selected pieces that bring natural beauty,
+              timeless character and effortless elegance into your everyday.
             </p>
           </div>
+
           <Link
             to="/shop"
-            className="mt-4 sm:mt-0 text-sm font-bold text-[#332522] hover:text-[#C6A16B] transition-colors flex items-center gap-1 group"
+            className="group inline-flex items-center gap-2 text-xs uppercase tracking-[0.16em] font-medium text-[#38352F] border-b border-[#A18B70] pb-2 hover:text-[#927B60] transition-colors"
           >
-            Explore All Categories
-            <ArrowUpRight className="w-4 h-4 text-[#C6A16B] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+            Explore all collections
+            <ArrowUpRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1 group-hover:-translate-y-1" />
           </Link>
         </div>
 
-        {/* Dynamic Category Grid rendering reusable CategoryCard components */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {homeCategories.map((category) => (
-            <CategoryCard key={category.id} category={category} />
-          ))}
-        </div>
+        {homeCategories.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 lg:gap-7">
+            {homeCategories.map((category) => (
+              <div
+                key={category.id}
+                className="group transition-transform duration-500 hover:-translate-y-1"
+              >
+                <CategoryCard category={category} />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="py-16 text-center border border-dashed border-[#CFC5B6]">
+            <p className="font-serif text-xl text-[#777064]">
+              Collections are coming soon.
+            </p>
+          </div>
+        )}
+
       </div>
     </section>
   );
