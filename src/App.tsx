@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   BrowserRouter as Router,
   Routes,
@@ -6,11 +6,12 @@ import {
   Navigate,
   useLocation,
 } from 'react-router-dom';
+import { AnimatePresence } from 'motion/react';
 
 import { AnnouncementBar } from './components/layout/AnnouncementBar';
 import { Header } from './components/layout/Header';
 import { Footer } from './components/layout/Footer';
-import { LoadingScreen } from './components/common/LoadingScreen';
+import { PageLoader } from './components/layout/PageLoader';
 
 import { HomePage } from './pages/HomePage';
 import { ShopPage } from './pages/ShopPage';
@@ -47,12 +48,17 @@ function InnerPage({ children }: InnerPageProps) {
 }
 
 export function App() {
+  const [showLoader, setShowLoader] = useState(true);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const [adminToken, setAdminToken] = useState<string | null>(
     localStorage.getItem('velqira_admin_token')
   );
+
+  const finishLoading = useCallback(() => {
+    setShowLoader(false);
+  }, []);
 
   const triggerToast = (msg: string) => {
     setToastMessage(msg);
@@ -117,7 +123,11 @@ export function App() {
   return (
     <Router>
       <ScrollToTop />
-      <LoadingScreen duration={2200} />
+      <AnimatePresence>
+        {showLoader && (
+          <PageLoader onComplete={finishLoading} />
+        )}
+      </AnimatePresence>
       <div className="min-h-screen flex flex-col font-sans text-[#332522] bg-[#FFF9F5] relative">
 
         <AnnouncementBar />
