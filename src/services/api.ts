@@ -15,20 +15,13 @@ const sanitizeCategories = (arr: any[]): Category[] => {
   return valid.length > 0 ? valid : [...mockCategories];
 };
 
-// Persistent storage helpers with automatic default recovery & dynamic merging
+// Persistent storage helpers with strict user state preservation
 const loadStoredProducts = (): Product[] => {
   try {
     const saved = localStorage.getItem('velqira_dynamic_products');
     if (saved !== null) {
       const parsed = JSON.parse(saved);
-      const valid = sanitizeProducts(parsed);
-      if (valid.length > 0) {
-        // Smart merge: Include user added/updated items + default catalog items
-        const missingDefaults = mockProducts.filter(
-          (mp) => !valid.some((p) => p.id === mp.id)
-        );
-        return [...valid, ...missingDefaults];
-      }
+      return sanitizeProducts(parsed);
     }
   } catch (e) {
     localStorage.removeItem('velqira_dynamic_products');
@@ -48,16 +41,9 @@ const saveStoredProducts = (products: Product[]) => {
 const loadStoredCategories = (): Category[] => {
   try {
     const saved = localStorage.getItem('velqira_dynamic_categories');
-    if (saved) {
+    if (saved !== null) {
       const parsed = JSON.parse(saved);
-      const valid = sanitizeCategories(parsed);
-      if (valid.length > 0) {
-        // Smart merge: Include user edited/added categories + default store categories
-        const missingDefaults = mockCategories.filter(
-          (mc) => !valid.some((c) => c.id === mc.id || c.slug === mc.slug)
-        );
-        return [...valid, ...missingDefaults];
-      }
+      return sanitizeCategories(parsed);
     }
   } catch (e) {
     localStorage.removeItem('velqira_dynamic_categories');
