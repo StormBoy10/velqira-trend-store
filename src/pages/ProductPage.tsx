@@ -5,6 +5,10 @@ import {
   ShoppingBag,
   ArrowLeft,
   Check,
+  X,
+  ZoomIn,
+  ZoomOut,
+  RotateCcw,
 } from 'lucide-react';
 
 import { getProductById } from '../services';
@@ -21,6 +25,8 @@ export const ProductPage: React.FC<ProductPageProps> = ({
 
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
+  const [imageOpen, setImageOpen] = useState(false);
+  const [imageZoom, setImageZoom] = useState(1);
 
   useEffect(() => {
     let cancelled = false;
@@ -56,6 +62,23 @@ export const ProductPage: React.FC<ProductPageProps> = ({
       cancelled = true;
     };
   }, [id]);
+
+  useEffect(() => {
+    if (!imageOpen) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setImageOpen(false);
+        setImageZoom(1);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [imageOpen]);
 
   if (loading) {
     return (
@@ -116,30 +139,28 @@ export const ProductPage: React.FC<ProductPageProps> = ({
         {/* Product layout */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 xl:gap-24 items-start">
 
-          {/* Product image */}
+          {/* Product image with zoom trigger */}
           <div className="min-w-0">
-            <div className="relative w-full aspect-[4/5] max-h-[950px] overflow-hidden bg-[#E8E1D5]">
+            <button
+              type="button"
+              onClick={() => {
+                setImageZoom(1);
+                setImageOpen(true);
+              }}
+              aria-label="View enlarged product image"
+              className="relative w-full aspect-[4/5] max-h-[950px] overflow-hidden bg-[#E8E1D5] cursor-zoom-in group"
+            >
               <img
-                src={
-                  product.image ||
-                  'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=1200&auto=format&fit=crop&q=85'
-                }
+                src={product.image}
                 alt={product.name}
-                className="w-full h-full object-cover object-center"
+                className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
               />
 
-              {product.isNew && (
-                <span className="absolute top-5 left-5 bg-[#F7F4EE] text-[#38352F] px-4 py-2 text-[9px] uppercase tracking-[0.18em]">
-                  New arrival
-                </span>
-              )}
-
-              {!isAvailable && (
-                <span className="absolute top-5 right-5 bg-[#38352F] text-[#F7F4EE] px-4 py-2 text-[9px] uppercase tracking-[0.18em]">
-                  Sold out
-                </span>
-              )}
-            </div>
+              <span className="absolute bottom-5 right-5 bg-[#F7F4EE]/95 text-[#38352F] px-4 py-3 flex items-center gap-2 text-[10px] uppercase tracking-[0.15em]">
+                <ZoomIn className="w-4 h-4" />
+                Click to enlarge
+              </span>
+            </button>
           </div>
 
           {/* Product information */}
@@ -250,6 +271,96 @@ export const ProductPage: React.FC<ProductPageProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Full-screen product image viewer */}
+      {imageOpen && (
+        <div
+          className="fixed inset-0 z-[10000] bg-[#171511]/95 flex items-center justify-center p-3 sm:p-8"
+          onClick={() => {
+            setImageOpen(false);
+            setImageZoom(1);
+          }}
+        >
+          {/* Close button */}
+          <button
+            type="button"
+            onClick={() => {
+              setImageOpen(false);
+              setImageZoom(1);
+            }}
+            aria-label="Close image viewer"
+            className="absolute top-5 right-5 z-20 w-11 h-11 rounded-full bg-white/10 text-white hover:bg-white/20 flex items-center justify-center transition-colors"
+          >
+            <X className="w-5 h-5" />
+          </button>
+
+          {/* Image area */}
+          <div
+            className="w-full h-full flex items-center justify-center overflow-auto"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <img
+              src={product.image}
+              alt={product.name}
+              onClick={() =>
+                setImageZoom((previous) =>
+                  previous >= 2.5 ? 1 : Math.min(previous + 0.5, 3)
+                )
+              }
+              style={{
+                transform: `scale(${imageZoom})`,
+                transformOrigin: 'center center',
+              }}
+              className="max-w-full max-h-full object-contain cursor-zoom-in transition-transform duration-300"
+            />
+          </div>
+
+          {/* Zoom controls */}
+          <div
+            className="absolute bottom-7 left-1/2 -translate-x-1/2 flex items-center gap-2 bg-[#F7F4EE] px-3 py-2 shadow-xl"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <button
+              type="button"
+              onClick={() =>
+                setImageZoom((previous) => Math.max(1, previous - 0.5))
+              }
+              disabled={imageZoom <= 1}
+              aria-label="Zoom out"
+              className="p-2 text-[#38352F] disabled:opacity-30 hover:bg-[#E8E1D5]"
+            >
+              <ZoomOut className="w-5 h-5" />
+            </button>
+
+            <span className="text-xs font-medium text-[#38352F] min-w-12 text-center">
+              {Math.round(imageZoom * 100)}%
+            </span>
+
+            <button
+              type="button"
+              onClick={() =>
+                setImageZoom((previous) => Math.min(3, previous + 0.5))
+              }
+              disabled={imageZoom >= 3}
+              aria-label="Zoom in"
+              className="p-2 text-[#38352F] disabled:opacity-30 hover:bg-[#E8E1D5]"
+            >
+              <ZoomIn className="w-5 h-5" />
+            </button>
+
+            <span className="w-px h-6 bg-[#D8D0C3]" />
+
+            <button
+              type="button"
+              onClick={() => setImageZoom(1)}
+              aria-label="Reset zoom"
+              className="p-2 text-[#38352F] hover:bg-[#E8E1D5]"
+            >
+              <RotateCcw className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
     </main>
   );
 };
