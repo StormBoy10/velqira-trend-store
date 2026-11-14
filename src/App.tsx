@@ -10,6 +10,7 @@ import {
 import { AnnouncementBar } from './components/layout/AnnouncementBar';
 import { Header } from './components/layout/Header';
 import { Footer } from './components/layout/Footer';
+import { LoadingScreen } from './components/common/LoadingScreen';
 
 import { HomePage } from './pages/HomePage';
 import { ShopPage } from './pages/ShopPage';
@@ -116,6 +117,7 @@ export function App() {
   return (
     <Router>
       <ScrollToTop />
+      <LoadingScreen duration={2200} />
       <div className="min-h-screen flex flex-col font-sans text-[#332522] bg-[#FFF9F5] relative">
 
         <AnnouncementBar />
