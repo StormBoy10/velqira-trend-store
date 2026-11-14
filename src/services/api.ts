@@ -15,13 +15,20 @@ const sanitizeCategories = (arr: any[]): Category[] => {
   return valid.length > 0 ? valid : [...mockCategories];
 };
 
-// Persistent storage helpers with strict object validation
+// Persistent storage helpers with automatic default recovery & dynamic merging
 const loadStoredProducts = (): Product[] => {
   try {
     const saved = localStorage.getItem('velqira_dynamic_products');
     if (saved !== null) {
       const parsed = JSON.parse(saved);
-      return sanitizeProducts(parsed);
+      const valid = sanitizeProducts(parsed);
+      if (valid.length > 0) {
+        // Smart merge: Include user added/updated items + default catalog items
+        const missingDefaults = mockProducts.filter(
+          (mp) => !valid.some((p) => p.id === mp.id)
+        );
+        return [...valid, ...missingDefaults];
+      }
     }
   } catch (e) {
     localStorage.removeItem('velqira_dynamic_products');
@@ -43,7 +50,14 @@ const loadStoredCategories = (): Category[] => {
     const saved = localStorage.getItem('velqira_dynamic_categories');
     if (saved) {
       const parsed = JSON.parse(saved);
-      return sanitizeCategories(parsed);
+      const valid = sanitizeCategories(parsed);
+      if (valid.length > 0) {
+        // Smart merge: Include user edited/added categories + default store categories
+        const missingDefaults = mockCategories.filter(
+          (mc) => !valid.some((c) => c.id === mc.id || c.slug === mc.slug)
+        );
+        return [...valid, ...missingDefaults];
+      }
     }
   } catch (e) {
     localStorage.removeItem('velqira_dynamic_categories');
@@ -105,7 +119,7 @@ export const fetchProductsFromAPI = async (category?: string): Promise<Product[]
     const res = await fetch(url);
     if (res.ok) {
       const data = await res.json();
-      if (data && Array.isArray(data.products)) {
+      if (data && Array.isArray(data.products) && data.products.length > 0) {
         dynamicProducts = sanitizeProducts(data.products);
         saveStoredProducts(dynamicProducts);
       }
@@ -348,18 +362,18 @@ export const fetchOrdersAPI = async (token?: string): Promise<any[]> => {
       {
         _id: 'ord-1001',
         user: { name: 'Sophia Miller', email: 'sophia@example.com' },
-        orderItems: [{ name: 'Silk Wrap Floral Midi Dress', quantity: 1, price: 135.0 }],
-        shippingAddress: { address: '742 Evergreen Terrace', city: 'Springfield', country: 'US' },
-        totalPrice: 135.0,
+        orderItems: [{ name: 'Silk Wrap Floral Midi Dress', quantity: 1, price: 2999.0 }],
+        shippingAddress: { address: '742 Evergreen Terrace', city: 'Springfield', country: 'IN' },
+        totalPrice: 2999.0,
         status: 'Processing',
         createdAt: '2025-02-05',
       },
       {
         _id: 'ord-1002',
         user: { name: 'Alexander Wright', email: 'alex@example.com' },
-        orderItems: [{ name: 'Rose Gold Rectangle Mesh Watch', quantity: 1, price: 145.0 }],
-        shippingAddress: { address: '10 Downing Street', city: 'London', country: 'UK' },
-        totalPrice: 145.0,
+        orderItems: [{ name: 'Rose Gold Rectangle Mesh Watch', quantity: 1, price: 3499.0 }],
+        shippingAddress: { address: '10 Downing Street', city: 'Mumbai', country: 'IN' },
+        totalPrice: 3499.0,
         status: 'Shipped',
         createdAt: '2025-02-04',
       },
