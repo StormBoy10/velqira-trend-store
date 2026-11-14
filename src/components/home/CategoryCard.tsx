@@ -5,12 +5,15 @@ import type { Category } from '../../types';
 
 interface CategoryCardProps {
   category: Category;
+  productCount?: number;
 }
 
 export const CategoryCard: React.FC<CategoryCardProps> = ({
   category,
+  productCount,
 }) => {
   const categorySlug = category.slug || category.id;
+  const count = productCount !== undefined ? productCount : (category.itemCount ?? 0);
 
   return (
     <Link
@@ -29,11 +32,9 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
 
       <div className="absolute inset-0 bg-gradient-to-t from-[#27241F]/80 via-[#27241F]/15 to-transparent transition-opacity duration-500 group-hover:from-[#27241F]/90" />
 
-      {category.itemCount !== undefined && (
-        <span className="absolute top-4 left-4 bg-[#F7F4EE]/95 text-[#38352F] px-3 py-1.5 text-[9px] uppercase tracking-[0.16em]">
-          {category.itemCount} products
-        </span>
-      )}
+      <span className="absolute top-4 left-4 bg-[#F7F4EE]/95 text-[#38352F] px-3 py-1.5 text-[9px] uppercase tracking-[0.16em] font-semibold">
+        {count} {count === 1 ? 'product' : 'products'}
+      </span>
 
       <div className="absolute top-4 right-4 flex items-center justify-center w-9 h-9 rounded-full border border-white/60 text-white group-hover:bg-[#F7F4EE] group-hover:text-[#38352F] transition-all duration-300">
         <ArrowUpRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />

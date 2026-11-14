@@ -1,23 +1,46 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowUpRight, Sparkles } from 'lucide-react';
-import { fetchCategoriesFromAPI } from '../services/api';
-import type { Category } from '../types';
+import { getCategories, getProducts } from '../services';
+import type { Category, Product } from '../types';
 
 export const CategoriesPage: React.FC = () => {
   const [categories, setCategories] = useState<Category[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
 
   useEffect(() => {
-    fetchCategoriesFromAPI()
+    getCategories()
       .then((data) => setCategories(Array.isArray(data) ? data : []))
       .catch((error) =>
         console.error('Failed to load categories:', error)
+      );
+
+    getProducts()
+      .then((data) => setProducts(Array.isArray(data) ? data : []))
+      .catch((error) =>
+        console.error('Failed to load products:', error)
       );
   }, []);
 
   const activeCategories = categories.filter(
     (category) => category && category.isActive !== false
   );
+
+  // Dynamically calculate accurate product count for any category
+  const getProductCount = (category: Category) => {
+    const slug = category.slug || category.id;
+    const catId = category.id;
+    return products.filter((p) => {
+      if (!p || !p.category) return false;
+      const pCat = p.category.toLowerCase();
+      return (
+        p.category === catId ||
+        p.category === slug ||
+        pCat === slug.toLowerCase() ||
+        pCat === catId.toLowerCase()
+      );
+    }).length;
+  };
 
   return (
     <main className="min-h-screen bg-[#F7F4EE] py-12 sm:py-16 lg:py-20">
@@ -67,6 +90,7 @@ export const CategoriesPage: React.FC = () => {
 
             {activeCategories.map((category, index) => {
               const slug = category.slug || category.id;
+              const count = getProductCount(category);
 
               return (
                 <article
@@ -90,11 +114,9 @@ export const CategoriesPage: React.FC = () => {
 
                       <div className="absolute inset-0 bg-gradient-to-t from-[#27241F]/75 via-transparent to-transparent opacity-80 group-hover:opacity-95 transition-opacity duration-500" />
 
-                      {category.itemCount !== undefined && (
-                        <span className="absolute top-4 left-4 bg-[#F7F4EE]/95 text-[#38352F] px-3 py-2 text-[9px] uppercase tracking-[0.15em]">
-                          {category.itemCount} products
-                        </span>
-                      )}
+                      <span className="absolute top-4 left-4 bg-[#F7F4EE]/95 text-[#38352F] px-3 py-2 text-[9px] uppercase tracking-[0.15em] font-semibold">
+                        {count} {count === 1 ? 'product' : 'products'}
+                      </span>
 
                       <span className="absolute top-4 right-4 text-white/90 text-xs font-serif">
                         {String(index + 1).padStart(2, '0')}
