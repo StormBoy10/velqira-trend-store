@@ -9,7 +9,7 @@ interface HeroSlide {
   wideImage?: string;
   alt: string;
   isGraphicBanner?: boolean;
-  bannerType?: 'silk-logo' | 'why-choose' | 'showcase' | 'editorial';
+  bannerType?: 'silk-logo' | 'why-choose' | 'showcase-3' | 'showcase-4' | 'editorial';
   bgColor?: string;
   tag?: string;
   title?: React.ReactNode;
@@ -18,7 +18,13 @@ interface HeroSlide {
   ctaLink?: string;
 }
 
-const showcaseItems = [
+const jewelleryShowcaseItems = [
+  { id: 'jewel-1', image: '/images/jewellery-necklace-1.jpg', name: 'Crystal Flower Pendant' },
+  { id: 'jewel-2', image: '/images/jewellery-necklace-2.jpg', name: 'Rainbow Gemstone Charm' },
+  { id: 'jewel-3', image: '/images/jewellery-necklace-3.jpg', name: 'Five Gemstones on Silk' },
+];
+
+const stickerShowcaseItems = [
   { id: 'item-1', image: '/images/korean-sticker-1.jpg', name: 'Purple Heart Ribbons' },
   { id: 'item-2', image: '/images/korean-sticker-2.jpg', name: 'Holo Black Hearts' },
   { id: 'item-3', image: '/images/korean-sticker-3.jpg', name: 'Kuromi Portable' },
@@ -52,8 +58,10 @@ const slides: HeroSlide[] = [
   },
   {
     id: 'artisanal-grace',
-    image: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=2000&auto=format&fit=crop&q=85',
-    alt: 'Velqira seasonal fashion collection',
+    image: '/images/hero-slide-3-showcase.jpg',
+    alt: 'Velqira Jewellery 3-Piece Atelier Showcase',
+    bannerType: 'showcase-3',
+    bgColor: '#171413',
     tag: 'THE VELQIRA COLLECTION — 2026',
     title: (
       <>
@@ -72,7 +80,7 @@ const slides: HeroSlide[] = [
     id: 'quiet-luxury',
     image: '/images/hero-slide-4-showcase.jpg',
     alt: 'Velqira 4-Item Atelier Showcase',
-    bannerType: 'showcase',
+    bannerType: 'showcase-4',
     bgColor: '#181514',
     tag: 'SIGNATURE ATELIER PIECES',
     title: (
@@ -121,7 +129,7 @@ export const Hero: React.FC = () => {
 
   const current = slides[activeSlide];
   const isLightBanner = current.isGraphicBanner;
-  const isShowcaseSlide = current.bannerType === 'showcase';
+  const isShowcaseSlide = current.bannerType === 'showcase-3' || current.bannerType === 'showcase-4';
 
   const handlePrev = () => {
     setActiveSlide((prev) => (prev === 0 ? slides.length - 1 : prev - 1));
@@ -193,7 +201,7 @@ export const Hero: React.FC = () => {
                 </picture>
               </Link>
             ) : isShowcaseSlide ? (
-              /* Slide 4: 4-Item Showcase Composite Background */
+              /* Slides 3 & 4: Multi-Item Showcase Composite Background */
               <motion.img
                 src={current.image}
                 alt={current.alt}
@@ -218,7 +226,7 @@ export const Hero: React.FC = () => {
 
         {/* Editorial gradient overlays */}
         {isShowcaseSlide ? (
-          /* Tailored shadow for Slide 4: Dark on left for text legibility, clear on right for items */
+          /* Tailored shadow for Showcase slides: Dark on left for text legibility, clear on right for items */
           <>
             <div className="absolute inset-0 bg-gradient-to-r from-[#141211]/95 via-[#141211]/70 to-transparent lg:w-[65%] pointer-events-none" />
             <div className="absolute inset-0 bg-gradient-to-t from-[#141211]/60 via-transparent to-[#141211]/30 pointer-events-none" />
@@ -272,7 +280,7 @@ export const Hero: React.FC = () => {
           </motion.div>
         </div>
       ) : isShowcaseSlide ? (
-        /* Slide 4: Exact Slide Text on Left + 4-Item Showcase on Right */
+        /* Slides 3 & 4: Exact Slide Text on Left + Item Showcase on Right */
         <div className="relative z-10 max-w-[1600px] mx-auto px-6 sm:px-10 lg:px-20 h-full min-h-[580px] flex items-center">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 xl:gap-12 w-full items-center">
             {/* Left Column: Exactly Same Text As In Slide */}
@@ -328,35 +336,67 @@ export const Hero: React.FC = () => {
               )}
             </motion.div>
 
-            {/* Right Column: 4-Item Interactive Cards Showcase on One Single Page */}
+            {/* Right Column: Multi-Item Interactive Showcase on One Single Page */}
             <div className="lg:col-span-6 xl:col-span-7 hidden lg:block">
-              <motion.div
-                initial={{ opacity: 0, x: 30 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.3, duration: 0.8 }}
-                className="grid grid-cols-4 gap-3.5 xl:gap-4 items-center"
-              >
-                {showcaseItems.map((item, idx) => (
-                  <Link
-                    key={item.id}
-                    to="/shop?category=korean-goodies"
-                    className={`group relative block aspect-[3/4] bg-[#221E1C] border border-[#A18B70]/30 shadow-2xl overflow-hidden transition-all duration-500 hover:-translate-y-2 hover:border-[#D8CBB8] ${
-                      idx % 2 === 1 ? 'translate-y-3' : '-translate-y-3'
-                    }`}
-                  >
-                    <img
-                      src={item.image}
-                      alt={item.name}
-                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-2.5">
-                      <span className="text-[9px] text-[#F7F4EE] font-medium tracking-wider uppercase leading-tight">
-                        {item.name}
-                      </span>
-                    </div>
-                  </Link>
-                ))}
-              </motion.div>
+              {current.bannerType === 'showcase-3' ? (
+                /* Slide 3: 3-Item Jewellery Showcase */
+                <motion.div
+                  initial={{ opacity: 0, x: 30 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.3, duration: 0.8 }}
+                  className="grid grid-cols-3 gap-4 xl:gap-5 items-center"
+                >
+                  {jewelleryShowcaseItems.map((item, idx) => (
+                    <Link
+                      key={item.id}
+                      to="/shop?category=jewellery-accessories"
+                      className={`group relative block aspect-[3/4] bg-[#221E1C] border border-[#A18B70]/30 shadow-2xl overflow-hidden transition-all duration-500 hover:-translate-y-2 hover:border-[#D8CBB8] ${
+                        idx === 1 ? 'translate-y-4' : '-translate-y-3'
+                      }`}
+                    >
+                      <img
+                        src={item.image}
+                        alt={item.name}
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-3">
+                        <span className="text-[10px] text-[#F7F4EE] font-medium tracking-wider uppercase leading-tight">
+                          {item.name}
+                        </span>
+                      </div>
+                    </Link>
+                  ))}
+                </motion.div>
+              ) : (
+                /* Slide 4: 4-Item Sticker Showcase */
+                <motion.div
+                  initial={{ opacity: 0, x: 30 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.3, duration: 0.8 }}
+                  className="grid grid-cols-4 gap-3.5 xl:gap-4 items-center"
+                >
+                  {stickerShowcaseItems.map((item, idx) => (
+                    <Link
+                      key={item.id}
+                      to="/shop?category=korean-goodies"
+                      className={`group relative block aspect-[3/4] bg-[#221E1C] border border-[#A18B70]/30 shadow-2xl overflow-hidden transition-all duration-500 hover:-translate-y-2 hover:border-[#D8CBB8] ${
+                        idx % 2 === 1 ? 'translate-y-3' : '-translate-y-3'
+                      }`}
+                    >
+                      <img
+                        src={item.image}
+                        alt={item.name}
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-2.5">
+                        <span className="text-[9px] text-[#F7F4EE] font-medium tracking-wider uppercase leading-tight">
+                          {item.name}
+                        </span>
+                      </div>
+                    </Link>
+                  ))}
+                </motion.div>
+              )}
             </div>
           </div>
         </div>
