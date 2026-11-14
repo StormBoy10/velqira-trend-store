@@ -31,6 +31,17 @@ export interface Category {
   createdAt?: string;
 }
 
+export interface HeroSlide {
+  id: string;
+  image: string;
+  badgeText?: string;
+  title: string;
+  subtitle?: string;
+  buttonText?: string;
+  buttonLink?: string;
+  isActive?: boolean;
+}
+
 export interface CartItem {
   product: Product;
   quantity: number;

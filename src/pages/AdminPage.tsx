@@ -18,11 +18,14 @@ import {
   Search,
   Image as ImageIcon,
   Edit3,
-  X
+  X,
+  Sliders
 } from 'lucide-react';
 import {
   fetchProductsFromAPI,
   fetchCategoriesFromAPI,
+  fetchHeroSlidesFromAPI,
+  saveHeroSlidesAPI,
   createProductAPI,
   updateProductAPI,
   deleteProductAPI,
@@ -32,19 +35,21 @@ import {
   fetchOrdersAPI
 } from '../services/api';
 import { accessorySubCategories } from '../services';
-import type { Product, Category } from '../types';
+import type { Product, Category, HeroSlide } from '../types';
 
 export const AdminPage: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [heroSlides, setHeroSlides] = useState<HeroSlide[]>([]);
   const [orders, setOrders] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeSection, setActiveSection] = useState<
-    'dashboard' | 'products' | 'categories' | 'add-category' | 'edit-category' | 'add-product' | 'edit-product' | 'orders' | 'customers' | 'settings'
+    'dashboard' | 'products' | 'categories' | 'add-category' | 'edit-category' | 'add-product' | 'edit-product' | 'slideshow' | 'add-slide' | 'edit-slide' | 'orders' | 'customers' | 'settings'
   >('dashboard');
 
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+  const [editingSlide, setEditingSlide] = useState<HeroSlide | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const token = localStorage.getItem('velqira_admin_token') || undefined;
 
@@ -73,13 +78,26 @@ export const AdminPage: React.FC = () => {
     isNew: true,
   });
 
+  // Form State for Hero Slideshow Management
+  const [slideForm, setSlideForm] = useState({
+    image: '',
+    badgeText: '',
+    title: '',
+    subtitle: '',
+    buttonText: 'Discover The Collection',
+    buttonLink: '/shop',
+    isActive: true,
+  });
+
   const loadAllData = async () => {
     const fetchedProducts = await fetchProductsFromAPI();
     const fetchedCategories = await fetchCategoriesFromAPI();
+    const fetchedSlides = await fetchHeroSlidesFromAPI();
     const fetchedOrders = await fetchOrdersAPI(token);
 
     setProducts(fetchedProducts);
     setCategories(fetchedCategories);
+    setHeroSlides(fetchedSlides);
     setOrders(fetchedOrders);
   };
 
@@ -189,6 +207,100 @@ export const AdminPage: React.FC = () => {
       sortOrder: 1,
     });
     setActiveSection('categories');
+  };
+
+  // --- HERO SLIDESHOW MANAGEMENT HANDLERS ---
+  const handleSaveHeroSlide = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const newSlide: HeroSlide = {
+      id: `slide-${Date.now()}`,
+      image: slideForm.image || '/images/NEW HEROS.jpg',
+      badgeText: slideForm.badgeText || 'THE VELQIRA COLLECTION — 2026',
+      title: slideForm.title || 'Artisanal Grace.\nModern Elegance.',
+      subtitle: slideForm.subtitle || 'Discover handpicked collections designed for refined living.',
+      buttonText: slideForm.buttonText || 'Discover The Collection',
+      buttonLink: slideForm.buttonLink || '/shop',
+      isActive: slideForm.isActive,
+    };
+
+    const updatedSlides = [newSlide, ...heroSlides];
+    setHeroSlides(updatedSlides);
+    await saveHeroSlidesAPI(updatedSlides, token);
+
+    setSuccessMessage('New homepage background slide added successfully!');
+    setTimeout(() => setSuccessMessage(null), 4000);
+
+    setSlideForm({
+      image: '',
+      badgeText: '',
+      title: '',
+      subtitle: '',
+      buttonText: 'Discover The Collection',
+      buttonLink: '/shop',
+      isActive: true,
+    });
+    setActiveSection('slideshow');
+  };
+
+  const handleOpenEditSlide = (slide: HeroSlide) => {
+    setEditingSlide(slide);
+    setSlideForm({
+      image: slide.image,
+      badgeText: slide.badgeText || '',
+      title: slide.title,
+      subtitle: slide.subtitle || '',
+      buttonText: slide.buttonText || 'Discover The Collection',
+      buttonLink: slide.buttonLink || '/shop',
+      isActive: slide.isActive !== false,
+    });
+    setActiveSection('edit-slide');
+  };
+
+  const handleUpdateSlideSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingSlide) return;
+
+    const updatedSlides = heroSlides.map((s) =>
+      s.id === editingSlide.id
+        ? {
+            ...s,
+            image: slideForm.image,
+            badgeText: slideForm.badgeText,
+            title: slideForm.title,
+            subtitle: slideForm.subtitle,
+            buttonText: slideForm.buttonText,
+            buttonLink: slideForm.buttonLink,
+            isActive: slideForm.isActive,
+          }
+        : s
+    );
+
+    setHeroSlides(updatedSlides);
+    await saveHeroSlidesAPI(updatedSlides, token);
+
+    setSuccessMessage('Homepage background slide updated!');
+    setTimeout(() => setSuccessMessage(null), 4000);
+
+    setEditingSlide(null);
+    setSlideForm({
+      image: '',
+      badgeText: '',
+      title: '',
+      subtitle: '',
+      buttonText: 'Discover The Collection',
+      buttonLink: '/shop',
+      isActive: true,
+    });
+    setActiveSection('slideshow');
+  };
+
+  const handleDeleteSlide = async (id: string) => {
+    const updatedSlides = heroSlides.filter((s) => s.id !== id);
+    setHeroSlides(updatedSlides);
+    await saveHeroSlidesAPI(updatedSlides, token);
+    setSuccessMessage('Homepage slide removed.');
+    setTimeout(() => setSuccessMessage(null), 3000);
   };
 
   // Submit Add Product Handler
@@ -341,6 +453,18 @@ export const AdminPage: React.FC = () => {
             </button>
 
             <button
+              onClick={() => setActiveSection('slideshow')}
+              className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-colors ${
+                activeSection === 'slideshow' || activeSection === 'add-slide' || activeSection === 'edit-slide'
+                  ? 'bg-[#E8BFC3] text-[#332522] font-bold'
+                  : 'text-[#FFF9F5]/80 hover:bg-[#FFF9F5]/10 hover:text-[#E8BFC3]'
+              }`}
+            >
+              <Sliders className="w-4 h-4" />
+              <span>Hero Slides ({heroSlides.length})</span>
+            </button>
+
+            <button
               onClick={() => setActiveSection('products')}
               className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-colors ${
                 activeSection === 'products' || activeSection === 'add-product' || activeSection === 'edit-product'
@@ -430,6 +554,16 @@ export const AdminPage: React.FC = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               <div className="bg-white p-6 rounded-2xl border border-[#D9A6AB]/30 shadow-xs flex items-center space-x-4">
                 <div className="p-3.5 bg-[#FFF9F5] text-[#C6A16B] rounded-xl border border-[#C6A16B]/30">
+                  <Sliders className="w-6 h-6" />
+                </div>
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-wider text-[#332522]/60">Hero Slides</p>
+                  <p className="text-2xl font-bold font-serif text-[#332522]">{heroSlides.length}</p>
+                </div>
+              </div>
+
+              <div className="bg-white p-6 rounded-2xl border border-[#D9A6AB]/30 shadow-xs flex items-center space-x-4">
+                <div className="p-3.5 bg-[#FFF9F5] text-[#C6A16B] rounded-xl border border-[#C6A16B]/30">
                   <Package className="w-6 h-6" />
                 </div>
                 <div>
@@ -450,16 +584,6 @@ export const AdminPage: React.FC = () => {
 
               <div className="bg-white p-6 rounded-2xl border border-[#D9A6AB]/30 shadow-xs flex items-center space-x-4">
                 <div className="p-3.5 bg-[#FFF9F5] text-[#C6A16B] rounded-xl border border-[#C6A16B]/30">
-                  <ShoppingCart className="w-6 h-6" />
-                </div>
-                <div>
-                  <p className="text-xs font-bold uppercase tracking-wider text-[#332522]/60">Orders</p>
-                  <p className="text-2xl font-bold font-serif text-[#332522]">{orders.length}</p>
-                </div>
-              </div>
-
-              <div className="bg-white p-6 rounded-2xl border border-[#D9A6AB]/30 shadow-xs flex items-center space-x-4">
-                <div className="p-3.5 bg-[#FFF9F5] text-[#C6A16B] rounded-xl border border-[#C6A16B]/30">
                   <DollarSign className="w-6 h-6" />
                 </div>
                 <div>
@@ -474,6 +598,12 @@ export const AdminPage: React.FC = () => {
               <h2 className="text-xl font-bold font-serif text-[#332522] mb-4">Quick Admin Controls</h2>
               <div className="flex flex-wrap gap-4">
                 <button
+                  onClick={() => setActiveSection('add-slide')}
+                  className="bg-[#C6A16B] text-[#332522] px-6 py-3 rounded-xl font-bold text-sm hover:bg-[#E8BFC3] transition-colors shadow-sm"
+                >
+                  + Add New Hero Background Slide
+                </button>
+                <button
                   onClick={() => setActiveSection('add-category')}
                   className="bg-[#E8BFC3] text-[#332522] px-6 py-3 rounded-xl font-bold text-sm hover:bg-[#D9A6AB] transition-colors"
                 >
@@ -485,12 +615,314 @@ export const AdminPage: React.FC = () => {
                 >
                   + Add Product
                 </button>
-                <button
-                  onClick={() => setActiveSection('orders')}
-                  className="border border-[#D9A6AB]/50 text-[#332522] px-6 py-3 rounded-xl font-bold text-sm hover:bg-[#FFF9F5] transition-colors"
-                >
-                  View Orders
-                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* SECTION: HERO SLIDESHOW MANAGEMENT */}
+        {(activeSection === 'slideshow' || activeSection === 'add-slide' || activeSection === 'edit-slide') && (
+          <div className="max-w-5xl mx-auto space-y-8">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <div>
+                <span className="text-xs font-bold uppercase tracking-widest text-[#C6A16B]">Homepage Customization</span>
+                <h1 className="text-3xl font-bold font-serif text-[#332522] mt-1">Hero Background Slideshow Manager</h1>
+              </div>
+              <button
+                onClick={() => setActiveSection('add-slide')}
+                className="inline-flex items-center space-x-2 bg-[#E8BFC3] text-[#332522] px-5 py-2.5 rounded-xl font-bold hover:bg-[#D9A6AB] transition-colors shadow-xs cursor-pointer"
+              >
+                <Plus className="w-4 h-4" />
+                <span>+ Add New Hero Slide</span>
+              </button>
+            </div>
+
+            {/* FORM: ADD HERO SLIDE */}
+            {activeSection === 'add-slide' && (
+              <div className="bg-white p-6 sm:p-8 rounded-3xl border border-[#D9A6AB]/30 shadow-md">
+                <div className="border-b border-[#D9A6AB]/20 pb-4 mb-6 flex justify-between items-center">
+                  <h2 className="text-xl font-bold font-serif text-[#332522] flex items-center gap-2">
+                    <Sliders className="w-5 h-5 text-[#C6A16B]" /> Add New Homepage Background Slide
+                  </h2>
+                  <button onClick={() => setActiveSection('slideshow')} className="text-xs font-bold text-[#332522]/60 hover:text-[#332522]">
+                    Cancel & Return
+                  </button>
+                </div>
+
+                <form onSubmit={handleSaveHeroSlide} className="space-y-5">
+                  <div>
+                    <label className="block text-xs font-bold text-[#332522] uppercase tracking-wider mb-1">
+                      Background Image Link (URL or local path e.g. /images/NEW HEROS.jpg)
+                    </label>
+                    <div className="flex gap-4 items-start">
+                      <input
+                        type="text"
+                        required
+                        placeholder="https://images.unsplash.com/... or /images/your-banner.jpg"
+                        value={slideForm.image}
+                        onChange={(e) => setSlideForm({ ...slideForm, image: e.target.value })}
+                        className="flex-1 bg-[#FFF9F5] text-[#332522] text-sm px-4 py-3 rounded-xl border border-[#D9A6AB]/40 font-mono"
+                      />
+                      {slideForm.image && (
+                        <div className="w-20 h-20 rounded-xl overflow-hidden border border-[#C6A16B] shrink-0 bg-[#FFF9F5]">
+                          <img src={slideForm.image} alt="Slide Preview" className="w-full h-full object-cover" />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <div>
+                      <label className="block text-xs font-bold text-[#332522] uppercase tracking-wider mb-1">Badge Text (Top Label):</label>
+                      <input
+                        type="text"
+                        placeholder="e.g. THE VELQIRA COLLECTION — 2026"
+                        value={slideForm.badgeText}
+                        onChange={(e) => setSlideForm({ ...slideForm, badgeText: e.target.value })}
+                        className="w-full bg-[#FFF9F5] text-[#332522] text-sm px-4 py-3 rounded-xl border border-[#D9A6AB]/40 font-semibold"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-[#332522] uppercase tracking-wider mb-1">Button CTA Text:</label>
+                      <input
+                        type="text"
+                        placeholder="e.g. Discover The Collection"
+                        value={slideForm.buttonText}
+                        onChange={(e) => setSlideForm({ ...slideForm, buttonText: e.target.value })}
+                        className="w-full bg-[#FFF9F5] text-[#332522] text-sm px-4 py-3 rounded-xl border border-[#D9A6AB]/40 font-semibold"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-[#332522] uppercase tracking-wider mb-1">Main Headline Title:</label>
+                    <input
+                      type="text"
+                      required
+                      placeholder="e.g. Artisanal Grace. Modern Elegance."
+                      value={slideForm.title}
+                      onChange={(e) => setSlideForm({ ...slideForm, title: e.target.value })}
+                      className="w-full bg-[#FFF9F5] text-[#332522] text-sm px-4 py-3 rounded-xl border border-[#D9A6AB]/40 font-serif font-bold"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-[#332522] uppercase tracking-wider mb-1">Subtitle / Description:</label>
+                    <textarea
+                      rows={2}
+                      placeholder="e.g. Discover handpicked collections designed for refined living..."
+                      value={slideForm.subtitle}
+                      onChange={(e) => setSlideForm({ ...slideForm, subtitle: e.target.value })}
+                      className="w-full bg-[#FFF9F5] text-[#332522] text-sm px-4 py-3 rounded-xl border border-[#D9A6AB]/40"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <div>
+                      <label className="block text-xs font-bold text-[#332522] uppercase tracking-wider mb-1">Button Link Target:</label>
+                      <input
+                        type="text"
+                        placeholder="/shop or /categories"
+                        value={slideForm.buttonLink}
+                        onChange={(e) => setSlideForm({ ...slideForm, buttonLink: e.target.value })}
+                        className="w-full bg-[#FFF9F5] text-[#332522] text-sm px-4 py-3 rounded-xl border border-[#D9A6AB]/40 font-mono"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-[#332522] uppercase tracking-wider mb-1">Slide Active Status:</label>
+                      <select
+                        value={slideForm.isActive ? 'active' : 'inactive'}
+                        onChange={(e) => setSlideForm({ ...slideForm, isActive: e.target.value === 'active' })}
+                        className="w-full bg-[#FFF9F5] text-[#332522] text-sm px-4 py-3 rounded-xl border border-[#D9A6AB]/40 font-semibold"
+                      >
+                        <option value="active">Active (Visible in Hero)</option>
+                        <option value="inactive">Inactive (Hidden)</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <button type="submit" className="w-full mt-6 bg-[#332522] text-[#FFF9F5] py-4 rounded-xl font-bold hover:bg-black transition-colors shadow-md text-base">
+                    Save New Hero Slide
+                  </button>
+                </form>
+              </div>
+            )}
+
+            {/* FORM: EDIT HERO SLIDE */}
+            {activeSection === 'edit-slide' && editingSlide && (
+              <div className="bg-white p-6 sm:p-8 rounded-3xl border-2 border-[#C6A16B] shadow-xl relative">
+                <div className="border-b border-[#D9A6AB]/20 pb-4 mb-6 flex justify-between items-center">
+                  <h2 className="text-xl font-bold font-serif text-[#332522] flex items-center gap-2">
+                    <Edit3 className="w-5 h-5 text-[#C6A16B]" /> Edit Hero Slide: <span className="text-[#C6A16B]">{editingSlide.title}</span>
+                  </h2>
+                  <button
+                    onClick={() => {
+                      setEditingSlide(null);
+                      setActiveSection('slideshow');
+                    }}
+                    className="p-1 text-[#332522]/60 hover:text-[#332522]"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+
+                <form onSubmit={handleUpdateSlideSubmit} className="space-y-5">
+                  <div>
+                    <label className="block text-xs font-bold text-[#332522] uppercase tracking-wider mb-1">Background Image URL:</label>
+                    <div className="flex gap-4 items-start">
+                      <input
+                        type="text"
+                        required
+                        value={slideForm.image}
+                        onChange={(e) => setSlideForm({ ...slideForm, image: e.target.value })}
+                        className="flex-1 bg-[#FFF9F5] text-[#332522] text-sm px-4 py-3 rounded-xl border border-[#D9A6AB]/40 font-mono"
+                      />
+                      {slideForm.image && (
+                        <div className="w-20 h-20 rounded-xl overflow-hidden border border-[#C6A16B] shrink-0 bg-[#FFF9F5]">
+                          <img src={slideForm.image} alt="Slide Preview" className="w-full h-full object-cover" />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <div>
+                      <label className="block text-xs font-bold text-[#332522] uppercase tracking-wider mb-1">Badge Text:</label>
+                      <input
+                        type="text"
+                        value={slideForm.badgeText}
+                        onChange={(e) => setSlideForm({ ...slideForm, badgeText: e.target.value })}
+                        className="w-full bg-[#FFF9F5] text-[#332522] text-sm px-4 py-3 rounded-xl border border-[#D9A6AB]/40 font-semibold"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-[#332522] uppercase tracking-wider mb-1">Button CTA Text:</label>
+                      <input
+                        type="text"
+                        value={slideForm.buttonText}
+                        onChange={(e) => setSlideForm({ ...slideForm, buttonText: e.target.value })}
+                        className="w-full bg-[#FFF9F5] text-[#332522] text-sm px-4 py-3 rounded-xl border border-[#D9A6AB]/40 font-semibold"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-[#332522] uppercase tracking-wider mb-1">Main Headline Title:</label>
+                    <input
+                      type="text"
+                      required
+                      value={slideForm.title}
+                      onChange={(e) => setSlideForm({ ...slideForm, title: e.target.value })}
+                      className="w-full bg-[#FFF9F5] text-[#332522] text-sm px-4 py-3 rounded-xl border border-[#D9A6AB]/40 font-serif font-bold"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-[#332522] uppercase tracking-wider mb-1">Subtitle / Description:</label>
+                    <textarea
+                      rows={2}
+                      value={slideForm.subtitle}
+                      onChange={(e) => setSlideForm({ ...slideForm, subtitle: e.target.value })}
+                      className="w-full bg-[#FFF9F5] text-[#332522] text-sm px-4 py-3 rounded-xl border border-[#D9A6AB]/40"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <div>
+                      <label className="block text-xs font-bold text-[#332522] uppercase tracking-wider mb-1">Button Link Target:</label>
+                      <input
+                        type="text"
+                        value={slideForm.buttonLink}
+                        onChange={(e) => setSlideForm({ ...slideForm, buttonLink: e.target.value })}
+                        className="w-full bg-[#FFF9F5] text-[#332522] text-sm px-4 py-3 rounded-xl border border-[#D9A6AB]/40 font-mono"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-[#332522] uppercase tracking-wider mb-1">Slide Active Status:</label>
+                      <select
+                        value={slideForm.isActive ? 'active' : 'inactive'}
+                        onChange={(e) => setSlideForm({ ...slideForm, isActive: e.target.value === 'active' })}
+                        className="w-full bg-[#FFF9F5] text-[#332522] text-sm px-4 py-3 rounded-xl border border-[#D9A6AB]/40 font-semibold"
+                      >
+                        <option value="active">Active (Visible in Hero)</option>
+                        <option value="inactive">Inactive (Hidden)</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-4 pt-4 border-t border-[#D9A6AB]/20">
+                    <button
+                      type="submit"
+                      className="flex-1 bg-[#C6A16B] text-[#332522] py-3.5 rounded-xl font-bold hover:bg-[#E8BFC3] transition-colors shadow-md text-base"
+                    >
+                      Update Slide Details
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEditingSlide(null);
+                        setActiveSection('slideshow');
+                      }}
+                      className="px-6 py-3.5 rounded-xl border border-[#D9A6AB]/50 font-bold text-sm text-[#332522] hover:bg-[#FFF9F5]"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </form>
+              </div>
+            )}
+
+            {/* List of Active & Custom Hero Slides */}
+            <div className="bg-white p-6 sm:p-8 rounded-3xl border border-[#D9A6AB]/30 shadow-xs">
+              <h2 className="text-xl font-bold font-serif text-[#332522] mb-6">Active Homepage Hero Slides ({heroSlides.length})</h2>
+              <div className="space-y-4">
+                {heroSlides.map((slide, index) => (
+                  <div key={slide.id} className="border border-[#D9A6AB]/30 rounded-2xl p-4 bg-[#FFF9F5] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div className="flex items-center space-x-4 min-w-0">
+                      <div className="w-24 h-16 rounded-xl overflow-hidden border border-[#D9A6AB]/40 shrink-0 relative bg-black">
+                        <img src={slide.image} alt="Slide Preview" className="w-full h-full object-cover" />
+                        <span className="absolute top-1 left-1 bg-black/70 text-white text-[9px] font-mono px-1.5 py-0.5 rounded">
+                          0{index + 1}
+                        </span>
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-[10px] font-bold text-[#C6A16B] uppercase tracking-wider">{slide.badgeText || 'THE VELQIRA COLLECTION'}</p>
+                        <h3 className="font-bold font-serif text-base text-[#332522] truncate">{slide.title}</h3>
+                        <p className="text-xs text-[#332522]/70 truncate max-w-md">{slide.subtitle}</p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center space-x-3 shrink-0 self-end sm:self-center">
+                      {slide.isActive !== false ? (
+                        <span className="text-emerald-700 font-bold bg-emerald-50 px-2.5 py-1 rounded-md text-xs border border-emerald-200">
+                          Active
+                        </span>
+                      ) : (
+                        <span className="text-red-700 font-bold bg-red-50 px-2.5 py-1 rounded-md text-xs border border-red-200">
+                          Inactive
+                        </span>
+                      )}
+
+                      <button
+                        onClick={() => handleOpenEditSlide(slide)}
+                        className="p-2 text-[#C6A16B] hover:text-[#332522] hover:bg-[#FFF9F5] rounded-xl transition-colors font-bold text-xs flex items-center gap-1"
+                        title="Edit Slide"
+                      >
+                        <Edit3 className="w-4 h-4" /> Edit
+                      </button>
+
+                      <button
+                        onClick={() => handleDeleteSlide(slide.id)}
+                        className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-xl transition-colors"
+                        title="Delete Slide"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           </div>

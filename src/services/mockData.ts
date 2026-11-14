@@ -1,4 +1,4 @@
-import type { Product, Category } from '../types';
+import type { Product, Category, HeroSlide } from '../types';
 
 export const accessorySubCategories = [
   'Sunglasses',
@@ -37,6 +37,39 @@ export const homeDecorSubCategories = [
   'Vases & Flowers',
   'Decorative Trays',
   'Showpieces',
+];
+
+export const defaultHeroSlides: HeroSlide[] = [
+  {
+    id: 'slide-1',
+    image: '/images/NEW HEROS.jpg',
+    badgeText: 'THE VELQIRA COLLECTION — 2026',
+    title: 'Artisanal Grace.\nModern Elegance.',
+    subtitle: 'Discover thoughtfully curated pieces inspired by natural beauty, timeless design and effortless style.',
+    buttonText: 'Discover The Collection',
+    buttonLink: '/shop',
+    isActive: true,
+  },
+  {
+    id: 'slide-2',
+    image: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=2000&auto=format&fit=crop&q=85',
+    badgeText: 'NEW SEASONAL ARRIVALS',
+    title: 'Timeless Beauty.\nRefined Craft.',
+    subtitle: 'Elevate your aesthetic with handpicked boutique dresses, jewellery, decor and Korean goodies.',
+    buttonText: 'Explore New Arrivals',
+    buttonLink: '/shop?filter=new',
+    isActive: true,
+  },
+  {
+    id: 'slide-3',
+    image: 'https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=2000&auto=format&fit=crop&q=85',
+    badgeText: 'CURATED LUXE ESSENTIALS',
+    title: 'Quiet Luxury.\nWarm Minimalist Living.',
+    subtitle: 'Sourced exclusively from ethical artisans for lasting quality and quiet elegance.',
+    buttonText: 'View Collections',
+    buttonLink: '/categories',
+    isActive: true,
+  },
 ];
 
 export const mockCategories: Category[] = [

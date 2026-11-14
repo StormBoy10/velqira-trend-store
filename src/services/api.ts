@@ -1,5 +1,5 @@
-import type { Product, Category } from '../types';
-import { mockProducts, mockCategories } from './mockData';
+import type { Product, Category, HeroSlide } from '../types';
+import { mockProducts, mockCategories, defaultHeroSlides } from './mockData';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
@@ -15,7 +15,13 @@ const sanitizeCategories = (arr: any[]): Category[] => {
   return valid.length > 0 ? valid : [...mockCategories];
 };
 
-// Persistent storage helpers with strict user state preservation
+const sanitizeHeroSlides = (arr: any[]): HeroSlide[] => {
+  if (!Array.isArray(arr)) return [...defaultHeroSlides];
+  const valid = arr.filter((s) => s && typeof s === 'object' && s.image && s.title);
+  return valid.length > 0 ? valid : [...defaultHeroSlides];
+};
+
+// Persistent storage helpers
 const loadStoredProducts = (): Product[] => {
   try {
     const saved = localStorage.getItem('velqira_dynamic_products');
@@ -60,9 +66,32 @@ const saveStoredCategories = (categories: Category[]) => {
   } catch (e) {}
 };
 
+const loadStoredHeroSlides = (): HeroSlide[] => {
+  try {
+    const saved = localStorage.getItem('velqira_dynamic_hero_slides');
+    if (saved !== null) {
+      const parsed = JSON.parse(saved);
+      return sanitizeHeroSlides(parsed);
+    }
+  } catch (e) {
+    localStorage.removeItem('velqira_dynamic_hero_slides');
+  }
+  return [...defaultHeroSlides];
+};
+
+const saveStoredHeroSlides = (slides: HeroSlide[]) => {
+  try {
+    if (Array.isArray(slides)) {
+      const valid = sanitizeHeroSlides(slides);
+      localStorage.setItem('velqira_dynamic_hero_slides', JSON.stringify(valid));
+    }
+  } catch (e) {}
+};
+
 // Live in-memory cache synchronized with LocalStorage & Real-Time API
 let dynamicProducts: Product[] = loadStoredProducts();
 let dynamicCategories: Category[] = loadStoredCategories();
+let dynamicHeroSlides: HeroSlide[] = loadStoredHeroSlides();
 
 // Real-time Server-Sent Events (SSE) live updates listener
 export const initLiveStream = (onUpdate?: () => void) => {
@@ -86,6 +115,39 @@ export const initLiveStream = (onUpdate?: () => void) => {
   } catch (err) {
     return () => {};
   }
+};
+
+// --- HERO SLIDES API ---
+export const fetchHeroSlidesFromAPI = async (): Promise<HeroSlide[]> => {
+  try {
+    const res = await fetch(`${API_BASE_URL}/hero-slides`);
+    if (res.ok) {
+      const data = await res.json();
+      if (data && Array.isArray(data.slides) && data.slides.length > 0) {
+        dynamicHeroSlides = sanitizeHeroSlides(data.slides);
+        saveStoredHeroSlides(dynamicHeroSlides);
+      }
+    }
+  } catch (err) {}
+  return dynamicHeroSlides;
+};
+
+export const saveHeroSlidesAPI = async (slides: HeroSlide[], token?: string): Promise<HeroSlide[]> => {
+  dynamicHeroSlides = sanitizeHeroSlides(slides);
+  saveStoredHeroSlides(dynamicHeroSlides);
+
+  try {
+    await fetch(`${API_BASE_URL}/hero-slides`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: JSON.stringify({ slides }),
+    });
+  } catch (err) {}
+
+  return dynamicHeroSlides;
 };
 
 // Clear all default products helper
