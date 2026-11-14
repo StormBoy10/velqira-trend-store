@@ -6,12 +6,13 @@ import {
   Navigate,
   useLocation,
 } from 'react-router-dom';
-import { AnimatePresence } from 'motion/react';
+import { AnimatePresence, motion } from 'motion/react';
 
 import { AnnouncementBar } from './components/layout/AnnouncementBar';
 import { Header } from './components/layout/Header';
 import { Footer } from './components/layout/Footer';
 import { PageLoader } from './components/layout/PageLoader';
+import { CartDrawer } from './components/cart/CartDrawer';
 
 import { HomePage } from './pages/HomePage';
 import { ShopPage } from './pages/ShopPage';
@@ -50,6 +51,7 @@ function InnerPage({ children }: InnerPageProps) {
 export function App() {
   const [showLoader, setShowLoader] = useState(true);
   const [cart, setCart] = useState<CartItem[]>([]);
+  const [isCartDrawerOpen, setIsCartDrawerOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const [adminToken, setAdminToken] = useState<string | null>(
@@ -82,7 +84,9 @@ export function App() {
       return [...prev, { product, quantity: 1 }];
     });
 
-    triggerToast(`Added "${product.name}" to cart!`);
+    // Automatically slide out the luxury cart drawer on adding an item
+    setIsCartDrawerOpen(true);
+    triggerToast(`Added "${product.name}" to bag`);
   };
 
   const handleUpdateQuantity = (productId: string, delta: number) => {
@@ -108,7 +112,7 @@ export function App() {
       prev.filter((item) => item.product.id !== productId)
     );
 
-    triggerToast('Item removed from cart.');
+    triggerToast('Item removed from bag');
   };
 
   const handleClearCart = () => {
@@ -128,32 +132,49 @@ export function App() {
           <PageLoader onComplete={finishLoading} />
         )}
       </AnimatePresence>
-      <div className="min-h-screen flex flex-col font-sans text-[#332522] bg-[#FFF9F5] relative">
 
+      <div className="min-h-screen flex flex-col font-sans text-[#38352F] bg-[#F7F4EE] relative">
         <AnnouncementBar />
 
-        <Header cartCount={totalCartCount} />
+        <Header
+          cartCount={totalCartCount}
+          onOpenCart={() => setIsCartDrawerOpen(true)}
+        />
 
-        {/* Toast Notification */}
-        {toastMessage && (
-          <div className="fixed bottom-6 right-6 z-50 bg-[#332522] text-[#FFF9F5] px-5 py-3 rounded-xl shadow-2xl border border-[#C6A16B]/40 text-sm font-semibold flex items-center space-x-2 animate-bounce">
-            <span className="text-[#C6A16B]">✦</span>
-            <span>{toastMessage}</span>
-          </div>
-        )}
+        {/* Slide-over Luxury Cart Drawer */}
+        <CartDrawer
+          isOpen={isCartDrawerOpen}
+          onClose={() => setIsCartDrawerOpen(false)}
+          cart={cart}
+          onUpdateQuantity={handleUpdateQuantity}
+          onRemoveItem={handleRemoveItem}
+        />
+
+        {/* Refined Toast Notification */}
+        <AnimatePresence>
+          {toastMessage && (
+            <motion.div
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 10 }}
+              transition={{ duration: 0.25 }}
+              className="fixed bottom-6 right-6 z-50 bg-[#38352F] text-[#F7F4EE] px-5 py-3 border border-[#A18B70]/40 shadow-2xl text-xs uppercase tracking-[0.16em] font-medium flex items-center gap-2.5"
+            >
+              <span className="text-[#A18B70]">✦</span>
+              <span>{toastMessage}</span>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         <div className="flex-grow">
-
           <Routes>
-
-            {/* HOME PAGE — ORIGINAL DESIGN UNCHANGED */}
+            {/* HOME PAGE */}
             <Route
               path="/"
               element={<HomePage onAddToCart={handleAddToCart} />}
             />
 
-            {/* ELEGANT INNER PAGES */}
-
+            {/* ELEGANT STORE PAGES */}
             <Route
               path="/shop"
               element={
@@ -225,7 +246,6 @@ export function App() {
             />
 
             {/* ADMIN PAGES */}
-
             <Route
               path="/admin-login"
               element={
@@ -258,12 +278,10 @@ export function App() {
                 </InnerPage>
               }
             />
-
           </Routes>
         </div>
 
         <Footer />
-
       </div>
     </Router>
   );

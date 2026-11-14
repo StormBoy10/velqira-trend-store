@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Lock, Mail, ShieldAlert } from 'lucide-react';
+import { useNavigate, Link } from 'react-router-dom';
+import { Lock, Mail, ShieldAlert, ArrowLeft } from 'lucide-react';
 
 interface AdminLoginPageProps {
   onLoginSuccess: (token: string) => void;
@@ -21,7 +21,6 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({ onLoginSuccess }
     setLoading(true);
 
     try {
-      // Try backend authentication endpoint
       const response = await fetch(`${API_BASE_URL}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -38,44 +37,61 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({ onLoginSuccess }
         }
       }
     } catch (err) {
-      // API Offline - Fallback check for local development
+      // Local fallback for dev
     } finally {
       setLoading(false);
     }
 
-    // Local admin auth check
     if (email.toLowerCase().trim() === 'admin@velqira.com' && password.length >= 6) {
       const mockToken = 'jwt_token_velqira_admin_authenticated';
       localStorage.setItem('velqira_admin_token', mockToken);
       onLoginSuccess(mockToken);
       navigate('/admin');
     } else {
-      setErrorMsg('Invalid administrator credentials or unverified admin account.');
+      setErrorMsg('Invalid credentials. Default test: admin@velqira.com / password123');
     }
   };
 
   return (
-    <div className="bg-[#FFF9F5] min-h-screen py-24 flex items-center justify-center">
-      <div className="max-w-md w-full mx-auto px-4">
-        <div className="bg-white p-8 sm:p-10 rounded-3xl border border-[#D9A6AB]/30 shadow-xl text-center">
-          <div className="w-12 h-12 bg-[#FFF9F5] border border-[#C6A16B]/40 rounded-full flex items-center justify-center mx-auto mb-4 text-[#C6A16B]">
-            <Lock className="w-6 h-6" />
+    <main className="bg-[#F7F4EE] min-h-screen py-16 sm:py-24 flex items-center justify-center">
+      <div className="boho-container max-w-md w-full">
+        <Link
+          to="/"
+          className="inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-[#927B60] hover:text-[#38352F] mb-6 transition-colors font-medium"
+        >
+          <ArrowLeft className="w-3.5 h-3.5" />
+          <span>Back to Storefront</span>
+        </Link>
+
+        <div className="bg-white border border-[#E4DED3] p-8 sm:p-10 shadow-sm text-center">
+          <div className="w-12 h-12 bg-[#EEE9DF] border border-[#DED6C9] flex items-center justify-center mx-auto mb-4 text-[#A18B70]">
+            <Lock className="w-5 h-5" />
           </div>
 
-          <span className="text-xs font-bold uppercase tracking-widest text-[#C6A16B]">Protected Portal</span>
-          <h1 className="text-2xl sm:text-3xl font-bold font-serif text-[#332522] mt-1">Admin Access</h1>
-          <p className="text-xs text-[#332522]/70 mt-2">Sign in to manage products, categories, and orders</p>
+          <span className="text-[10px] uppercase tracking-[0.25em] text-[#927B60] font-semibold block mb-1">
+            VELQIRA ATELIER
+          </span>
+
+          <h1 className="text-2xl sm:text-3xl font-serif text-[#38352F] font-normal mb-2">
+            Administrator Access
+          </h1>
+
+          <p className="text-xs text-[#777064] mb-6 leading-relaxed">
+            Authorized management portal for inventory, collections, and live store analytics.
+          </p>
 
           {errorMsg && (
-            <div className="mt-4 p-3 bg-red-50 text-red-700 text-xs font-semibold rounded-xl border border-red-200 flex items-center justify-center space-x-1.5">
-              <ShieldAlert className="w-4 h-4 shrink-0 text-red-500" />
+            <div className="mb-6 p-3.5 bg-[#FFF4F2] border border-[#E8C2B8] text-xs text-[#9B3B3B] flex items-center gap-2 text-left">
+              <ShieldAlert className="w-4 h-4 shrink-0" />
               <span>{errorMsg}</span>
             </div>
           )}
 
-          <form onSubmit={handleLogin} className="mt-6 space-y-4 text-left">
+          <form onSubmit={handleLogin} className="space-y-4 text-left">
             <div>
-              <label className="block text-xs font-bold text-[#332522] uppercase tracking-wider mb-1">Email</label>
+              <label className="block text-[10px] uppercase tracking-[0.16em] text-[#777064] font-medium mb-1.5">
+                Admin Email
+              </label>
               <div className="relative">
                 <input
                   type="email"
@@ -83,14 +99,16 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({ onLoginSuccess }
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="admin@velqira.com"
-                  className="w-full bg-[#FFF9F5] text-[#332522] text-sm pl-10 pr-4 py-3 rounded-xl border border-[#D9A6AB]/40 focus:outline-none focus:border-[#C6A16B]"
+                  className="w-full bg-[#F7F4EE] border border-[#D8D0C3] text-xs px-3.5 py-3 pl-9 text-[#38352F] focus:outline-none focus:border-[#A18B70]"
                 />
-                <Mail className="w-4 h-4 text-[#C6A16B] absolute left-3.5 top-3.5" />
+                <Mail className="w-4 h-4 text-[#999184] absolute left-3 top-3.5" />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-[#332522] uppercase tracking-wider mb-1">Password</label>
+              <label className="block text-[10px] uppercase tracking-[0.16em] text-[#777064] font-medium mb-1.5">
+                Password
+              </label>
               <div className="relative">
                 <input
                   type="password"
@@ -98,26 +116,26 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({ onLoginSuccess }
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full bg-[#FFF9F5] text-[#332522] text-sm pl-10 pr-4 py-3 rounded-xl border border-[#D9A6AB]/40 focus:outline-none focus:border-[#C6A16B]"
+                  className="w-full bg-[#F7F4EE] border border-[#D8D0C3] text-xs px-3.5 py-3 pl-9 text-[#38352F] focus:outline-none focus:border-[#A18B70]"
                 />
-                <Lock className="w-4 h-4 text-[#C6A16B] absolute left-3.5 top-3.5" />
+                <Lock className="w-4 h-4 text-[#999184] absolute left-3 top-3.5" />
               </div>
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full mt-6 bg-[#332522] text-[#FFF9F5] py-3.5 rounded-xl font-bold hover:bg-black transition-colors shadow-xs text-sm cursor-pointer disabled:opacity-50"
+              className="w-full boho-button py-3.5 text-xs font-semibold tracking-[0.2em] mt-4"
             >
-              {loading ? 'Authenticating...' : 'Sign In To Control Center'}
+              {loading ? 'Authenticating...' : 'Sign In To Atelier'}
             </button>
           </form>
 
-          <p className="text-[11px] text-[#332522]/50 mt-6 bg-[#FFF9F5] p-2.5 rounded-lg border border-[#D9A6AB]/20">
-            Admin Account: <span className="font-mono text-[#C6A16B] font-bold">admin@velqira.com</span>
+          <p className="text-[10px] text-[#999184] mt-6 tracking-wide">
+            Test account: admin@velqira.com / password123
           </p>
         </div>
       </div>
-    </div>
+    </main>
   );
 };
