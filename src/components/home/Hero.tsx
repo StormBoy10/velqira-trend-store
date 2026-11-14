@@ -9,6 +9,7 @@ interface HeroSlide {
   wideImage?: string;
   alt: string;
   isGraphicBanner?: boolean;
+  bannerType?: 'silk-logo' | 'why-choose' | 'editorial';
   bgColor?: string;
   tag?: string;
   title?: React.ReactNode;
@@ -19,11 +20,25 @@ interface HeroSlide {
 
 const slides: HeroSlide[] = [
   {
+    id: 'velqira-satin-brand',
+    image: '/images/velqira-silk-banner.jpg',
+    wideImage: '/images/velqira-satin-gold-logo.jpg',
+    alt: 'VELQIRA — Artisanal Grace & Modern Elegance Satin Gold',
+    isGraphicBanner: true,
+    bannerType: 'silk-logo',
+    bgColor: '#E2CDB0',
+    tag: 'THE ATELIER HOUSE — 2026',
+    subtitle: 'Artisanal Grace · Modern Elegance · Intentional Living',
+    ctaText: 'Discover The Collection',
+    ctaLink: '/shop',
+  },
+  {
     id: 'why-choose-velqira',
     image: '/images/why-choose-velqira.jpg',
     wideImage: '/images/hero-slide-1-wide.jpg',
     alt: 'Why Choose Velqira - Handpicked with Love',
     isGraphicBanner: true,
+    bannerType: 'why-choose',
     bgColor: '#F7E5D7',
     ctaText: 'Explore Handpicked Collections',
     ctaLink: '/shop',
@@ -31,7 +46,7 @@ const slides: HeroSlide[] = [
   {
     id: 'artisanal-grace',
     image: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=2000&auto=format&fit=crop&q=85',
-    alt: 'Velqira fashion collection',
+    alt: 'Velqira seasonal fashion collection',
     tag: 'THE VELQIRA COLLECTION — 2026',
     title: (
       <>
@@ -122,8 +137,34 @@ export const Hero: React.FC = () => {
             transition={{ duration: 0.9, ease: 'easeInOut' }}
             className="absolute inset-0 w-full h-full flex items-center justify-center"
           >
-            {isLightBanner ? (
-              /* Graphic Banner Slide: Perfectly framed & high quality */
+            {current.bannerType === 'silk-logo' ? (
+              /* Slide 1: Champagne Satin Silk VELQIRA Logo Banner */
+              <Link
+                to={current.ctaLink || '/shop'}
+                className="relative w-full h-full block cursor-pointer group overflow-hidden"
+              >
+                <picture className="w-full h-full block">
+                  {current.wideImage && (
+                    <source
+                      media="(min-width: 768px)"
+                      srcSet={current.wideImage}
+                    />
+                  )}
+                  <motion.img
+                    src={current.image}
+                    alt={current.alt}
+                    initial={{ scale: 1.03 }}
+                    animate={{ scale: 1 }}
+                    transition={{ duration: 6.5, ease: 'easeOut' }}
+                    className="w-full h-full object-cover object-center"
+                  />
+                </picture>
+
+                {/* Subtle soft vignette on silk banner */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent pointer-events-none" />
+              </Link>
+            ) : current.bannerType === 'why-choose' ? (
+              /* Slide 2: Why Choose Velqira graphic banner */
               <Link
                 to={current.ctaLink || '/shop'}
                 className="w-full h-full flex items-center justify-center p-4 sm:p-8 lg:p-12 cursor-pointer group"
@@ -143,7 +184,7 @@ export const Hero: React.FC = () => {
                 </picture>
               </Link>
             ) : (
-              /* Editorial Photography Slides */
+              /* Photography Slides */
               <motion.img
                 src={current.image}
                 alt={current.alt}
@@ -156,7 +197,7 @@ export const Hero: React.FC = () => {
           </motion.div>
         </AnimatePresence>
 
-        {/* Editorial gradient overlay (Only on photo slides, disabled on light graphic banner) */}
+        {/* Editorial gradient overlay for photo slides only */}
         {!isLightBanner && (
           <>
             <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/25 to-transparent pointer-events-none" />
@@ -165,9 +206,31 @@ export const Hero: React.FC = () => {
         )}
       </div>
 
-      {/* Hero Content Overlay */}
-      {isLightBanner ? (
-        /* Floating bottom CTA for the graphic banner slide */
+      {/* Hero Content Overlays */}
+      {current.bannerType === 'silk-logo' ? (
+        /* Slide 1 Luxury Overlay: Bottom Centered CTA with Tagline */
+        <div className="absolute bottom-10 sm:bottom-12 left-0 right-0 z-20 flex flex-col items-center text-center px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, duration: 0.6 }}
+            className="flex flex-col items-center"
+          >
+            <p className="text-[10px] sm:text-xs uppercase tracking-[0.35em] text-[#38352F] font-semibold mb-3 drop-shadow-xs">
+              {current.subtitle}
+            </p>
+
+            <Link
+              to={current.ctaLink || '/shop'}
+              className="inline-flex items-center gap-4 px-8 sm:px-10 py-3.5 sm:py-4 bg-[#38352F] text-[#F7F4EE] text-[10px] sm:text-xs uppercase tracking-[0.2em] font-semibold border border-[#38352F] shadow-xl hover:bg-transparent hover:text-[#38352F] transition-all duration-300 backdrop-blur-xs"
+            >
+              <span>{current.ctaText || 'Discover The Collection'}</span>
+              <ArrowRight size={15} strokeWidth={1.5} />
+            </Link>
+          </motion.div>
+        </div>
+      ) : current.bannerType === 'why-choose' ? (
+        /* Slide 2: Floating Bottom CTA */
         <div className="absolute bottom-10 left-6 sm:left-12 lg:left-20 z-20">
           <motion.div
             initial={{ opacity: 0, y: 15 }}
@@ -184,7 +247,7 @@ export const Hero: React.FC = () => {
           </motion.div>
         </div>
       ) : (
-        /* Dynamic Editorial Text for photography slides */
+        /* Photography Slides: Editorial Left Typography */
         <div className="relative z-10 max-w-[1600px] mx-auto px-6 sm:px-10 lg:px-20 h-full min-h-[580px] flex items-center pointer-events-none">
           <motion.div
             key={current.id}
@@ -248,7 +311,7 @@ export const Hero: React.FC = () => {
           aria-label="Previous slide"
           className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
             isLightBanner
-              ? 'bg-[#38352F]/10 hover:bg-[#38352F] text-[#38352F] hover:text-white border border-[#38352F]/20'
+              ? 'bg-[#38352F]/15 hover:bg-[#38352F] text-[#38352F] hover:text-white border border-[#38352F]/25 shadow-sm'
               : 'bg-white/10 hover:bg-white text-white hover:text-[#38352F] border border-white/20'
           }`}
         >
@@ -263,7 +326,7 @@ export const Hero: React.FC = () => {
           aria-label="Next slide"
           className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
             isLightBanner
-              ? 'bg-[#38352F]/10 hover:bg-[#38352F] text-[#38352F] hover:text-white border border-[#38352F]/20'
+              ? 'bg-[#38352F]/15 hover:bg-[#38352F] text-[#38352F] hover:text-white border border-[#38352F]/25 shadow-sm'
               : 'bg-white/10 hover:bg-white text-white hover:text-[#38352F] border border-white/20'
           }`}
         >
@@ -274,7 +337,7 @@ export const Hero: React.FC = () => {
       {/* Slide Indicators Bar */}
       <div className="absolute bottom-8 right-6 sm:right-12 z-20 flex items-center gap-3">
         <span
-          className={`text-[10px] tracking-widest font-mono ${
+          className={`text-[10px] tracking-widest font-mono font-medium ${
             isLightBanner ? 'text-[#38352F]' : 'text-white'
           }`}
         >
