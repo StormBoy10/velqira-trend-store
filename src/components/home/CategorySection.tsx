@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowUpRight } from 'lucide-react';
-import type { Category } from '../../types';
+import type { Category, Product } from '../../types';
 import { CategoryCard } from './CategoryCard';
+import { getProducts } from '../../services';
 
 interface CategorySectionProps {
   categories: Category[];
@@ -11,10 +12,31 @@ interface CategorySectionProps {
 export const CategorySection: React.FC<CategorySectionProps> = ({
   categories,
 }) => {
+  const [products, setProducts] = useState<Product[]>([]);
+
+  useEffect(() => {
+    getProducts().then((data) => setProducts(Array.isArray(data) ? data : []));
+  }, []);
+
   const homeCategories = categories.filter(
     (category) =>
       category.showOnHome !== false && category.isActive !== false
   );
+
+  const getProductCount = (category: Category) => {
+    const slug = category.slug || category.id;
+    const catId = category.id;
+    return products.filter((p) => {
+      if (!p || !p.category) return false;
+      const pCat = p.category.toLowerCase();
+      return (
+        p.category === catId ||
+        p.category === slug ||
+        pCat === slug.toLowerCase() ||
+        pCat === catId.toLowerCase()
+      );
+    }).length;
+  };
 
   return (
     <section className="boho-section bg-[#F7F4EE] border-b border-[#DED6C9]">
@@ -52,7 +74,10 @@ export const CategorySection: React.FC<CategorySectionProps> = ({
                 key={category.id}
                 className="group transition-transform duration-500 hover:-translate-y-1"
               >
-                <CategoryCard category={category} />
+                <CategoryCard
+                  category={category}
+                  productCount={getProductCount(category)}
+                />
               </div>
             ))}
           </div>
