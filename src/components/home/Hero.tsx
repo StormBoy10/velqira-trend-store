@@ -1,138 +1,313 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-const heroImages = [
-  '/images/NEW HEROS.jpg',
-  'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=2000&auto=format&fit=crop&q=85',
-  'https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=2000&auto=format&fit=crop&q=85',
-  'https://images.unsplash.com/photo-1529139574466-a303027c1d8b?w=2000&auto=format&fit=crop&q=85',
+interface HeroSlide {
+  id: string;
+  image: string;
+  wideImage?: string;
+  alt: string;
+  isGraphicBanner?: boolean;
+  bgColor?: string;
+  tag?: string;
+  title?: React.ReactNode;
+  subtitle?: string;
+  ctaText?: string;
+  ctaLink?: string;
+}
+
+const slides: HeroSlide[] = [
+  {
+    id: 'why-choose-velqira',
+    image: '/images/why-choose-velqira.jpg',
+    wideImage: '/images/hero-slide-1-wide.jpg',
+    alt: 'Why Choose Velqira - Handpicked with Love',
+    isGraphicBanner: true,
+    bgColor: '#F7E5D7',
+    ctaText: 'Explore Handpicked Collections',
+    ctaLink: '/shop',
+  },
+  {
+    id: 'artisanal-grace',
+    image: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=2000&auto=format&fit=crop&q=85',
+    alt: 'Velqira fashion collection',
+    tag: 'THE VELQIRA COLLECTION — 2026',
+    title: (
+      <>
+        Artisanal
+        <br />
+        <span className="italic">Grace.</span>
+        <br />
+        Modern Elegance.
+      </>
+    ),
+    subtitle: 'Discover thoughtfully curated pieces inspired by natural beauty, timeless design and effortless style.',
+    ctaText: 'Discover The Collection',
+    ctaLink: '/shop',
+  },
+  {
+    id: 'quiet-luxury',
+    image: 'https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=2000&auto=format&fit=crop&q=85',
+    alt: 'Velqira fine jewellery and accessories',
+    tag: 'SIGNATURE ATELIER PIECES',
+    title: (
+      <>
+        Quiet Luxury.
+        <br />
+        <span className="italic">Effortless</span>
+        <br />
+        Modern Style.
+      </>
+    ),
+    subtitle: 'Handcrafted gold jewellery, heirloom accessories, and conscious artisanal accents.',
+    ctaText: 'Explore Jewellery & Accessories',
+    ctaLink: '/shop?category=jewellery-accessories',
+  },
+  {
+    id: 'intentional-living',
+    image: 'https://images.unsplash.com/photo-1529139574466-a303027c1d8b?w=2000&auto=format&fit=crop&q=85',
+    alt: 'Velqira home decor and mindful living',
+    tag: 'INTENTIONAL LIVING',
+    title: (
+      <>
+        Warm Minimalism.
+        <br />
+        <span className="italic">Timeless</span>
+        <br />
+        Everyday Finds.
+      </>
+    ),
+    subtitle: 'Curated home decor, ceramic forms, and joyful lifestyle treasures for your sanctuary.',
+    ctaText: 'Explore Home & Decor',
+    ctaLink: '/shop?category=home-decor',
+  },
 ];
 
 export const Hero: React.FC = () => {
-  const [activeImage, setActiveImage] = React.useState(0);
+  const [activeSlide, setActiveSlide] = useState(0);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const interval = window.setInterval(() => {
-      setActiveImage((current) => (current + 1) % heroImages.length);
-    }, 6000);
+      setActiveSlide((current) => (current + 1) % slides.length);
+    }, 6500);
 
     return () => window.clearInterval(interval);
   }, []);
 
-  return (
-    <section className="relative w-full min-h-[620px] h-[76vh] max-h-[820px] overflow-hidden bg-[#DDD3C3]">
+  const current = slides[activeSlide];
+  const isLightBanner = current.isGraphicBanner;
 
+  const handlePrev = () => {
+    setActiveSlide((prev) => (prev === 0 ? slides.length - 1 : prev - 1));
+  };
+
+  const handleNext = () => {
+    setActiveSlide((prev) => (prev + 1) % slides.length);
+  };
+
+  return (
+    <section
+      className="relative w-full min-h-[580px] h-[76vh] max-h-[820px] overflow-hidden transition-colors duration-700"
+      style={{ backgroundColor: current.bgColor || '#2B2823' }}
+    >
       {/* Background Slideshow */}
       <div className="absolute inset-0">
-
         <AnimatePresence mode="sync">
-          <motion.img
-            key={activeImage}
-            src={heroImages[activeImage]}
-            alt="Velqira fashion collection"
-            initial={{ opacity: 0, scale: 1.035 }}
-            animate={{ opacity: 1, scale: 1 }}
+          <motion.div
+            key={current.id}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{
-              opacity: { duration: 1.4, ease: 'easeInOut' },
-              scale: { duration: 6, ease: 'linear' },
-            }}
-            className="absolute inset-0 w-full h-full object-cover object-center"
-          />
+            transition={{ duration: 0.9, ease: 'easeInOut' }}
+            className="absolute inset-0 w-full h-full flex items-center justify-center"
+          >
+            {isLightBanner ? (
+              /* Graphic Banner Slide: Perfectly framed & high quality */
+              <Link
+                to={current.ctaLink || '/shop'}
+                className="w-full h-full flex items-center justify-center p-4 sm:p-8 lg:p-12 cursor-pointer group"
+              >
+                <picture className="w-full h-full flex items-center justify-center">
+                  {current.wideImage && (
+                    <source
+                      media="(min-width: 1024px)"
+                      srcSet={current.wideImage}
+                    />
+                  )}
+                  <img
+                    src={current.image}
+                    alt={current.alt}
+                    className="max-h-full max-w-full w-auto h-auto object-contain drop-shadow-sm transition-transform duration-700 group-hover:scale-[1.015]"
+                  />
+                </picture>
+              </Link>
+            ) : (
+              /* Editorial Photography Slides */
+              <motion.img
+                src={current.image}
+                alt={current.alt}
+                initial={{ scale: 1.04 }}
+                animate={{ scale: 1 }}
+                transition={{ duration: 6.5, ease: 'linear' }}
+                className="absolute inset-0 w-full h-full object-cover object-center"
+              />
+            )}
+          </motion.div>
         </AnimatePresence>
 
-        {/* Editorial overlay for readable text */}
-        <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-black/20 to-transparent" />
-
-        <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-black/10" />
-
+        {/* Editorial gradient overlay (Only on photo slides, disabled on light graphic banner) */}
+        {!isLightBanner && (
+          <>
+            <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/25 to-transparent pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-black/10 pointer-events-none" />
+          </>
+        )}
       </div>
 
-      {/* Hero Content */}
-      <div className="relative z-10 max-w-[1600px] mx-auto px-6 sm:px-10 lg:px-20 h-full min-h-[620px] flex items-center">
-
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, ease: 'easeOut' }}
-          className="max-w-[680px] text-white py-20"
-        >
-
-          <motion.p
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2, duration: 0.8 }}
-            className="text-[10px] sm:text-xs uppercase tracking-[0.35em] font-medium mb-7 text-white/90"
-          >
-            THE VELQIRA COLLECTION — 2026
-          </motion.p>
-
-          <h1 className="font-serif text-[48px] sm:text-[68px] lg:text-[88px] leading-[1.06] font-normal tracking-[-0.04em]">
-            Artisanal
-            <br />
-            <span className="italic">Grace.</span>
-            <br />
-            Modern Elegance.
-          </h1>
-
-          <motion.p
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5, duration: 0.8 }}
-            className="mt-7 max-w-[430px] text-sm sm:text-base leading-7 text-white/90 font-light"
-          >
-            Discover thoughtfully curated pieces inspired by
-            natural beauty, timeless design and effortless style.
-          </motion.p>
-
+      {/* Hero Content Overlay */}
+      {isLightBanner ? (
+        /* Floating bottom CTA for the graphic banner slide */
+        <div className="absolute bottom-10 left-6 sm:left-12 lg:left-20 z-20">
           <motion.div
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.7, duration: 0.8 }}
-            className="mt-9"
+            transition={{ delay: 0.3, duration: 0.6 }}
           >
             <Link
-              to="/shop"
-              className="inline-flex items-center gap-5 px-8 py-4 bg-[#F7F4EE] text-[#38352F] text-[10px] sm:text-xs uppercase tracking-[0.18em] font-semibold border border-[#F7F4EE] hover:bg-transparent hover:text-white transition-all duration-300"
+              to={current.ctaLink || '/shop'}
+              className="inline-flex items-center gap-4 px-7 sm:px-9 py-3.5 sm:py-4 bg-[#38352F] text-[#F7F4EE] text-[10px] sm:text-xs uppercase tracking-[0.2em] font-semibold border border-[#38352F] shadow-lg hover:bg-transparent hover:text-[#38352F] transition-all duration-300"
             >
-              Discover The Collection
-              <ArrowRight size={16} strokeWidth={1.5} />
+              <span>{current.ctaText || 'Discover The Collection'}</span>
+              <ArrowRight size={15} strokeWidth={1.5} />
             </Link>
           </motion.div>
+        </div>
+      ) : (
+        /* Dynamic Editorial Text for photography slides */
+        <div className="relative z-10 max-w-[1600px] mx-auto px-6 sm:px-10 lg:px-20 h-full min-h-[580px] flex items-center pointer-events-none">
+          <motion.div
+            key={current.id}
+            initial={{ opacity: 0, y: 25 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -15 }}
+            transition={{ duration: 0.8, ease: 'easeOut' }}
+            className="max-w-[680px] text-white py-16 pointer-events-auto"
+          >
+            {current.tag && (
+              <motion.p
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.15, duration: 0.6 }}
+                className="text-[10px] sm:text-xs uppercase tracking-[0.35em] font-medium mb-6 text-white/90"
+              >
+                {current.tag}
+              </motion.p>
+            )}
 
-        </motion.div>
+            <h1 className="font-serif text-[44px] sm:text-[64px] lg:text-[84px] leading-[1.06] font-normal tracking-[-0.04em]">
+              {current.title}
+            </h1>
+
+            {current.subtitle && (
+              <motion.p
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.35, duration: 0.6 }}
+                className="mt-6 max-w-[430px] text-sm sm:text-base leading-7 text-white/90 font-light"
+              >
+                {current.subtitle}
+              </motion.p>
+            )}
+
+            {current.ctaText && (
+              <motion.div
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5, duration: 0.6 }}
+                className="mt-8"
+              >
+                <Link
+                  to={current.ctaLink || '/shop'}
+                  className="inline-flex items-center gap-4 px-8 py-4 bg-[#F7F4EE] text-[#38352F] text-[10px] sm:text-xs uppercase tracking-[0.18em] font-semibold border border-[#F7F4EE] hover:bg-transparent hover:text-white transition-all duration-300"
+                >
+                  <span>{current.ctaText}</span>
+                  <ArrowRight size={15} strokeWidth={1.5} />
+                </Link>
+              </motion.div>
+            )}
+          </motion.div>
+        </div>
+      )}
+
+      {/* Manual Navigation Controls (Prev / Next Arrows) */}
+      <div className="absolute top-1/2 -translate-y-1/2 left-3 sm:left-6 z-20">
+        <button
+          type="button"
+          onClick={handlePrev}
+          aria-label="Previous slide"
+          className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
+            isLightBanner
+              ? 'bg-[#38352F]/10 hover:bg-[#38352F] text-[#38352F] hover:text-white border border-[#38352F]/20'
+              : 'bg-white/10 hover:bg-white text-white hover:text-[#38352F] border border-white/20'
+          }`}
+        >
+          <ChevronLeft className="w-5 h-5" />
+        </button>
       </div>
 
-      {/* Slide Indicators */}
-      <div className="absolute bottom-8 right-7 sm:right-12 z-20 flex items-center gap-3">
+      <div className="absolute top-1/2 -translate-y-1/2 right-3 sm:right-6 z-20">
+        <button
+          type="button"
+          onClick={handleNext}
+          aria-label="Next slide"
+          className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
+            isLightBanner
+              ? 'bg-[#38352F]/10 hover:bg-[#38352F] text-[#38352F] hover:text-white border border-[#38352F]/20'
+              : 'bg-white/10 hover:bg-white text-white hover:text-[#38352F] border border-white/20'
+          }`}
+        >
+          <ChevronRight className="w-5 h-5" />
+        </button>
+      </div>
 
-        <span className="text-white text-[10px] tracking-widest">
-          0{activeImage + 1}
+      {/* Slide Indicators Bar */}
+      <div className="absolute bottom-8 right-6 sm:right-12 z-20 flex items-center gap-3">
+        <span
+          className={`text-[10px] tracking-widest font-mono ${
+            isLightBanner ? 'text-[#38352F]' : 'text-white'
+          }`}
+        >
+          0{activeSlide + 1}
         </span>
 
         <div className="flex gap-2">
-          {heroImages.map((_, index) => (
+          {slides.map((_, index) => (
             <button
               key={index}
-              onClick={() => setActiveImage(index)}
+              onClick={() => setActiveSlide(index)}
               aria-label={`Show slide ${index + 1}`}
               className={`h-[2px] transition-all duration-500 ${
-                activeImage === index
-                  ? 'w-9 bg-white'
-                  : 'w-4 bg-white/50 hover:bg-white'
+                activeSlide === index
+                  ? isLightBanner
+                    ? 'w-9 bg-[#38352F]'
+                    : 'w-9 bg-white'
+                  : isLightBanner
+                  ? 'w-4 bg-[#38352F]/30 hover:bg-[#38352F]'
+                  : 'w-4 bg-white/40 hover:bg-white'
               }`}
             />
           ))}
         </div>
 
-        <span className="text-white/70 text-[10px] tracking-widest">
-          0{heroImages.length}
+        <span
+          className={`text-[10px] tracking-widest font-mono ${
+            isLightBanner ? 'text-[#38352F]/60' : 'text-white/60'
+          }`}
+        >
+          0{slides.length}
         </span>
-
       </div>
-
     </section>
   );
 };
