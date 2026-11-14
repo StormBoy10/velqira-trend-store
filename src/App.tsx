@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   BrowserRouter as Router,
   Routes,
   Route,
   Navigate,
+  useLocation,
 } from 'react-router-dom';
 
 import { AnnouncementBar } from './components/layout/AnnouncementBar';
@@ -24,6 +25,17 @@ import { NotFoundPage } from './pages/NotFoundPage';
 
 import type { CartItem, Product } from './types';
 import type { ReactNode } from 'react';
+
+// Automatically scroll window to top whenever navigation route changes
+function ScrollToTop() {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' as ScrollBehavior });
+  }, [pathname]);
+
+  return null;
+}
 
 interface InnerPageProps {
   children: ReactNode;
@@ -103,6 +115,7 @@ export function App() {
 
   return (
     <Router>
+      <ScrollToTop />
       <div className="min-h-screen flex flex-col font-sans text-[#332522] bg-[#FFF9F5] relative">
 
         <AnnouncementBar />
