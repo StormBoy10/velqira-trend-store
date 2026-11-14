@@ -15,7 +15,7 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
   return (
     <Link
       to={`/shop?category=${encodeURIComponent(categorySlug)}`}
-      className="group relative block w-full h-[260px] sm:h-[300px] lg:h-[320px] overflow-hidden bg-[#E8E1D5]"
+      className="group relative block w-full aspect-[4/3] overflow-hidden bg-[#E8E1D5]"
     >
       <img
         src={
@@ -30,26 +30,26 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({
       <div className="absolute inset-0 bg-gradient-to-t from-[#27241F]/80 via-[#27241F]/15 to-transparent transition-opacity duration-500 group-hover:from-[#27241F]/90" />
 
       {category.itemCount !== undefined && (
-        <span className="absolute top-3.5 left-3.5 bg-[#F7F4EE]/95 text-[#38352F] px-2.5 py-1 text-[9px] uppercase tracking-[0.14em]">
+        <span className="absolute top-4 left-4 bg-[#F7F4EE]/95 text-[#38352F] px-3 py-1.5 text-[9px] uppercase tracking-[0.16em]">
           {category.itemCount} products
         </span>
       )}
 
-      <div className="absolute top-3.5 right-3.5 flex items-center justify-center w-8 h-8 rounded-full border border-white/60 text-white group-hover:bg-[#F7F4EE] group-hover:text-[#38352F] transition-all duration-300">
+      <div className="absolute top-4 right-4 flex items-center justify-center w-9 h-9 rounded-full border border-white/60 text-white group-hover:bg-[#F7F4EE] group-hover:text-[#38352F] transition-all duration-300">
         <ArrowUpRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
       </div>
 
       <div className="absolute bottom-0 left-0 right-0 p-5 sm:p-6 text-[#F7F4EE]">
-        <p className="text-[9px] uppercase tracking-[0.2em] text-white/75 mb-1">
+        <p className="text-[9px] uppercase tracking-[0.22em] text-white/75 mb-2">
           Explore collection
         </p>
 
-        <h3 className="font-serif text-xl sm:text-2xl font-normal leading-snug">
+        <h3 className="font-serif text-2xl sm:text-3xl font-normal leading-tight">
           {category.name}
         </h3>
 
         {category.description && (
-          <p className="text-xs text-white/80 mt-1.5 max-w-md leading-relaxed line-clamp-1">
+          <p className="text-xs text-white/80 mt-2 max-w-md leading-relaxed line-clamp-2">
             {category.description}
           </p>
         )}
