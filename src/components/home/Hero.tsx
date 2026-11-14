@@ -9,7 +9,7 @@ interface HeroSlide {
   wideImage?: string;
   alt: string;
   isGraphicBanner?: boolean;
-  bannerType?: 'silk-logo' | 'why-choose' | 'editorial';
+  bannerType?: 'silk-logo' | 'why-choose' | 'showcase' | 'editorial';
   bgColor?: string;
   tag?: string;
   title?: React.ReactNode;
@@ -17,6 +17,13 @@ interface HeroSlide {
   ctaText?: string;
   ctaLink?: string;
 }
+
+const showcaseItems = [
+  { id: 'item-1', image: '/images/korean-sticker-1.jpg', name: 'Purple Heart Ribbons' },
+  { id: 'item-2', image: '/images/korean-sticker-2.jpg', name: 'Holo Black Hearts' },
+  { id: 'item-3', image: '/images/korean-sticker-3.jpg', name: 'Kuromi Portable' },
+  { id: 'item-4', image: '/images/korean-sticker-4.jpg', name: 'Lavender Butterflies' },
+];
 
 const slides: HeroSlide[] = [
   {
@@ -63,8 +70,10 @@ const slides: HeroSlide[] = [
   },
   {
     id: 'quiet-luxury',
-    image: 'https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=2000&auto=format&fit=crop&q=85',
-    alt: 'Velqira fine jewellery and accessories',
+    image: '/images/hero-slide-4-showcase.jpg',
+    alt: 'Velqira 4-Item Atelier Showcase',
+    bannerType: 'showcase',
+    bgColor: '#181514',
     tag: 'SIGNATURE ATELIER PIECES',
     title: (
       <>
@@ -112,6 +121,7 @@ export const Hero: React.FC = () => {
 
   const current = slides[activeSlide];
   const isLightBanner = current.isGraphicBanner;
+  const isShowcaseSlide = current.bannerType === 'showcase';
 
   const handlePrev = () => {
     setActiveSlide((prev) => (prev === 0 ? slides.length - 1 : prev - 1));
@@ -160,7 +170,6 @@ export const Hero: React.FC = () => {
                   />
                 </picture>
 
-                {/* Subtle soft vignette on silk banner */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent pointer-events-none" />
               </Link>
             ) : current.bannerType === 'why-choose' ? (
@@ -183,8 +192,18 @@ export const Hero: React.FC = () => {
                   />
                 </picture>
               </Link>
+            ) : isShowcaseSlide ? (
+              /* Slide 4: 4-Item Showcase Composite Background */
+              <motion.img
+                src={current.image}
+                alt={current.alt}
+                initial={{ scale: 1.02 }}
+                animate={{ scale: 1 }}
+                transition={{ duration: 6.5, ease: 'linear' }}
+                className="absolute inset-0 w-full h-full object-cover object-right lg:object-center"
+              />
             ) : (
-              /* Photography Slides */
+              /* Editorial Photography Slides */
               <motion.img
                 src={current.image}
                 alt={current.alt}
@@ -197,13 +216,19 @@ export const Hero: React.FC = () => {
           </motion.div>
         </AnimatePresence>
 
-        {/* Editorial gradient overlay for photo slides only */}
-        {!isLightBanner && (
+        {/* Editorial gradient overlays */}
+        {isShowcaseSlide ? (
+          /* Tailored shadow for Slide 4: Dark on left for text legibility, clear on right for items */
+          <>
+            <div className="absolute inset-0 bg-gradient-to-r from-[#141211]/95 via-[#141211]/70 to-transparent lg:w-[65%] pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#141211]/60 via-transparent to-[#141211]/30 pointer-events-none" />
+          </>
+        ) : !isLightBanner ? (
           <>
             <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/25 to-transparent pointer-events-none" />
             <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-black/10 pointer-events-none" />
           </>
-        )}
+        ) : null}
       </div>
 
       {/* Hero Content Overlays */}
@@ -246,8 +271,97 @@ export const Hero: React.FC = () => {
             </Link>
           </motion.div>
         </div>
+      ) : isShowcaseSlide ? (
+        /* Slide 4: Exact Slide Text on Left + 4-Item Showcase on Right */
+        <div className="relative z-10 max-w-[1600px] mx-auto px-6 sm:px-10 lg:px-20 h-full min-h-[580px] flex items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 xl:gap-12 w-full items-center">
+            {/* Left Column: Exactly Same Text As In Slide */}
+            <motion.div
+              key={current.id}
+              initial={{ opacity: 0, y: 25 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -15 }}
+              transition={{ duration: 0.8, ease: 'easeOut' }}
+              className="lg:col-span-6 xl:col-span-5 text-white py-12"
+            >
+              {current.tag && (
+                <motion.p
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.15, duration: 0.6 }}
+                  className="text-[10px] sm:text-xs uppercase tracking-[0.35em] font-medium mb-6 text-[#D8CBB8]"
+                >
+                  {current.tag}
+                </motion.p>
+              )}
+
+              <h1 className="font-serif text-[42px] sm:text-[60px] lg:text-[76px] leading-[1.06] font-normal tracking-[-0.04em]">
+                {current.title}
+              </h1>
+
+              {current.subtitle && (
+                <motion.p
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.35, duration: 0.6 }}
+                  className="mt-6 max-w-[430px] text-sm sm:text-base leading-7 text-white/90 font-light"
+                >
+                  {current.subtitle}
+                </motion.p>
+              )}
+
+              {current.ctaText && (
+                <motion.div
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.5, duration: 0.6 }}
+                  className="mt-8"
+                >
+                  <Link
+                    to={current.ctaLink || '/shop'}
+                    className="inline-flex items-center gap-4 px-8 py-4 bg-[#F7F4EE] text-[#38352F] text-[10px] sm:text-xs uppercase tracking-[0.18em] font-semibold border border-[#F7F4EE] hover:bg-transparent hover:text-white transition-all duration-300"
+                  >
+                    <span>{current.ctaText}</span>
+                    <ArrowRight size={15} strokeWidth={1.5} />
+                  </Link>
+                </motion.div>
+              )}
+            </motion.div>
+
+            {/* Right Column: 4-Item Interactive Cards Showcase on One Single Page */}
+            <div className="lg:col-span-6 xl:col-span-7 hidden lg:block">
+              <motion.div
+                initial={{ opacity: 0, x: 30 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.3, duration: 0.8 }}
+                className="grid grid-cols-4 gap-3.5 xl:gap-4 items-center"
+              >
+                {showcaseItems.map((item, idx) => (
+                  <Link
+                    key={item.id}
+                    to="/shop?category=korean-goodies"
+                    className={`group relative block aspect-[3/4] bg-[#221E1C] border border-[#A18B70]/30 shadow-2xl overflow-hidden transition-all duration-500 hover:-translate-y-2 hover:border-[#D8CBB8] ${
+                      idx % 2 === 1 ? 'translate-y-3' : '-translate-y-3'
+                    }`}
+                  >
+                    <img
+                      src={item.image}
+                      alt={item.name}
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-2.5">
+                      <span className="text-[9px] text-[#F7F4EE] font-medium tracking-wider uppercase leading-tight">
+                        {item.name}
+                      </span>
+                    </div>
+                  </Link>
+                ))}
+              </motion.div>
+            </div>
+          </div>
+        </div>
       ) : (
-        /* Photography Slides: Editorial Left Typography */
+        /* Regular Photography Slides */
         <div className="relative z-10 max-w-[1600px] mx-auto px-6 sm:px-10 lg:px-20 h-full min-h-[580px] flex items-center pointer-events-none">
           <motion.div
             key={current.id}
