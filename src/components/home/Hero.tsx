@@ -19,16 +19,16 @@ interface HeroSlide {
 }
 
 const jewelleryShowcaseItems = [
-  { id: 'acc-3', image: '/images/jewellery-necklace-1.jpg', name: 'Crystal Flower Pendant', targetUrl: '/product/acc-3' },
-  { id: 'acc-1', image: '/images/jewellery-necklace-2.jpg', name: 'Rainbow Gemstone Charm', targetUrl: '/product/acc-1' },
-  { id: 'acc-2', image: '/images/jewellery-necklace-3.jpg', name: 'Five Gemstones on Silk', targetUrl: '/product/acc-2' },
+  { id: 'jewel-1', image: '/images/jewellery-necklace-1.jpg', name: 'Crystal Flower Pendant', targetUrl: '/product/jewel-1' },
+  { id: 'jewel-2', image: '/images/jewellery-necklace-2.jpg', name: 'Rainbow Gemstone Charm', targetUrl: '/product/jewel-2' },
+  { id: 'jewel-3', image: '/images/jewellery-necklace-3.jpg', name: 'Five Gemstones on Silk', targetUrl: '/product/jewel-3' },
 ];
 
 const stickerShowcaseItems = [
-  { id: 'kg-1', image: '/images/korean-sticker-1.jpg', name: 'Purple Heart Ribbons', targetUrl: '/product/kg-1' },
-  { id: 'kg-2', image: '/images/korean-sticker-2.jpg', name: 'Holo Black Hearts', targetUrl: '/product/kg-2' },
-  { id: 'kg-3', image: '/images/korean-sticker-3.jpg', name: 'Kuromi Portable', targetUrl: '/product/kg-3' },
-  { id: 'kg-4', image: '/images/korean-sticker-4.jpg', name: 'Lavender Butterflies', targetUrl: '/product/kg-4' },
+  { id: 'sticker-1', image: '/images/korean-sticker-1.jpg', name: 'Purple Heart Ribbons', targetUrl: '/product/sticker-1' },
+  { id: 'sticker-2', image: '/images/korean-sticker-2.jpg', name: 'Holo Black Hearts', targetUrl: '/product/sticker-2' },
+  { id: 'sticker-3', image: '/images/korean-sticker-3.jpg', name: 'Kuromi Portable', targetUrl: '/product/sticker-3' },
+  { id: 'sticker-4', image: '/images/korean-sticker-4.jpg', name: 'Lavender Butterflies', targetUrl: '/product/sticker-4' },
 ];
 
 const slides: HeroSlide[] = [
@@ -364,7 +364,7 @@ export const Hero: React.FC = () => {
                         <span className="text-[10px] text-[#F7F4EE] font-serif font-bold tracking-wider uppercase leading-tight group-hover:text-[#D8CBB8]">
                           {item.name}
                         </span>
-                        <span className="text-[9px] text-[#A18B70] uppercase font-bold tracking-widest mt-1 flex items-center gap-1">
+                        <span className="text-[8px] text-[#A18B70] uppercase font-bold tracking-widest mt-1 flex items-center gap-1">
                           Buy Product &rarr;
                         </span>
                       </div>
