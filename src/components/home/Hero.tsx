@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowRight, ChevronLeft, ChevronRight, Eye } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { ProductQuickViewModal } from '../products/ProductQuickViewModal';
+import { getProductById } from '../../services';
+import type { Product } from '../../types';
 
 interface HeroSlide {
   id: string;
@@ -18,17 +21,21 @@ interface HeroSlide {
   ctaLink?: string;
 }
 
+interface HeroProps {
+  onAddToCart?: (product: Product) => void;
+}
+
 const jewelleryShowcaseItems = [
-  { id: 'jewel-1', image: '/images/jewellery-necklace-1.jpg', name: 'Crystal Flower Pendant', targetUrl: '/product/jewel-1' },
-  { id: 'jewel-2', image: '/images/jewellery-necklace-2.jpg', name: 'Rainbow Gemstone Charm', targetUrl: '/product/jewel-2' },
-  { id: 'jewel-3', image: '/images/jewellery-necklace-3.jpg', name: 'Five Gemstones on Silk', targetUrl: '/product/jewel-3' },
+  { id: 'jewel-1', image: '/images/jewellery-necklace-1.jpg', name: 'Crystal Flower Pendant', targetUrl: '/product/jewel-1', productId: 'jewel-1' },
+  { id: 'jewel-2', image: '/images/jewellery-necklace-2.jpg', name: 'Rainbow Gemstone Charm', targetUrl: '/product/jewel-2', productId: 'jewel-2' },
+  { id: 'jewel-3', image: '/images/jewellery-necklace-3.jpg', name: 'Five Gemstones on Silk', targetUrl: '/product/jewel-3', productId: 'jewel-3' },
 ];
 
 const stickerShowcaseItems = [
-  { id: 'sticker-1', image: '/images/korean-sticker-1.jpg', name: 'Purple Heart Ribbons', targetUrl: '/product/sticker-1' },
-  { id: 'sticker-2', image: '/images/korean-sticker-2.jpg', name: 'Holo Black Hearts', targetUrl: '/product/sticker-2' },
-  { id: 'sticker-3', image: '/images/korean-sticker-3.jpg', name: 'Kuromi Portable', targetUrl: '/product/sticker-3' },
-  { id: 'sticker-4', image: '/images/korean-sticker-4.jpg', name: 'Lavender Butterflies', targetUrl: '/product/sticker-4' },
+  { id: 'sticker-1', image: '/images/korean-sticker-1.jpg', name: 'Purple Heart Ribbons', targetUrl: '/product/sticker-1', productId: 'sticker-1' },
+  { id: 'sticker-2', image: '/images/korean-sticker-2.jpg', name: 'Holo Black Hearts', targetUrl: '/product/sticker-2', productId: 'sticker-2' },
+  { id: 'sticker-3', image: '/images/korean-sticker-3.jpg', name: 'Kuromi Portable', targetUrl: '/product/sticker-3', productId: 'sticker-3' },
+  { id: 'sticker-4', image: '/images/korean-sticker-4.jpg', name: 'Lavender Butterflies', targetUrl: '/product/sticker-4', productId: 'sticker-4' },
 ];
 
 const slides: HeroSlide[] = [
@@ -116,16 +123,19 @@ const slides: HeroSlide[] = [
   },
 ];
 
-export const Hero: React.FC = () => {
+export const Hero: React.FC<HeroProps> = ({ onAddToCart }) => {
   const [activeSlide, setActiveSlide] = useState(0);
+  const [selectedQuickProduct, setSelectedQuickProduct] = useState<Product | null>(null);
 
   useEffect(() => {
     const interval = window.setInterval(() => {
-      setActiveSlide((current) => (current + 1) % slides.length);
+      if (!selectedQuickProduct) {
+        setActiveSlide((current) => (current + 1) % slides.length);
+      }
     }, 6500);
 
     return () => window.clearInterval(interval);
-  }, []);
+  }, [selectedQuickProduct]);
 
   const current = slides[activeSlide];
   const isLightBanner = current.isGraphicBanner;
@@ -139,171 +149,321 @@ export const Hero: React.FC = () => {
     setActiveSlide((prev) => (prev + 1) % slides.length);
   };
 
+  const handleOpenShowcaseProduct = async (
+    productId: string,
+    defaultName: string,
+    image: string,
+    e: React.MouseEvent
+  ) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const fetched = await getProductById(productId);
+    if (fetched) {
+      setSelectedQuickProduct(fetched);
+    } else {
+      setSelectedQuickProduct({
+        id: productId,
+        name: defaultName,
+        description: 'Delicate handcrafted boutique VELQIRA luxury collection piece.',
+        price: 1699.0,
+        originalPrice: 2199.0,
+        category: 'jewellery-accessories',
+        image: image,
+        rating: 5.0,
+        reviewsCount: 92,
+        inStock: true,
+      });
+    }
+  };
+
   return (
-    <section
-      className="relative w-full min-h-[580px] h-[76vh] max-h-[820px] overflow-hidden transition-colors duration-700"
-      style={{ backgroundColor: current.bgColor || '#2B2823' }}
-    >
-      {/* Background Slideshow */}
-      <div className="absolute inset-0">
-        <AnimatePresence mode="sync">
-          <motion.div
-            key={current.id}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.9, ease: 'easeInOut' }}
-            className="absolute inset-0 w-full h-full flex items-center justify-center"
-          >
-            {current.bannerType === 'silk-logo' ? (
-              /* Slide 1: Champagne Satin Silk VELQIRA Logo Banner */
+    <>
+      {/* Quick View Purchase Pop-Up Modal */}
+      <ProductQuickViewModal
+        product={selectedQuickProduct}
+        onClose={() => setSelectedQuickProduct(null)}
+        onAddToCart={onAddToCart}
+      />
+
+      <section
+        className="relative w-full min-h-[580px] h-[76vh] max-h-[820px] overflow-hidden transition-colors duration-700"
+        style={{ backgroundColor: current.bgColor || '#2B2823' }}
+      >
+        {/* Background Slideshow */}
+        <div className="absolute inset-0">
+          <AnimatePresence mode="sync">
+            <motion.div
+              key={current.id}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.9, ease: 'easeInOut' }}
+              className="absolute inset-0 w-full h-full flex items-center justify-center"
+            >
+              {current.bannerType === 'silk-logo' ? (
+                <Link
+                  to={current.ctaLink || '/shop'}
+                  className="relative w-full h-full block cursor-pointer group overflow-hidden"
+                >
+                  <picture className="w-full h-full block">
+                    {current.wideImage && (
+                      <source
+                        media="(min-width: 768px)"
+                        srcSet={current.wideImage}
+                      />
+                  )}
+                    <motion.img
+                      src={current.image}
+                      alt={current.alt}
+                      initial={{ scale: 1.03 }}
+                      animate={{ scale: 1 }}
+                      transition={{ duration: 6.5, ease: 'easeOut' }}
+                      className="w-full h-full object-cover object-center"
+                    />
+                  </picture>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent pointer-events-none" />
+                </Link>
+              ) : current.bannerType === 'why-choose' ? (
+                <Link
+                  to={current.ctaLink || '/shop'}
+                  className="w-full h-full flex items-center justify-center p-4 sm:p-8 lg:p-12 cursor-pointer group"
+                >
+                  <picture className="w-full h-full flex items-center justify-center">
+                    {current.wideImage && (
+                      <source
+                        media="(min-width: 1024px)"
+                        srcSet={current.wideImage}
+                      />
+                    )}
+                    <img
+                      src={current.image}
+                      alt={current.alt}
+                      className="max-h-full max-w-full w-auto h-auto object-contain drop-shadow-sm transition-transform duration-700 group-hover:scale-[1.015]"
+                    />
+                  </picture>
+                </Link>
+              ) : isShowcaseSlide ? (
+                <motion.img
+                  src={current.image}
+                  alt={current.alt}
+                  initial={{ scale: 1.02 }}
+                  animate={{ scale: 1 }}
+                  transition={{ duration: 6.5, ease: 'linear' }}
+                  className="absolute inset-0 w-full h-full object-cover object-right lg:object-center"
+                />
+              ) : (
+                <motion.img
+                  src={current.image}
+                  alt={current.alt}
+                  initial={{ scale: 1.04 }}
+                  animate={{ scale: 1 }}
+                  transition={{ duration: 6.5, ease: 'linear' }}
+                  className="absolute inset-0 w-full h-full object-cover object-center"
+                />
+              )}
+            </motion.div>
+          </AnimatePresence>
+
+          {isShowcaseSlide ? (
+            <>
+              <div className="absolute inset-0 bg-gradient-to-r from-[#141211]/95 via-[#141211]/70 to-transparent lg:w-[65%] pointer-events-none" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#141211]/60 via-transparent to-[#141211]/30 pointer-events-none" />
+            </>
+          ) : !isLightBanner ? (
+            <>
+              <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/25 to-transparent pointer-events-none" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-black/10 pointer-events-none" />
+            </>
+          ) : null}
+        </div>
+
+        {/* Hero Content Overlays */}
+        {current.bannerType === 'silk-logo' ? (
+          <div className="absolute bottom-10 sm:bottom-12 left-0 right-0 z-20 flex flex-col items-center text-center px-4">
+            <motion.div
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3, duration: 0.6 }}
+              className="flex flex-col items-center"
+            >
+              <p className="text-[10px] sm:text-xs uppercase tracking-[0.35em] text-[#38352F] font-semibold mb-3 drop-shadow-xs">
+                {current.subtitle}
+              </p>
               <Link
                 to={current.ctaLink || '/shop'}
-                className="relative w-full h-full block cursor-pointer group overflow-hidden"
+                className="inline-flex items-center gap-4 px-8 sm:px-10 py-3.5 sm:py-4 bg-[#38352F] text-[#F7F4EE] text-[10px] sm:text-xs uppercase tracking-[0.2em] font-semibold border border-[#38352F] shadow-xl hover:bg-transparent hover:text-[#38352F] transition-all duration-300 backdrop-blur-xs"
               >
-                <picture className="w-full h-full block">
-                  {current.wideImage && (
-                    <source
-                      media="(min-width: 768px)"
-                      srcSet={current.wideImage}
-                    />
-                  )}
-                  <motion.img
-                    src={current.image}
-                    alt={current.alt}
-                    initial={{ scale: 1.03 }}
-                    animate={{ scale: 1 }}
-                    transition={{ duration: 6.5, ease: 'easeOut' }}
-                    className="w-full h-full object-cover object-center"
-                  />
-                </picture>
-
-                <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent pointer-events-none" />
+                <span>{current.ctaText || 'Discover The Collection'}</span>
+                <ArrowRight size={15} strokeWidth={1.5} />
               </Link>
-            ) : current.bannerType === 'why-choose' ? (
-              /* Slide 2: Why Choose Velqira graphic banner */
+            </motion.div>
+          </div>
+        ) : current.bannerType === 'why-choose' ? (
+          <div className="absolute bottom-10 left-6 sm:left-12 lg:left-20 z-20">
+            <motion.div
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3, duration: 0.6 }}
+            >
               <Link
                 to={current.ctaLink || '/shop'}
-                className="w-full h-full flex items-center justify-center p-4 sm:p-8 lg:p-12 cursor-pointer group"
+                className="inline-flex items-center gap-4 px-7 sm:px-9 py-3.5 sm:py-4 bg-[#38352F] text-[#F7F4EE] text-[10px] sm:text-xs uppercase tracking-[0.2em] font-semibold border border-[#38352F] shadow-lg hover:bg-transparent hover:text-[#38352F] transition-all duration-300"
               >
-                <picture className="w-full h-full flex items-center justify-center">
-                  {current.wideImage && (
-                    <source
-                      media="(min-width: 1024px)"
-                      srcSet={current.wideImage}
-                    />
-                  )}
-                  <img
-                    src={current.image}
-                    alt={current.alt}
-                    className="max-h-full max-w-full w-auto h-auto object-contain drop-shadow-sm transition-transform duration-700 group-hover:scale-[1.015]"
-                  />
-                </picture>
+                <span>{current.ctaText || 'Discover The Collection'}</span>
+                <ArrowRight size={15} strokeWidth={1.5} />
               </Link>
-            ) : isShowcaseSlide ? (
-              /* Slides 3 & 4: Multi-Item Showcase Composite Background */
-              <motion.img
-                src={current.image}
-                alt={current.alt}
-                initial={{ scale: 1.02 }}
-                animate={{ scale: 1 }}
-                transition={{ duration: 6.5, ease: 'linear' }}
-                className="absolute inset-0 w-full h-full object-cover object-right lg:object-center"
-              />
-            ) : (
-              /* Editorial Photography Slides */
-              <motion.img
-                src={current.image}
-                alt={current.alt}
-                initial={{ scale: 1.04 }}
-                animate={{ scale: 1 }}
-                transition={{ duration: 6.5, ease: 'linear' }}
-                className="absolute inset-0 w-full h-full object-cover object-center"
-              />
-            )}
-          </motion.div>
-        </AnimatePresence>
+            </motion.div>
+          </div>
+        ) : isShowcaseSlide ? (
+          <div className="relative z-10 max-w-[1600px] mx-auto px-6 sm:px-10 lg:px-20 h-full min-h-[580px] flex items-center">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 xl:gap-12 w-full items-center">
+              <motion.div
+                key={current.id}
+                initial={{ opacity: 0, y: 25 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -15 }}
+                transition={{ duration: 0.8, ease: 'easeOut' }}
+                className="lg:col-span-6 xl:col-span-5 text-white py-12"
+              >
+                {current.tag && (
+                  <motion.p
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.15, duration: 0.6 }}
+                    className="text-[10px] sm:text-xs uppercase tracking-[0.35em] font-medium mb-6 text-[#D8CBB8]"
+                  >
+                    {current.tag}
+                  </motion.p>
+                )}
 
-        {/* Editorial gradient overlays */}
-        {isShowcaseSlide ? (
-          /* Tailored shadow for Showcase slides: Dark on left for text legibility, clear on right for items */
-          <>
-            <div className="absolute inset-0 bg-gradient-to-r from-[#141211]/95 via-[#141211]/70 to-transparent lg:w-[65%] pointer-events-none" />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#141211]/60 via-transparent to-[#141211]/30 pointer-events-none" />
-          </>
-        ) : !isLightBanner ? (
-          <>
-            <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/25 to-transparent pointer-events-none" />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-black/10 pointer-events-none" />
-          </>
-        ) : null}
-      </div>
+                <h1 className="font-serif text-[42px] sm:text-[60px] lg:text-[76px] leading-[1.06] font-normal tracking-[-0.04em]">
+                  {current.title}
+                </h1>
 
-      {/* Hero Content Overlays */}
-      {current.bannerType === 'silk-logo' ? (
-        /* Slide 1 Luxury Overlay: Bottom Centered CTA with Tagline */
-        <div className="absolute bottom-10 sm:bottom-12 left-0 right-0 z-20 flex flex-col items-center text-center px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3, duration: 0.6 }}
-            className="flex flex-col items-center"
-          >
-            <p className="text-[10px] sm:text-xs uppercase tracking-[0.35em] text-[#38352F] font-semibold mb-3 drop-shadow-xs">
-              {current.subtitle}
-            </p>
+                {current.subtitle && (
+                  <motion.p
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.35, duration: 0.6 }}
+                    className="mt-6 max-w-[430px] text-sm sm:text-base leading-7 text-white/90 font-light"
+                  >
+                    {current.subtitle}
+                  </motion.p>
+                )}
 
-            <Link
-              to={current.ctaLink || '/shop'}
-              className="inline-flex items-center gap-4 px-8 sm:px-10 py-3.5 sm:py-4 bg-[#38352F] text-[#F7F4EE] text-[10px] sm:text-xs uppercase tracking-[0.2em] font-semibold border border-[#38352F] shadow-xl hover:bg-transparent hover:text-[#38352F] transition-all duration-300 backdrop-blur-xs"
-            >
-              <span>{current.ctaText || 'Discover The Collection'}</span>
-              <ArrowRight size={15} strokeWidth={1.5} />
-            </Link>
-          </motion.div>
-        </div>
-      ) : current.bannerType === 'why-choose' ? (
-        /* Slide 2: Floating Bottom CTA */
-        <div className="absolute bottom-10 left-6 sm:left-12 lg:left-20 z-20">
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3, duration: 0.6 }}
-          >
-            <Link
-              to={current.ctaLink || '/shop'}
-              className="inline-flex items-center gap-4 px-7 sm:px-9 py-3.5 sm:py-4 bg-[#38352F] text-[#F7F4EE] text-[10px] sm:text-xs uppercase tracking-[0.2em] font-semibold border border-[#38352F] shadow-lg hover:bg-transparent hover:text-[#38352F] transition-all duration-300"
-            >
-              <span>{current.ctaText || 'Discover The Collection'}</span>
-              <ArrowRight size={15} strokeWidth={1.5} />
-            </Link>
-          </motion.div>
-        </div>
-      ) : isShowcaseSlide ? (
-        /* Slides 3 & 4: Exact Slide Text on Left + Direct Product Links on Right */
-        <div className="relative z-10 max-w-[1600px] mx-auto px-6 sm:px-10 lg:px-20 h-full min-h-[580px] flex items-center">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 xl:gap-12 w-full items-center">
-            {/* Left Column: Exactly Same Text As In Slide */}
+                {current.ctaText && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.5, duration: 0.6 }}
+                    className="mt-8"
+                  >
+                    <Link
+                      to={current.ctaLink || '/shop'}
+                      className="inline-flex items-center gap-4 px-8 py-4 bg-[#F7F4EE] text-[#38352F] text-[10px] sm:text-xs uppercase tracking-[0.18em] font-semibold border border-[#F7F4EE] hover:bg-transparent hover:text-white transition-all duration-300"
+                    >
+                      <span>{current.ctaText}</span>
+                      <ArrowRight size={15} strokeWidth={1.5} />
+                    </Link>
+                  </motion.div>
+                )}
+              </motion.div>
+
+              {/* Right Column: Multi-Item Interactive Showcase Pop-Up Pop-up Trigger */}
+              <div className="lg:col-span-6 xl:col-span-7 hidden lg:block z-30">
+                {current.bannerType === 'showcase-3' ? (
+                  <motion.div
+                    initial={{ opacity: 0, x: 30 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.3, duration: 0.8 }}
+                    className="grid grid-cols-3 gap-4 xl:gap-5 items-center"
+                  >
+                    {jewelleryShowcaseItems.map((item, idx) => (
+                      <button
+                        key={item.id}
+                        type="button"
+                        onClick={(e) => handleOpenShowcaseProduct(item.productId, item.name, item.image, e)}
+                        className={`group relative block aspect-[3/4] bg-[#221E1C] border border-[#A18B70]/40 shadow-2xl overflow-hidden transition-all duration-500 hover:-translate-y-2 hover:border-[#F7F4EE] cursor-pointer text-left w-full ${
+                          idx === 1 ? 'translate-y-4' : '-translate-y-3'
+                        }`}
+                        title={`Quick View & Buy ${item.name}`}
+                      >
+                        <img
+                          src={item.image}
+                          alt={item.name}
+                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 to-transparent opacity-90 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-3.5">
+                          <span className="text-[10px] text-[#F7F4EE] font-serif font-bold tracking-wider uppercase leading-tight group-hover:text-[#D8CBB8]">
+                            {item.name}
+                          </span>
+                          <span className="text-[8px] text-[#A18B70] uppercase font-bold tracking-widest mt-1 flex items-center gap-1">
+                            <Eye size={10} /> Quick Purchase &rarr;
+                          </span>
+                        </div>
+                      </button>
+                    ))}
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    initial={{ opacity: 0, x: 30 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.3, duration: 0.8 }}
+                    className="grid grid-cols-4 gap-3.5 xl:gap-4 items-center"
+                  >
+                    {stickerShowcaseItems.map((item, idx) => (
+                      <button
+                        key={item.id}
+                        type="button"
+                        onClick={(e) => handleOpenShowcaseProduct(item.productId, item.name, item.image, e)}
+                        className={`group relative block aspect-[3/4] bg-[#221E1C] border border-[#A18B70]/40 shadow-2xl overflow-hidden transition-all duration-500 hover:-translate-y-2 hover:border-[#F7F4EE] cursor-pointer text-left w-full ${
+                          idx % 2 === 1 ? 'translate-y-3' : '-translate-y-3'
+                        }`}
+                        title={`Quick View & Buy ${item.name}`}
+                      >
+                        <img
+                          src={item.image}
+                          alt={item.name}
+                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 to-transparent opacity-90 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-2.5">
+                          <span className="text-[9px] text-[#F7F4EE] font-serif font-bold tracking-wider uppercase leading-tight group-hover:text-[#D8CBB8]">
+                            {item.name}
+                          </span>
+                          <span className="text-[8px] text-[#A18B70] uppercase font-bold tracking-widest mt-1 flex items-center gap-1">
+                            <Eye size={10} /> Quick Purchase &rarr;
+                          </span>
+                        </div>
+                      </button>
+                    ))}
+                  </motion.div>
+                )}
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="relative z-10 max-w-[1600px] mx-auto px-6 sm:px-10 lg:px-20 h-full min-h-[580px] flex items-center pointer-events-none">
             <motion.div
               key={current.id}
               initial={{ opacity: 0, y: 25 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -15 }}
               transition={{ duration: 0.8, ease: 'easeOut' }}
-              className="lg:col-span-6 xl:col-span-5 text-white py-12"
+              className="max-w-[680px] text-white py-16 pointer-events-auto"
             >
               {current.tag && (
                 <motion.p
                   initial={{ opacity: 0, y: 12 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.15, duration: 0.6 }}
-                  className="text-[10px] sm:text-xs uppercase tracking-[0.35em] font-medium mb-6 text-[#D8CBB8]"
+                  className="text-[10px] sm:text-xs uppercase tracking-[0.35em] font-medium mb-6 text-white/90"
                 >
                   {current.tag}
                 </motion.p>
               )}
 
-              <h1 className="font-serif text-[42px] sm:text-[60px] lg:text-[76px] leading-[1.06] font-normal tracking-[-0.04em]">
+              <h1 className="font-serif text-[44px] sm:text-[64px] lg:text-[84px] leading-[1.06] font-normal tracking-[-0.04em]">
                 {current.title}
               </h1>
 
@@ -335,204 +495,78 @@ export const Hero: React.FC = () => {
                 </motion.div>
               )}
             </motion.div>
-
-            {/* Right Column: Multi-Item Interactive Showcase Direct Purchase Links */}
-            <div className="lg:col-span-6 xl:col-span-7 hidden lg:block z-30">
-              {current.bannerType === 'showcase-3' ? (
-                /* Slide 3: 3-Item Jewellery Showcase Direct Product Links */
-                <motion.div
-                  initial={{ opacity: 0, x: 30 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.3, duration: 0.8 }}
-                  className="grid grid-cols-3 gap-4 xl:gap-5 items-center"
-                >
-                  {jewelleryShowcaseItems.map((item, idx) => (
-                    <Link
-                      key={item.id}
-                      to={item.targetUrl}
-                      className={`group relative block aspect-[3/4] bg-[#221E1C] border border-[#A18B70]/40 shadow-2xl overflow-hidden transition-all duration-500 hover:-translate-y-2 hover:border-[#F7F4EE] cursor-pointer ${
-                        idx === 1 ? 'translate-y-4' : '-translate-y-3'
-                      }`}
-                      title={`Buy ${item.name} directly`}
-                    >
-                      <img
-                        src={item.image}
-                        alt={item.name}
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent opacity-90 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-3.5">
-                        <span className="text-[10px] text-[#F7F4EE] font-serif font-bold tracking-wider uppercase leading-tight group-hover:text-[#D8CBB8]">
-                          {item.name}
-                        </span>
-                        <span className="text-[8px] text-[#A18B70] uppercase font-bold tracking-widest mt-1 flex items-center gap-1">
-                          Buy Product &rarr;
-                        </span>
-                      </div>
-                    </Link>
-                  ))}
-                </motion.div>
-              ) : (
-                /* Slide 4: 4-Item Sticker Showcase Direct Product Links */
-                <motion.div
-                  initial={{ opacity: 0, x: 30 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.3, duration: 0.8 }}
-                  className="grid grid-cols-4 gap-3.5 xl:gap-4 items-center"
-                >
-                  {stickerShowcaseItems.map((item, idx) => (
-                    <Link
-                      key={item.id}
-                      to={item.targetUrl}
-                      className={`group relative block aspect-[3/4] bg-[#221E1C] border border-[#A18B70]/40 shadow-2xl overflow-hidden transition-all duration-500 hover:-translate-y-2 hover:border-[#F7F4EE] cursor-pointer ${
-                        idx % 2 === 1 ? 'translate-y-3' : '-translate-y-3'
-                      }`}
-                      title={`Buy ${item.name} directly`}
-                    >
-                      <img
-                        src={item.image}
-                        alt={item.name}
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent opacity-90 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-2.5">
-                        <span className="text-[9px] text-[#F7F4EE] font-serif font-bold tracking-wider uppercase leading-tight group-hover:text-[#D8CBB8]">
-                          {item.name}
-                        </span>
-                        <span className="text-[8px] text-[#A18B70] uppercase font-bold tracking-widest mt-1 flex items-center gap-1">
-                          Buy Product &rarr;
-                        </span>
-                      </div>
-                    </Link>
-                  ))}
-                </motion.div>
-              )}
-            </div>
           </div>
-        </div>
-      ) : (
-        /* Regular Photography Slides */
-        <div className="relative z-10 max-w-[1600px] mx-auto px-6 sm:px-10 lg:px-20 h-full min-h-[580px] flex items-center pointer-events-none">
-          <motion.div
-            key={current.id}
-            initial={{ opacity: 0, y: 25 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -15 }}
-            transition={{ duration: 0.8, ease: 'easeOut' }}
-            className="max-w-[680px] text-white py-16 pointer-events-auto"
+        )}
+
+        {/* Manual Navigation Controls */}
+        <div className="absolute top-1/2 -translate-y-1/2 left-3 sm:left-6 z-20">
+          <button
+            type="button"
+            onClick={handlePrev}
+            aria-label="Previous slide"
+            className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
+              isLightBanner
+                ? 'bg-[#38352F]/15 hover:bg-[#38352F] text-[#38352F] hover:text-white border border-[#38352F]/25 shadow-sm'
+                : 'bg-white/10 hover:bg-white text-white hover:text-[#38352F] border border-white/20'
+            }`}
           >
-            {current.tag && (
-              <motion.p
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.15, duration: 0.6 }}
-                className="text-[10px] sm:text-xs uppercase tracking-[0.35em] font-medium mb-6 text-white/90"
-              >
-                {current.tag}
-              </motion.p>
-            )}
-
-            <h1 className="font-serif text-[44px] sm:text-[64px] lg:text-[84px] leading-[1.06] font-normal tracking-[-0.04em]">
-              {current.title}
-            </h1>
-
-            {current.subtitle && (
-              <motion.p
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.35, duration: 0.6 }}
-                className="mt-6 max-w-[430px] text-sm sm:text-base leading-7 text-white/90 font-light"
-              >
-                {current.subtitle}
-              </motion.p>
-            )}
-
-            {current.ctaText && (
-              <motion.div
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5, duration: 0.6 }}
-                className="mt-8"
-              >
-                <Link
-                  to={current.ctaLink || '/shop'}
-                  className="inline-flex items-center gap-4 px-8 py-4 bg-[#F7F4EE] text-[#38352F] text-[10px] sm:text-xs uppercase tracking-[0.18em] font-semibold border border-[#F7F4EE] hover:bg-transparent hover:text-white transition-all duration-300"
-                >
-                  <span>{current.ctaText}</span>
-                  <ArrowRight size={15} strokeWidth={1.5} />
-                </Link>
-              </motion.div>
-            )}
-          </motion.div>
-        </div>
-      )}
-
-      {/* Manual Navigation Controls (Prev / Next Arrows) */}
-      <div className="absolute top-1/2 -translate-y-1/2 left-3 sm:left-6 z-20">
-        <button
-          type="button"
-          onClick={handlePrev}
-          aria-label="Previous slide"
-          className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
-            isLightBanner
-              ? 'bg-[#38352F]/15 hover:bg-[#38352F] text-[#38352F] hover:text-white border border-[#38352F]/25 shadow-sm'
-              : 'bg-white/10 hover:bg-white text-white hover:text-[#38352F] border border-white/20'
-          }`}
-        >
-          <ChevronLeft className="w-5 h-5" />
-        </button>
-      </div>
-
-      <div className="absolute top-1/2 -translate-y-1/2 right-3 sm:right-6 z-20">
-        <button
-          type="button"
-          onClick={handleNext}
-          aria-label="Next slide"
-          className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
-            isLightBanner
-              ? 'bg-[#38352F]/15 hover:bg-[#38352F] text-[#38352F] hover:text-white border border-[#38352F]/25 shadow-sm'
-              : 'bg-white/10 hover:bg-white text-white hover:text-[#38352F] border border-white/20'
-          }`}
-        >
-          <ChevronRight className="w-5 h-5" />
-        </button>
-      </div>
-
-      {/* Slide Indicators Bar */}
-      <div className="absolute bottom-8 right-6 sm:right-12 z-20 flex items-center gap-3">
-        <span
-          className={`text-[10px] tracking-widest font-mono font-medium ${
-            isLightBanner ? 'text-[#38352F]' : 'text-white'
-          }`}
-        >
-          0{activeSlide + 1}
-        </span>
-
-        <div className="flex gap-2">
-          {slides.map((_, index) => (
-            <button
-              key={index}
-              onClick={() => setActiveSlide(index)}
-              aria-label={`Show slide ${index + 1}`}
-              className={`h-[2px] transition-all duration-500 ${
-                activeSlide === index
-                  ? isLightBanner
-                    ? 'w-9 bg-[#38352F]'
-                    : 'w-9 bg-white'
-                  : isLightBanner
-                  ? 'w-4 bg-[#38352F]/30 hover:bg-[#38352F]'
-                  : 'w-4 bg-white/40 hover:bg-white'
-              }`}
-            />
-          ))}
+            <ChevronLeft className="w-5 h-5" />
+          </button>
         </div>
 
-        <span
-          className={`text-[10px] tracking-widest font-mono ${
-            isLightBanner ? 'text-[#38352F]/60' : 'text-white/60'
-          }`}
-        >
-          0{slides.length}
-        </span>
-      </div>
-    </section>
+        <div className="absolute top-1/2 -translate-y-1/2 right-3 sm:right-6 z-20">
+          <button
+            type="button"
+            onClick={handleNext}
+            aria-label="Next slide"
+            className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
+              isLightBanner
+                ? 'bg-[#38352F]/15 hover:bg-[#38352F] text-[#38352F] hover:text-white border border-[#38352F]/25 shadow-sm'
+                : 'bg-white/10 hover:bg-white text-white hover:text-[#38352F] border border-white/20'
+            }`}
+          >
+            <ChevronRight className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Slide Indicators */}
+        <div className="absolute bottom-8 right-6 sm:right-12 z-20 flex items-center gap-3">
+          <span
+            className={`text-[10px] tracking-widest font-mono font-medium ${
+              isLightBanner ? 'text-[#38352F]' : 'text-white'
+            }`}
+          >
+            0{activeSlide + 1}
+          </span>
+
+          <div className="flex gap-2">
+            {slides.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setActiveSlide(index)}
+                aria-label={`Show slide ${index + 1}`}
+                className={`h-[2px] transition-all duration-500 ${
+                  activeSlide === index
+                    ? isLightBanner
+                      ? 'w-9 bg-[#38352F]'
+                      : 'w-9 bg-white'
+                    : isLightBanner
+                    ? 'w-4 bg-[#38352F]/30 hover:bg-[#38352F]'
+                    : 'w-4 bg-white/40 hover:bg-white'
+                }`}
+              />
+            ))}
+          </div>
+
+          <span
+            className={`text-[10px] tracking-widest font-mono ${
+              isLightBanner ? 'text-[#38352F]/60' : 'text-white/60'
+            }`}
+          >
+            0{slides.length}
+          </span>
+        </div>
+      </section>
+    </>
   );
 };
