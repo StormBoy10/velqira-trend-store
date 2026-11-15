@@ -146,8 +146,8 @@ export const mockCategories: Category[] = [
 export const mockProducts: Product[] = [
   {
     id: 'jewel-1',
-    name: 'Crystal Flower Pendant Necklace',
-    description: 'Delicate handcrafted gold chain featuring a crystalline flower bloom pendant.',
+    name: 'JSK Dainty Crystal Tulip Pendant Necklace',
+    description: 'Delicate handcrafted JSK gold chain featuring a crystalline tulip bloom pendant.',
     price: 1499.00,
     originalPrice: 1899.00,
     category: 'jewellery-accessories',
@@ -163,8 +163,8 @@ export const mockProducts: Product[] = [
   },
   {
     id: 'jewel-2',
-    name: 'Rainbow Gemstone Charm Necklace',
-    description: 'Boutique gold chain with five multi-color baguette cut gemstone charms.',
+    name: 'JSK Rainbow Gemstone Charm Necklace',
+    description: 'Boutique JSK gold chain with five multi-color baguette cut gemstone charms.',
     price: 1699.00,
     originalPrice: 2199.00,
     category: 'jewellery-accessories',
@@ -180,8 +180,8 @@ export const mockProducts: Product[] = [
   },
   {
     id: 'jewel-3',
-    name: 'Five Gemstones on Silk Gold Chain',
-    description: 'Artisanal gold chain adorned with vibrant emerald, ruby, and sapphire gemstone accents.',
+    name: 'JSK Five Gemstones Gold Silk Chain',
+    description: 'Artisanal JSK gold chain adorned with vibrant emerald, ruby, and sapphire gemstone accents.',
     price: 1899.00,
     originalPrice: 2399.00,
     category: 'jewellery-accessories',

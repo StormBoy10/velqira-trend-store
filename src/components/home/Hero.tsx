@@ -26,16 +26,16 @@ interface HeroProps {
 }
 
 const jewelleryShowcaseItems = [
-  { id: 'jewel-1', image: '/images/jewellery-necklace-1.jpg', name: 'Crystal Flower Pendant', targetUrl: '/product/jewel-1', productId: 'jewel-1' },
-  { id: 'jewel-2', image: '/images/jewellery-necklace-2.jpg', name: 'Rainbow Gemstone Charm', targetUrl: '/product/jewel-2', productId: 'jewel-2' },
-  { id: 'jewel-3', image: '/images/jewellery-necklace-3.jpg', name: 'Five Gemstones on Silk', targetUrl: '/product/jewel-3', productId: 'jewel-3' },
+  { id: 'jewel-1', image: '/images/jewellery-necklace-1.jpg', name: 'JSK Dainty Crystal Tulip Pendant Necklace', targetUrl: '/product/jewel-1', productId: 'jewel-1' },
+  { id: 'jewel-2', image: '/images/jewellery-necklace-2.jpg', name: 'JSK Rainbow Gemstone Charm Necklace', targetUrl: '/product/jewel-2', productId: 'jewel-2' },
+  { id: 'jewel-3', image: '/images/jewellery-necklace-3.jpg', name: 'JSK Five Gemstones Gold Silk Chain', targetUrl: '/product/jewel-3', productId: 'jewel-3' },
 ];
 
 const stickerShowcaseItems = [
-  { id: 'sticker-1', image: '/images/korean-sticker-1.jpg', name: 'Purple Heart Ribbons', targetUrl: '/product/sticker-1', productId: 'sticker-1' },
-  { id: 'sticker-2', image: '/images/korean-sticker-2.jpg', name: 'Holo Black Hearts', targetUrl: '/product/sticker-2', productId: 'sticker-2' },
-  { id: 'sticker-3', image: '/images/korean-sticker-3.jpg', name: 'Kuromi Portable', targetUrl: '/product/sticker-3', productId: 'sticker-3' },
-  { id: 'sticker-4', image: '/images/korean-sticker-4.jpg', name: 'Lavender Butterflies', targetUrl: '/product/sticker-4', productId: 'sticker-4' },
+  { id: 'sticker-1', image: '/images/korean-sticker-1.jpg', name: 'Purple Heart Ribbons Deco Sheet', targetUrl: '/product/sticker-1', productId: 'sticker-1' },
+  { id: 'sticker-2', image: '/images/korean-sticker-2.jpg', name: 'Holo Black Hearts Ribbon Sheet', targetUrl: '/product/sticker-2', productId: 'sticker-2' },
+  { id: 'sticker-3', image: '/images/korean-sticker-3.jpg', name: 'Kuromi Portable Stationery Set', targetUrl: '/product/sticker-3', productId: 'sticker-3' },
+  { id: 'sticker-4', image: '/images/korean-sticker-4.jpg', name: 'Lavender Butterflies Kawaii Sheet', targetUrl: '/product/sticker-4', productId: 'sticker-4' },
 ];
 
 const slides: HeroSlide[] = [
@@ -166,12 +166,12 @@ export const Hero: React.FC<HeroProps> = ({ onAddToCart }) => {
         id: productId,
         name: defaultName,
         description: 'Delicate handcrafted boutique VELQIRA luxury collection piece.',
-        price: 1699.0,
-        originalPrice: 2199.0,
+        price: 1499.0,
+        originalPrice: 1899.0,
         category: 'jewellery-accessories',
         image: image,
-        rating: 5.0,
-        reviewsCount: 92,
+        rating: 4.9,
+        reviewsCount: 84,
         inStock: true,
       });
     }
@@ -370,7 +370,7 @@ export const Hero: React.FC<HeroProps> = ({ onAddToCart }) => {
                 )}
               </motion.div>
 
-              {/* Right Column: Multi-Item Interactive Showcase Pop-Up Pop-up Trigger */}
+              {/* Right Column: Multi-Item Interactive Showcase Pop-Up Trigger */}
               <div className="lg:col-span-6 xl:col-span-7 hidden lg:block z-30">
                 {current.bannerType === 'showcase-3' ? (
                   <motion.div
