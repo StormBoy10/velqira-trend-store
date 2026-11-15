@@ -1337,15 +1337,29 @@ export const AdminPage: React.FC = () => {
                     )}
 
                     <div>
-                      <label className="block text-xs font-bold text-[#332522] uppercase tracking-wider mb-1">Price (₹)</label>
+                      <label className="block text-xs font-bold text-[#332522] uppercase tracking-wider mb-1">Selling Price (₹)</label>
                       <input
                         type="number"
                         step="0.01"
                         required
-                        placeholder="499.00"
+                        placeholder="e.g. 2999.00"
                         value={productForm.price}
                         onChange={(e) => setProductForm({ ...productForm, price: e.target.value })}
-                        className="w-full bg-[#FFF9F5] text-sm px-4 py-3 rounded-xl border border-[#D9A6AB]/40"
+                        className="w-full bg-[#FFF9F5] text-sm px-4 py-3 rounded-xl border border-[#D9A6AB]/40 font-bold"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-[#332522] uppercase tracking-wider mb-1">
+                        Cut Price / Strikethrough M.R.P. (₹)
+                      </label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        placeholder="e.g. 3599.00 (Optional crossed-out price)"
+                        value={productForm.originalPrice}
+                        onChange={(e) => setProductForm({ ...productForm, originalPrice: e.target.value })}
+                        className="w-full bg-[#FFF9F5] text-sm px-4 py-3 rounded-xl border border-[#D9A6AB]/40 font-mono text-gray-500 line-through"
                       />
                     </div>
                   </div>
@@ -1490,7 +1504,7 @@ export const AdminPage: React.FC = () => {
                     )}
 
                     <div>
-                      <label className="block text-xs font-bold text-[#332522] uppercase tracking-wider mb-1">Price (₹)</label>
+                      <label className="block text-xs font-bold text-[#332522] uppercase tracking-wider mb-1">Selling Price (₹)</label>
                       <input
                         type="number"
                         step="0.01"
@@ -1498,6 +1512,20 @@ export const AdminPage: React.FC = () => {
                         value={productForm.price}
                         onChange={(e) => setProductForm({ ...productForm, price: e.target.value })}
                         className="w-full bg-[#FFF9F5] text-sm px-4 py-3 rounded-xl border border-[#D9A6AB]/40 font-bold"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-[#332522] uppercase tracking-wider mb-1">
+                        Cut Price / Strikethrough M.R.P. (₹)
+                      </label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        placeholder="e.g. 3599.00 (Crossed-out M.R.P.)"
+                        value={productForm.originalPrice}
+                        onChange={(e) => setProductForm({ ...productForm, originalPrice: e.target.value })}
+                        className="w-full bg-[#FFF9F5] text-sm px-4 py-3 rounded-xl border border-[#D9A6AB]/40 font-mono text-gray-500 line-through"
                       />
                     </div>
                   </div>
@@ -1567,7 +1595,7 @@ export const AdminPage: React.FC = () => {
                       type="submit"
                       className="flex-1 bg-[#C6A16B] text-[#332522] py-3.5 rounded-xl font-bold hover:bg-[#E8BFC3] transition-colors shadow-md text-base"
                     >
-                      Update Product Details
+                      Update Product Details & Prices
                     </button>
                     <button
                       type="button"
@@ -1592,45 +1620,58 @@ export const AdminPage: React.FC = () => {
                     <th className="py-4 px-6">Product</th>
                     <th className="py-4 px-6">Category</th>
                     <th className="py-4 px-6">Sub-Category</th>
-                    <th className="py-4 px-6">Price</th>
+                    <th className="py-4 px-6">Selling Price / Cut M.R.P.</th>
                     <th className="py-4 px-6 text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#D9A6AB]/20">
-                  {filteredProducts.map((p) => (
-                    <tr key={p.id} className="hover:bg-[#FFF9F5]/60 transition-colors">
-                      <td className="py-4 px-6 flex items-center space-x-3">
-                        <img src={p.image} alt={p.name} className="w-10 h-10 rounded object-cover" />
-                        <div>
-                          <span className="font-bold">{p.name}</span>
-                          {p.inStock === false && (
-                            <span className="ml-2 text-[10px] font-bold text-red-600 bg-red-50 px-1.5 py-0.5 rounded border border-red-200">
-                              Out of Stock
-                            </span>
-                          )}
-                        </div>
-                      </td>
-                      <td className="py-4 px-6 text-xs font-semibold">{p.category}</td>
-                      <td className="py-4 px-6 text-xs text-[#C6A16B] font-bold">{p.subCategory || '—'}</td>
-                      <td className="py-4 px-6 font-bold">₹{p.price.toFixed(2)}</td>
-                      <td className="py-4 px-6 text-right space-x-2">
-                        <button
-                          onClick={() => handleOpenEditProduct(p)}
-                          className="p-2 text-[#C6A16B] hover:text-[#332522] hover:bg-[#FFF9F5] rounded-lg transition-colors inline-flex items-center gap-1 font-bold text-xs"
-                          title="Edit Product Details"
-                        >
-                          <Edit3 className="w-4 h-4" /> Edit
-                        </button>
-                        <button
-                          onClick={() => handleDeleteProduct(p.id)}
-                          className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors inline-flex items-center gap-1"
-                          title="Delete Product"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
+                  {filteredProducts.map((p) => {
+                    const priceNum = Number(p.price) || 0;
+                    const origNum = Number(p.originalPrice) || 0;
+                    return (
+                      <tr key={p.id} className="hover:bg-[#FFF9F5]/60 transition-colors">
+                        <td className="py-4 px-6 flex items-center space-x-3">
+                          <img src={p.image} alt={p.name} className="w-10 h-10 rounded object-cover" />
+                          <div>
+                            <span className="font-bold">{p.name}</span>
+                            {p.inStock === false && (
+                              <span className="ml-2 text-[10px] font-bold text-red-600 bg-red-50 px-1.5 py-0.5 rounded border border-red-200">
+                                Out of Stock
+                              </span>
+                            )}
+                          </div>
+                        </td>
+                        <td className="py-4 px-6 text-xs font-semibold">{p.category}</td>
+                        <td className="py-4 px-6 text-xs text-[#C6A16B] font-bold">{p.subCategory || '—'}</td>
+                        <td className="py-4 px-6">
+                          <div className="flex items-baseline gap-1.5">
+                            <span className="font-bold text-[#332522]">₹{priceNum.toFixed(2)}</span>
+                            {origNum > priceNum && (
+                              <span className="text-xs text-gray-400 line-through">
+                                ₹{origNum.toFixed(2)}
+                              </span>
+                            )}
+                          </div>
+                        </td>
+                        <td className="py-4 px-6 text-right space-x-2">
+                          <button
+                            onClick={() => handleOpenEditProduct(p)}
+                            className="p-2 text-[#C6A16B] hover:text-[#332522] hover:bg-[#FFF9F5] rounded-lg transition-colors inline-flex items-center gap-1 font-bold text-xs"
+                            title="Edit Product Details & Prices"
+                          >
+                            <Edit3 className="w-4 h-4" /> Edit
+                          </button>
+                          <button
+                            onClick={() => handleDeleteProduct(p.id)}
+                            className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors inline-flex items-center gap-1"
+                            title="Delete Product"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
