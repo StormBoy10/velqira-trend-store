@@ -3,6 +3,13 @@ import { mockProducts, mockCategories, defaultHeroSlides } from './mockData';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
+// Instant browser notification trigger to update UI components across all tabs with 0ms lag
+const notifyDataChanged = () => {
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new Event('velqira_data_updated'));
+  }
+};
+
 // Sanitize helper to ensure array items are valid non-null objects
 const sanitizeProducts = (arr: any[]): Product[] => {
   if (!Array.isArray(arr)) return [];
@@ -40,6 +47,7 @@ const saveStoredProducts = (products: Product[]) => {
     if (Array.isArray(products)) {
       const valid = sanitizeProducts(products);
       localStorage.setItem('velqira_dynamic_products', JSON.stringify(valid));
+      notifyDataChanged();
     }
   } catch (e) {}
 };
@@ -62,6 +70,7 @@ const saveStoredCategories = (categories: Category[]) => {
     if (Array.isArray(categories)) {
       const valid = sanitizeCategories(categories);
       localStorage.setItem('velqira_dynamic_categories', JSON.stringify(valid));
+      notifyDataChanged();
     }
   } catch (e) {}
 };
@@ -84,6 +93,7 @@ const saveStoredHeroSlides = (slides: HeroSlide[]) => {
     if (Array.isArray(slides)) {
       const valid = sanitizeHeroSlides(slides);
       localStorage.setItem('velqira_dynamic_hero_slides', JSON.stringify(valid));
+      notifyDataChanged();
     }
   } catch (e) {}
 };

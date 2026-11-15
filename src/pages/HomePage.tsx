@@ -17,9 +17,21 @@ export const HomePage: React.FC<HomePageProps> = ({ onAddToCart }) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
 
-  useEffect(() => {
+  const reloadData = () => {
     getProducts().then((data) => setProducts(Array.isArray(data) ? data : []));
     getCategories().then((data) => setCategories(Array.isArray(data) ? data : []));
+  };
+
+  useEffect(() => {
+    reloadData();
+
+    window.addEventListener('velqira_data_updated', reloadData);
+    window.addEventListener('storage', reloadData);
+
+    return () => {
+      window.removeEventListener('velqira_data_updated', reloadData);
+      window.removeEventListener('storage', reloadData);
+    };
   }, []);
 
   const validProducts = (products || []).filter((p) => p && typeof p === 'object');

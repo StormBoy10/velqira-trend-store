@@ -38,7 +38,7 @@ export const ShopPage: React.FC<ShopPageProps> = ({ onAddToCart }) => {
   const [inStockOnly, setInStockOnly] = useState(false);
   const [visibleCount, setVisibleCount] = useState(8);
 
-  useEffect(() => {
+  const reloadData = () => {
     getProducts()
       .then(setProducts)
       .catch((error) => console.error('Failed to load products:', error));
@@ -46,6 +46,18 @@ export const ShopPage: React.FC<ShopPageProps> = ({ onAddToCart }) => {
     getCategories()
       .then(setCategories)
       .catch((error) => console.error('Failed to load categories:', error));
+  };
+
+  useEffect(() => {
+    reloadData();
+
+    window.addEventListener('velqira_data_updated', reloadData);
+    window.addEventListener('storage', reloadData);
+
+    return () => {
+      window.removeEventListener('velqira_data_updated', reloadData);
+      window.removeEventListener('storage', reloadData);
+    };
   }, []);
 
   useEffect(() => {
