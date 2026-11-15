@@ -12,8 +12,9 @@ const notifyDataChanged = () => {
 
 // Sanitize helper to ensure array items are valid non-null objects
 const sanitizeProducts = (arr: any[]): Product[] => {
-  if (!Array.isArray(arr)) return [];
-  return arr.filter((p) => p && typeof p === 'object' && p.id && p.name);
+  if (!Array.isArray(arr)) return [...mockProducts];
+  const valid = arr.filter((p) => p && typeof p === 'object' && p.id && p.name);
+  return valid.length > 0 ? valid : [...mockProducts];
 };
 
 const sanitizeCategories = (arr: any[]): Category[] => {
@@ -34,7 +35,8 @@ const loadStoredProducts = (): Product[] => {
     const saved = localStorage.getItem('velqira_dynamic_products');
     if (saved !== null) {
       const parsed = JSON.parse(saved);
-      return sanitizeProducts(parsed);
+      const sanitized = sanitizeProducts(parsed);
+      if (sanitized.length > 0) return sanitized;
     }
   } catch (e) {
     localStorage.removeItem('velqira_dynamic_products');
@@ -44,11 +46,13 @@ const loadStoredProducts = (): Product[] => {
 
 const saveStoredProducts = (products: Product[]) => {
   try {
-    if (Array.isArray(products)) {
+    if (Array.isArray(products) && products.length > 0) {
       const valid = sanitizeProducts(products);
       localStorage.setItem('velqira_dynamic_products', JSON.stringify(valid));
-      notifyDataChanged();
+    } else {
+      localStorage.removeItem('velqira_dynamic_products');
     }
+    notifyDataChanged();
   } catch (e) {}
 };
 
@@ -57,7 +61,8 @@ const loadStoredCategories = (): Category[] => {
     const saved = localStorage.getItem('velqira_dynamic_categories');
     if (saved !== null) {
       const parsed = JSON.parse(saved);
-      return sanitizeCategories(parsed);
+      const sanitized = sanitizeCategories(parsed);
+      if (sanitized.length > 0) return sanitized;
     }
   } catch (e) {
     localStorage.removeItem('velqira_dynamic_categories');
@@ -67,11 +72,13 @@ const loadStoredCategories = (): Category[] => {
 
 const saveStoredCategories = (categories: Category[]) => {
   try {
-    if (Array.isArray(categories)) {
+    if (Array.isArray(categories) && categories.length > 0) {
       const valid = sanitizeCategories(categories);
       localStorage.setItem('velqira_dynamic_categories', JSON.stringify(valid));
-      notifyDataChanged();
+    } else {
+      localStorage.removeItem('velqira_dynamic_categories');
     }
+    notifyDataChanged();
   } catch (e) {}
 };
 
@@ -80,7 +87,8 @@ const loadStoredHeroSlides = (): HeroSlide[] => {
     const saved = localStorage.getItem('velqira_dynamic_hero_slides');
     if (saved !== null) {
       const parsed = JSON.parse(saved);
-      return sanitizeHeroSlides(parsed);
+      const sanitized = sanitizeHeroSlides(parsed);
+      if (sanitized.length > 0) return sanitized;
     }
   } catch (e) {
     localStorage.removeItem('velqira_dynamic_hero_slides');
@@ -90,11 +98,13 @@ const loadStoredHeroSlides = (): HeroSlide[] => {
 
 const saveStoredHeroSlides = (slides: HeroSlide[]) => {
   try {
-    if (Array.isArray(slides)) {
+    if (Array.isArray(slides) && slides.length > 0) {
       const valid = sanitizeHeroSlides(slides);
       localStorage.setItem('velqira_dynamic_hero_slides', JSON.stringify(valid));
-      notifyDataChanged();
+    } else {
+      localStorage.removeItem('velqira_dynamic_hero_slides');
     }
+    notifyDataChanged();
   } catch (e) {}
 };
 
@@ -139,6 +149,10 @@ export const fetchHeroSlidesFromAPI = async (): Promise<HeroSlide[]> => {
       }
     }
   } catch (err) {}
+
+  if (!Array.isArray(dynamicHeroSlides) || dynamicHeroSlides.length === 0) {
+    dynamicHeroSlides = [...defaultHeroSlides];
+  }
   return dynamicHeroSlides;
 };
 
@@ -160,10 +174,15 @@ export const saveHeroSlidesAPI = async (slides: HeroSlide[], token?: string): Pr
   return dynamicHeroSlides;
 };
 
-// Clear all default products helper
+// Reset to default initial store catalog helper
 export const clearDefaultProductsAPI = (): void => {
-  dynamicProducts = [];
-  saveStoredProducts([]);
+  localStorage.removeItem('velqira_dynamic_products');
+  localStorage.removeItem('velqira_dynamic_categories');
+  localStorage.removeItem('velqira_dynamic_hero_slides');
+  dynamicProducts = [...mockProducts];
+  dynamicCategories = [...mockCategories];
+  dynamicHeroSlides = [...defaultHeroSlides];
+  notifyDataChanged();
 };
 
 // --- PUBLIC PRODUCT & CATEGORY APIs ---
@@ -186,6 +205,10 @@ export const fetchProductsFromAPI = async (category?: string): Promise<Product[]
     // API offline
   }
 
+  if (!Array.isArray(dynamicProducts) || dynamicProducts.length === 0) {
+    dynamicProducts = [...mockProducts];
+  }
+
   if (!category || category === 'all') return dynamicProducts;
   return dynamicProducts.filter(
     (p) => p && p.category && (p.category === category || p.category.toLowerCase() === category.toLowerCase())
@@ -201,6 +224,9 @@ export const fetchProductByIdFromAPI = async (id: string): Promise<Product | und
     }
   } catch (err) {
     // API offline
+  }
+  if (!Array.isArray(dynamicProducts) || dynamicProducts.length === 0) {
+    dynamicProducts = [...mockProducts];
   }
   return dynamicProducts.find((p) => p && p.id === id);
 };
@@ -218,6 +244,7 @@ export const fetchCategoriesFromAPI = async (): Promise<Category[]> => {
   } catch (err) {
     // API offline
   }
+
   if (!Array.isArray(dynamicCategories) || dynamicCategories.length === 0) {
     dynamicCategories = [...mockCategories];
   }
@@ -243,6 +270,10 @@ export const createProductAPI = async (productData: Partial<Product>, token?: st
     isNew: productData.isNew !== false,
     createdAt: new Date().toISOString().split('T')[0],
   };
+
+  if (!Array.isArray(dynamicProducts) || dynamicProducts.length === 0) {
+    dynamicProducts = [...mockProducts];
+  }
 
   dynamicProducts = sanitizeProducts([newProduct, ...dynamicProducts]);
   saveStoredProducts(dynamicProducts);
@@ -274,6 +305,10 @@ export const createProductAPI = async (productData: Partial<Product>, token?: st
 };
 
 export const updateProductAPI = async (id: string, productData: Partial<Product>, token?: string): Promise<Product | null> => {
+  if (!Array.isArray(dynamicProducts) || dynamicProducts.length === 0) {
+    dynamicProducts = [...mockProducts];
+  }
+
   dynamicProducts = sanitizeProducts(
     dynamicProducts.map((p) => (p && p.id === id ? ({ ...p, ...productData } as Product) : p))
   );
@@ -300,6 +335,10 @@ export const updateProductAPI = async (id: string, productData: Partial<Product>
 };
 
 export const deleteProductAPI = async (id: string, token?: string): Promise<boolean> => {
+  if (!Array.isArray(dynamicProducts) || dynamicProducts.length === 0) {
+    dynamicProducts = [...mockProducts];
+  }
+
   dynamicProducts = sanitizeProducts(dynamicProducts.filter((p) => p && p.id !== id));
   saveStoredProducts(dynamicProducts);
 
@@ -330,7 +369,10 @@ export const createCategoryAPI = async (categoryData: Partial<Category>, token?:
     itemCount: 0,
   };
 
-  if (!Array.isArray(dynamicCategories)) dynamicCategories = [...mockCategories];
+  if (!Array.isArray(dynamicCategories) || dynamicCategories.length === 0) {
+    dynamicCategories = [...mockCategories];
+  }
+
   dynamicCategories = sanitizeCategories([...dynamicCategories, newCategory]);
   saveStoredCategories(dynamicCategories);
 
@@ -361,7 +403,10 @@ export const createCategoryAPI = async (categoryData: Partial<Category>, token?:
 };
 
 export const updateCategoryAPI = async (id: string, categoryData: Partial<Category>, token?: string): Promise<Category | null> => {
-  if (!Array.isArray(dynamicCategories)) dynamicCategories = [...mockCategories];
+  if (!Array.isArray(dynamicCategories) || dynamicCategories.length === 0) {
+    dynamicCategories = [...mockCategories];
+  }
+
   dynamicCategories = sanitizeCategories(
     dynamicCategories.map((c) => (c && (c.id === id || c.slug === id) ? ({ ...c, ...categoryData } as Category) : c))
   );
@@ -388,7 +433,10 @@ export const updateCategoryAPI = async (id: string, categoryData: Partial<Catego
 };
 
 export const deleteCategoryAPI = async (id: string, token?: string): Promise<boolean> => {
-  if (!Array.isArray(dynamicCategories)) dynamicCategories = [...mockCategories];
+  if (!Array.isArray(dynamicCategories) || dynamicCategories.length === 0) {
+    dynamicCategories = [...mockCategories];
+  }
+
   dynamicCategories = sanitizeCategories(dynamicCategories.filter((c) => c && c.id !== id));
   saveStoredCategories(dynamicCategories);
 
@@ -420,9 +468,9 @@ export const fetchOrdersAPI = async (token?: string): Promise<any[]> => {
       {
         _id: 'ord-1001',
         user: { name: 'Sophia Miller', email: 'sophia@example.com' },
-        orderItems: [{ name: 'Silk Wrap Floral Midi Dress', quantity: 1, price: 2999.0 }],
+        orderItems: [{ name: 'JSK Dainty Crystal Tulip Pendant Necklace', quantity: 1, price: 1499.0 }],
         shippingAddress: { address: '742 Evergreen Terrace', city: 'Springfield', country: 'IN' },
-        totalPrice: 2999.0,
+        totalPrice: 1499.0,
         status: 'Processing',
         createdAt: '2025-02-05',
       },
