@@ -19,16 +19,16 @@ interface HeroSlide {
 }
 
 const jewelleryShowcaseItems = [
-  { id: 'jewel-1', image: '/images/jewellery-necklace-1.jpg', name: 'Crystal Flower Pendant' },
-  { id: 'jewel-2', image: '/images/jewellery-necklace-2.jpg', name: 'Rainbow Gemstone Charm' },
-  { id: 'jewel-3', image: '/images/jewellery-necklace-3.jpg', name: 'Five Gemstones on Silk' },
+  { id: 'acc-3', image: '/images/jewellery-necklace-1.jpg', name: 'Crystal Flower Pendant', targetUrl: '/product/acc-3' },
+  { id: 'acc-1', image: '/images/jewellery-necklace-2.jpg', name: 'Rainbow Gemstone Charm', targetUrl: '/product/acc-1' },
+  { id: 'acc-2', image: '/images/jewellery-necklace-3.jpg', name: 'Five Gemstones on Silk', targetUrl: '/product/acc-2' },
 ];
 
 const stickerShowcaseItems = [
-  { id: 'item-1', image: '/images/korean-sticker-1.jpg', name: 'Purple Heart Ribbons' },
-  { id: 'item-2', image: '/images/korean-sticker-2.jpg', name: 'Holo Black Hearts' },
-  { id: 'item-3', image: '/images/korean-sticker-3.jpg', name: 'Kuromi Portable' },
-  { id: 'item-4', image: '/images/korean-sticker-4.jpg', name: 'Lavender Butterflies' },
+  { id: 'kg-1', image: '/images/korean-sticker-1.jpg', name: 'Purple Heart Ribbons', targetUrl: '/product/kg-1' },
+  { id: 'kg-2', image: '/images/korean-sticker-2.jpg', name: 'Holo Black Hearts', targetUrl: '/product/kg-2' },
+  { id: 'kg-3', image: '/images/korean-sticker-3.jpg', name: 'Kuromi Portable', targetUrl: '/product/kg-3' },
+  { id: 'kg-4', image: '/images/korean-sticker-4.jpg', name: 'Lavender Butterflies', targetUrl: '/product/kg-4' },
 ];
 
 const slides: HeroSlide[] = [
@@ -280,7 +280,7 @@ export const Hero: React.FC = () => {
           </motion.div>
         </div>
       ) : isShowcaseSlide ? (
-        /* Slides 3 & 4: Exact Slide Text on Left + Item Showcase on Right */
+        /* Slides 3 & 4: Exact Slide Text on Left + Direct Product Links on Right */
         <div className="relative z-10 max-w-[1600px] mx-auto px-6 sm:px-10 lg:px-20 h-full min-h-[580px] flex items-center">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 xl:gap-12 w-full items-center">
             {/* Left Column: Exactly Same Text As In Slide */}
@@ -336,10 +336,10 @@ export const Hero: React.FC = () => {
               )}
             </motion.div>
 
-            {/* Right Column: Multi-Item Interactive Showcase on One Single Page */}
-            <div className="lg:col-span-6 xl:col-span-7 hidden lg:block">
+            {/* Right Column: Multi-Item Interactive Showcase Direct Purchase Links */}
+            <div className="lg:col-span-6 xl:col-span-7 hidden lg:block z-30">
               {current.bannerType === 'showcase-3' ? (
-                /* Slide 3: 3-Item Jewellery Showcase */
+                /* Slide 3: 3-Item Jewellery Showcase Direct Product Links */
                 <motion.div
                   initial={{ opacity: 0, x: 30 }}
                   animate={{ opacity: 1, x: 0 }}
@@ -349,26 +349,30 @@ export const Hero: React.FC = () => {
                   {jewelleryShowcaseItems.map((item, idx) => (
                     <Link
                       key={item.id}
-                      to="/shop?category=jewellery-accessories"
-                      className={`group relative block aspect-[3/4] bg-[#221E1C] border border-[#A18B70]/30 shadow-2xl overflow-hidden transition-all duration-500 hover:-translate-y-2 hover:border-[#D8CBB8] ${
+                      to={item.targetUrl}
+                      className={`group relative block aspect-[3/4] bg-[#221E1C] border border-[#A18B70]/40 shadow-2xl overflow-hidden transition-all duration-500 hover:-translate-y-2 hover:border-[#F7F4EE] cursor-pointer ${
                         idx === 1 ? 'translate-y-4' : '-translate-y-3'
                       }`}
+                      title={`Buy ${item.name} directly`}
                     >
                       <img
                         src={item.image}
                         alt={item.name}
                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-3">
-                        <span className="text-[10px] text-[#F7F4EE] font-medium tracking-wider uppercase leading-tight">
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent opacity-90 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-3.5">
+                        <span className="text-[10px] text-[#F7F4EE] font-serif font-bold tracking-wider uppercase leading-tight group-hover:text-[#D8CBB8]">
                           {item.name}
+                        </span>
+                        <span className="text-[9px] text-[#A18B70] uppercase font-bold tracking-widest mt-1 flex items-center gap-1">
+                          Buy Product &rarr;
                         </span>
                       </div>
                     </Link>
                   ))}
                 </motion.div>
               ) : (
-                /* Slide 4: 4-Item Sticker Showcase */
+                /* Slide 4: 4-Item Sticker Showcase Direct Product Links */
                 <motion.div
                   initial={{ opacity: 0, x: 30 }}
                   animate={{ opacity: 1, x: 0 }}
@@ -378,19 +382,23 @@ export const Hero: React.FC = () => {
                   {stickerShowcaseItems.map((item, idx) => (
                     <Link
                       key={item.id}
-                      to="/shop?category=korean-goodies"
-                      className={`group relative block aspect-[3/4] bg-[#221E1C] border border-[#A18B70]/30 shadow-2xl overflow-hidden transition-all duration-500 hover:-translate-y-2 hover:border-[#D8CBB8] ${
+                      to={item.targetUrl}
+                      className={`group relative block aspect-[3/4] bg-[#221E1C] border border-[#A18B70]/40 shadow-2xl overflow-hidden transition-all duration-500 hover:-translate-y-2 hover:border-[#F7F4EE] cursor-pointer ${
                         idx % 2 === 1 ? 'translate-y-3' : '-translate-y-3'
                       }`}
+                      title={`Buy ${item.name} directly`}
                     >
                       <img
                         src={item.image}
                         alt={item.name}
                         className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-2.5">
-                        <span className="text-[9px] text-[#F7F4EE] font-medium tracking-wider uppercase leading-tight">
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent opacity-90 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-2.5">
+                        <span className="text-[9px] text-[#F7F4EE] font-serif font-bold tracking-wider uppercase leading-tight group-hover:text-[#D8CBB8]">
                           {item.name}
+                        </span>
+                        <span className="text-[8px] text-[#A18B70] uppercase font-bold tracking-widest mt-1 flex items-center gap-1">
+                          Buy Product &rarr;
                         </span>
                       </div>
                     </Link>
