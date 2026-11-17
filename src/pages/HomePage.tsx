@@ -34,13 +34,16 @@ export const HomePage: React.FC<HomePageProps> = ({ onAddToCart }) => {
     };
   }, []);
 
-  const validProducts = (products || []).filter((p) => p && typeof p === 'object');
+  const validProducts = (products || []).filter((p) => p && typeof p === 'object' && p.id && p.name);
   const trendingProducts = validProducts.filter((p) => p.isTrending);
+  const displayTrending = trendingProducts.length > 0 ? trendingProducts : validProducts.slice(0, 4);
+
   const newArrivals = validProducts.filter((p) => p.isNew);
+  const displayNew = newArrivals.length > 0 ? newArrivals : validProducts.slice(2, 6);
 
   return (
     <main className="overflow-hidden">
-      <Hero />
+      <Hero onAddToCart={onAddToCart} />
 
       <Reveal>
         <CategorySection categories={categories || []} />
@@ -48,14 +51,14 @@ export const HomePage: React.FC<HomePageProps> = ({ onAddToCart }) => {
 
       <Reveal delay={0.1}>
         <TrendingProducts
-          products={trendingProducts}
+          products={displayTrending}
           onAddToCart={onAddToCart}
         />
       </Reveal>
 
       <Reveal delay={0.1}>
         <NewArrivals
-          products={newArrivals}
+          products={displayNew}
           onAddToCart={onAddToCart}
         />
       </Reveal>
