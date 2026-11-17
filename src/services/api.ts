@@ -10,22 +10,56 @@ const notifyDataChanged = () => {
   }
 };
 
-// Sanitize helper to ensure array items are valid non-null objects
+// Sanitize helper to ensure array items are valid non-null objects and handle MongoDB _id mapping
 const sanitizeProducts = (arr: any[]): Product[] => {
   if (!Array.isArray(arr)) return [...mockProducts];
-  const valid = arr.filter((p) => p && typeof p === 'object' && p.id && p.name);
+  const valid = arr
+    .filter((p) => p && typeof p === 'object' && (p.id || p._id) && (p.name || p.title))
+    .map((p) => ({
+      ...p,
+      id: String(p.id || p._id || `prod-${Math.random()}`),
+      name: p.name || p.title || 'Untitled Item',
+      price: Number(p.price) || 0,
+      originalPrice: p.originalPrice ? Number(p.originalPrice) : undefined,
+      category: p.category || 'dresses-fashion',
+      subCategory: p.subCategory || '',
+      image: p.image || 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=600&auto=format&fit=crop&q=80',
+      rating: Number(p.rating) || 5.0,
+      reviewsCount: Number(p.reviewsCount) || 0,
+      inStock: p.inStock !== false && p.stock !== 0,
+      isTrending: p.isTrending || false,
+      isNew: p.isNew || p.isNewArrival || false,
+    }));
   return valid.length > 0 ? valid : [...mockProducts];
 };
 
 const sanitizeCategories = (arr: any[]): Category[] => {
   if (!Array.isArray(arr)) return [...mockCategories];
-  const valid = arr.filter((c) => c && typeof c === 'object' && c.name);
+  const valid = arr
+    .filter((c) => c && typeof c === 'object' && (c.name || c.slug))
+    .map((c) => ({
+      ...c,
+      id: String(c.slug || c.id || c._id || `cat-${Math.random()}`),
+      name: c.name || 'Category',
+      slug: c.slug || c.id || String(c._id),
+      description: c.description || '',
+      image: c.image || 'https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?w=600&auto=format&fit=crop&q=80',
+      isActive: c.isActive !== false,
+      showOnHome: c.showOnHome !== false,
+    }));
   return valid.length > 0 ? valid : [...mockCategories];
 };
 
 const sanitizeHeroSlides = (arr: any[]): HeroSlide[] => {
   if (!Array.isArray(arr)) return [...defaultHeroSlides];
-  const valid = arr.filter((s) => s && typeof s === 'object' && s.image && s.title);
+  const valid = arr
+    .filter((s) => s && typeof s === 'object' && s.image && (s.title || s.badgeText))
+    .map((s) => ({
+      ...s,
+      id: String(s.id || s.slideId || s._id || `slide-${Math.random()}`),
+      image: s.image,
+      title: s.title || '',
+    }));
   return valid.length > 0 ? valid : [...defaultHeroSlides];
 };
 
@@ -220,7 +254,7 @@ export const fetchProductByIdFromAPI = async (id: string): Promise<Product | und
     const res = await fetch(`${API_BASE_URL}/products/${id}`);
     if (res.ok) {
       const data = await res.json();
-      if (data && data.product) return data.product;
+      if (data && data.product) return sanitizeProducts([data.product])[0];
     }
   } catch (err) {
     // API offline
@@ -228,7 +262,7 @@ export const fetchProductByIdFromAPI = async (id: string): Promise<Product | und
   if (!Array.isArray(dynamicProducts) || dynamicProducts.length === 0) {
     dynamicProducts = [...mockProducts];
   }
-  return dynamicProducts.find((p) => p && p.id === id);
+  return dynamicProducts.find((p) => p && (p.id === id || (p as any)._id === id));
 };
 
 export const fetchCategoriesFromAPI = async (): Promise<Category[]> => {
@@ -290,11 +324,12 @@ export const createProductAPI = async (productData: Partial<Product>, token?: st
     if (res.ok) {
       const data = await res.json();
       if (data && data.product) {
+        const sanitized = sanitizeProducts([data.product])[0];
         dynamicProducts = sanitizeProducts(
-          dynamicProducts.map((p) => (p.id === newProduct.id ? data.product : p))
+          dynamicProducts.map((p) => (p.id === newProduct.id ? sanitized : p))
         );
         saveStoredProducts(dynamicProducts);
-        return data.product;
+        return sanitized;
       }
     }
   } catch (err) {
@@ -310,7 +345,7 @@ export const updateProductAPI = async (id: string, productData: Partial<Product>
   }
 
   dynamicProducts = sanitizeProducts(
-    dynamicProducts.map((p) => (p && p.id === id ? ({ ...p, ...productData } as Product) : p))
+    dynamicProducts.map((p) => (p && (p.id === id || (p as any)._id === id) ? ({ ...p, ...productData } as Product) : p))
   );
   saveStoredProducts(dynamicProducts);
 
@@ -325,13 +360,13 @@ export const updateProductAPI = async (id: string, productData: Partial<Product>
     });
     if (res.ok) {
       const data = await res.json();
-      return data.product;
+      return sanitizeProducts([data.product])[0];
     }
   } catch (err) {
     console.warn('[API Sync] Updated permanently in persistent storage:', err);
   }
 
-  return dynamicProducts.find((p) => p && p.id === id) || null;
+  return dynamicProducts.find((p) => p && (p.id === id || (p as any)._id === id)) || null;
 };
 
 export const deleteProductAPI = async (id: string, token?: string): Promise<boolean> => {
@@ -339,7 +374,7 @@ export const deleteProductAPI = async (id: string, token?: string): Promise<bool
     dynamicProducts = [...mockProducts];
   }
 
-  dynamicProducts = sanitizeProducts(dynamicProducts.filter((p) => p && p.id !== id));
+  dynamicProducts = sanitizeProducts(dynamicProducts.filter((p) => p && p.id !== id && (p as any)._id !== id));
   saveStoredProducts(dynamicProducts);
 
   try {
@@ -388,11 +423,12 @@ export const createCategoryAPI = async (categoryData: Partial<Category>, token?:
     if (res.ok) {
       const data = await res.json();
       if (data && data.category) {
+        const sanitized = sanitizeCategories([data.category])[0];
         dynamicCategories = sanitizeCategories(
-          dynamicCategories.map((c) => (c.id === newCategory.id ? data.category : c))
+          dynamicCategories.map((c) => (c.id === newCategory.id ? sanitized : c))
         );
         saveStoredCategories(dynamicCategories);
-        return data.category;
+        return sanitized;
       }
     }
   } catch (err) {
@@ -408,7 +444,7 @@ export const updateCategoryAPI = async (id: string, categoryData: Partial<Catego
   }
 
   dynamicCategories = sanitizeCategories(
-    dynamicCategories.map((c) => (c && (c.id === id || c.slug === id) ? ({ ...c, ...categoryData } as Category) : c))
+    dynamicCategories.map((c) => (c && (c.id === id || c.slug === id || (c as any)._id === id) ? ({ ...c, ...categoryData } as Category) : c))
   );
   saveStoredCategories(dynamicCategories);
 
@@ -423,13 +459,13 @@ export const updateCategoryAPI = async (id: string, categoryData: Partial<Catego
     });
     if (res.ok) {
       const data = await res.json();
-      return data.category;
+      return sanitizeCategories([data.category])[0];
     }
   } catch (err) {
     console.warn('[API Sync] Category updated permanently in persistent storage:', err);
   }
 
-  return dynamicCategories.find((c) => c && (c.id === id || c.slug === id)) || null;
+  return dynamicCategories.find((c) => c && (c.id === id || c.slug === id || (c as any)._id === id)) || null;
 };
 
 export const deleteCategoryAPI = async (id: string, token?: string): Promise<boolean> => {
@@ -437,7 +473,7 @@ export const deleteCategoryAPI = async (id: string, token?: string): Promise<boo
     dynamicCategories = [...mockCategories];
   }
 
-  dynamicCategories = sanitizeCategories(dynamicCategories.filter((c) => c && c.id !== id));
+  dynamicCategories = sanitizeCategories(dynamicCategories.filter((c) => c && c.id !== id && (c as any)._id !== id));
   saveStoredCategories(dynamicCategories);
 
   try {
