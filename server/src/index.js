@@ -8,13 +8,14 @@ import authRoutes from './routes/authRoutes.js';
 import productRoutes from './routes/productRoutes.js';
 import categoryRoutes from './routes/categoryRoutes.js';
 import orderRoutes from './routes/orderRoutes.js';
+import heroSlideRoutes from './routes/heroSlideRoutes.js';
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Connect to MongoDB Atlas
+// Connect to MongoDB Atlas Database
 if (process.env.MONGO_URI) {
   connectDB();
 } else {
@@ -33,12 +34,13 @@ app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/orders', orderRoutes);
+app.use('/api/hero-slides', heroSlideRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
   res.json({
     status: 'OK',
-    message: 'Velqira Store Real-Time API Server is active and operational',
+    message: 'Velqira Store Real-Time MongoDB API Server is active and operational',
     timestamp: new Date().toISOString(),
   });
 });
