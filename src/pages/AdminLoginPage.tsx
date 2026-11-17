@@ -42,13 +42,18 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({ onLoginSuccess }
       setLoading(false);
     }
 
-    if (email.toLowerCase().trim() === 'admin@velqira.com' && password.length >= 6) {
+    // Local Admin Authentication Fallback
+    const inputEmail = email.toLowerCase().trim();
+    if (
+      (inputEmail === 'admin@velqira.com' || inputEmail === 'admin') &&
+      password.length >= 6
+    ) {
       const mockToken = 'jwt_token_velqira_admin_authenticated';
       localStorage.setItem('velqira_admin_token', mockToken);
       onLoginSuccess(mockToken);
       navigate('/admin');
     } else {
-      setErrorMsg('Invalid credentials. Default test: admin@velqira.com / password123');
+      setErrorMsg('Invalid admin credentials. Use admin@velqira.com / admin123 (or password123)');
     }
   };
 
@@ -131,9 +136,17 @@ export const AdminLoginPage: React.FC<AdminLoginPageProps> = ({ onLoginSuccess }
             </button>
           </form>
 
-          <p className="text-[10px] text-[#999184] mt-6 tracking-wide">
-            Test account: admin@velqira.com / password123
-          </p>
+          <div className="mt-6 p-3 bg-[#FFF9F5] border border-[#E8BFC3]/40 rounded-xl text-left">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-[#C6A16B] mb-1">
+              🔑 Admin Credentials:
+            </p>
+            <p className="text-xs text-[#332522] font-mono">
+              Email: <strong>admin@velqira.com</strong>
+            </p>
+            <p className="text-xs text-[#332522] font-mono">
+              Password: <strong>admin123</strong> (or <strong>password123</strong>)
+            </p>
+          </div>
         </div>
       </div>
     </main>
