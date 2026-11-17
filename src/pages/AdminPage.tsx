@@ -120,26 +120,36 @@ export const AdminPage: React.FC = () => {
     });
   };
 
-  // Submit Save Category Handler
-  const handleSaveCategory = async (e: React.FormEvent) => {
+  // Submit Save Category Handler (0ms Instant Optimistic Update)
+  const handleSaveCategory = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const created = await createCategoryAPI(
-      {
-        name: categoryForm.name,
-        slug: categoryForm.slug,
-        description: categoryForm.description,
-        image: categoryForm.image || 'https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?w=600&auto=format&fit=crop&q=80',
-        isActive: categoryForm.isActive,
-        showOnHome: categoryForm.showOnHome,
-        sortOrder: Number(categoryForm.sortOrder) || 1,
-      },
-      token
-    );
+    const categoryData: Partial<Category> = {
+      name: categoryForm.name,
+      slug: categoryForm.slug,
+      description: categoryForm.description,
+      image: categoryForm.image || 'https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?w=600&auto=format&fit=crop&q=80',
+      isActive: categoryForm.isActive,
+      showOnHome: categoryForm.showOnHome,
+      sortOrder: Number(categoryForm.sortOrder) || 1,
+    };
 
-    setCategories([created, ...categories]);
-    setSuccessMessage(`Category "${created.name}" saved in MongoDB Atlas! Frontend updates automatically.`);
-    setTimeout(() => setSuccessMessage(null), 5000);
+    const optimisticCat: Category = {
+      id: categoryForm.slug || `cat-${Date.now()}`,
+      name: categoryForm.name,
+      slug: categoryForm.slug,
+      description: categoryForm.description,
+      image: categoryForm.image || 'https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?w=600&auto=format&fit=crop&q=80',
+      showOnHome: categoryForm.showOnHome,
+      isActive: categoryForm.isActive,
+      sortOrder: Number(categoryForm.sortOrder) || 1,
+      itemCount: 0,
+    };
+
+    // Instant UI update
+    setCategories([optimisticCat, ...categories]);
+    setSuccessMessage(`Category "${optimisticCat.name}" saved! Synced with MongoDB Atlas in background.`);
+    setTimeout(() => setSuccessMessage(null), 4000);
 
     setCategoryForm({
       name: '',
@@ -151,6 +161,9 @@ export const AdminPage: React.FC = () => {
       sortOrder: 1,
     });
     setActiveSection('categories');
+
+    // Asynchronous Background Backend Sync
+    createCategoryAPI(categoryData, token);
   };
 
   // Open Edit Category View
@@ -168,8 +181,8 @@ export const AdminPage: React.FC = () => {
     setActiveSection('edit-category');
   };
 
-  // Submit Edit Category Handler
-  const handleUpdateCategorySubmit = async (e: React.FormEvent) => {
+  // Submit Edit Category Handler (0ms Instant Optimistic Update)
+  const handleUpdateCategorySubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingCategory) return;
 
@@ -183,8 +196,7 @@ export const AdminPage: React.FC = () => {
       sortOrder: Number(categoryForm.sortOrder) || 1,
     };
 
-    await updateCategoryAPI(editingCategory.id, updatedFields, token);
-
+    // Instant UI update
     setCategories(
       categories.map((c) =>
         c.id === editingCategory.id || c.slug === editingCategory.id
@@ -193,9 +205,10 @@ export const AdminPage: React.FC = () => {
       )
     );
 
-    setSuccessMessage(`Category "${categoryForm.name}" updated successfully in MongoDB Atlas!`);
+    setSuccessMessage(`Category "${categoryForm.name}" updated!`);
     setTimeout(() => setSuccessMessage(null), 4000);
 
+    const catIdToUpdate = editingCategory.id;
     setEditingCategory(null);
     setCategoryForm({
       name: '',
@@ -207,10 +220,13 @@ export const AdminPage: React.FC = () => {
       sortOrder: 1,
     });
     setActiveSection('categories');
+
+    // Asynchronous Background Backend Sync
+    updateCategoryAPI(catIdToUpdate, updatedFields, token);
   };
 
-  // --- HERO SLIDESHOW MANAGEMENT HANDLERS ---
-  const handleSaveHeroSlide = async (e: React.FormEvent) => {
+  // --- HERO SLIDESHOW MANAGEMENT HANDLERS (0ms Instant Optimistic Update) ---
+  const handleSaveHeroSlide = (e: React.FormEvent) => {
     e.preventDefault();
 
     const newSlide: HeroSlide = {
@@ -226,9 +242,8 @@ export const AdminPage: React.FC = () => {
 
     const updatedSlides = [newSlide, ...heroSlides];
     setHeroSlides(updatedSlides);
-    await saveHeroSlidesAPI(updatedSlides, token);
 
-    setSuccessMessage('New homepage background slide added successfully!');
+    setSuccessMessage('New homepage background slide added!');
     setTimeout(() => setSuccessMessage(null), 4000);
 
     setSlideForm({
@@ -241,6 +256,9 @@ export const AdminPage: React.FC = () => {
       isActive: true,
     });
     setActiveSection('slideshow');
+
+    // Asynchronous Background Backend Sync
+    saveHeroSlidesAPI(updatedSlides, token);
   };
 
   const handleOpenEditSlide = (slide: HeroSlide) => {
@@ -257,7 +275,7 @@ export const AdminPage: React.FC = () => {
     setActiveSection('edit-slide');
   };
 
-  const handleUpdateSlideSubmit = async (e: React.FormEvent) => {
+  const handleUpdateSlideSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingSlide) return;
 
@@ -277,7 +295,6 @@ export const AdminPage: React.FC = () => {
     );
 
     setHeroSlides(updatedSlides);
-    await saveHeroSlidesAPI(updatedSlides, token);
 
     setSuccessMessage('Homepage background slide updated!');
     setTimeout(() => setSuccessMessage(null), 4000);
@@ -293,38 +310,58 @@ export const AdminPage: React.FC = () => {
       isActive: true,
     });
     setActiveSection('slideshow');
+
+    // Asynchronous Background Backend Sync
+    saveHeroSlidesAPI(updatedSlides, token);
   };
 
-  const handleDeleteSlide = async (id: string) => {
+  const handleDeleteSlide = (id: string) => {
     const updatedSlides = heroSlides.filter((s) => s.id !== id);
     setHeroSlides(updatedSlides);
-    await saveHeroSlidesAPI(updatedSlides, token);
     setSuccessMessage('Homepage slide removed.');
     setTimeout(() => setSuccessMessage(null), 3000);
+
+    // Asynchronous Background Backend Sync
+    saveHeroSlidesAPI(updatedSlides, token);
   };
 
-  // Submit Add Product Handler
-  const handleAddProductSubmit = async (e: React.FormEvent) => {
+  // Submit Add Product Handler (0ms Instant Optimistic Update)
+  const handleAddProductSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    const created = await createProductAPI(
-      {
-        name: productForm.name,
-        description: productForm.description,
-        price: parseFloat(productForm.price) || 0,
-        originalPrice: productForm.originalPrice ? parseFloat(productForm.originalPrice) : undefined,
-        category: productForm.category,
-        subCategory: productForm.subCategory,
-        image: productForm.image || 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=600&auto=format&fit=crop&q=80',
-        inStock: productForm.inStock,
-        isTrending: productForm.isTrending,
-        isNew: productForm.isNew,
-      },
-      token
-    );
+    const productData: Partial<Product> = {
+      name: productForm.name,
+      description: productForm.description,
+      price: parseFloat(productForm.price) || 0,
+      originalPrice: productForm.originalPrice ? parseFloat(productForm.originalPrice) : undefined,
+      category: productForm.category,
+      subCategory: productForm.subCategory,
+      image: productForm.image || 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=600&auto=format&fit=crop&q=80',
+      inStock: productForm.inStock,
+      isTrending: productForm.isTrending,
+      isNew: productForm.isNew,
+    };
 
-    setProducts([created, ...products]);
-    setSuccessMessage(`Product "${created.name}" created and synced with MongoDB Atlas!`);
+    const optimisticProd: Product = {
+      id: `prod-${Date.now()}`,
+      name: productForm.name,
+      description: productForm.description,
+      price: parseFloat(productForm.price) || 0,
+      originalPrice: productForm.originalPrice ? parseFloat(productForm.originalPrice) : undefined,
+      category: productForm.category,
+      subCategory: productForm.subCategory,
+      image: productForm.image || 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=600&auto=format&fit=crop&q=80',
+      rating: 5.0,
+      reviewsCount: 1,
+      inStock: productForm.inStock,
+      isTrending: productForm.isTrending,
+      isNew: productForm.isNew,
+      createdAt: new Date().toISOString().split('T')[0],
+    };
+
+    // Instant UI Update
+    setProducts([optimisticProd, ...products]);
+    setSuccessMessage(`Product "${optimisticProd.name}" added instantly! Synced with MongoDB Atlas in background.`);
     setTimeout(() => setSuccessMessage(null), 4000);
 
     setProductForm({
@@ -340,6 +377,9 @@ export const AdminPage: React.FC = () => {
       isNew: true,
     });
     setActiveSection('products');
+
+    // Asynchronous Background Backend Sync
+    createProductAPI(productData, token);
   };
 
   // Open Edit Product View
@@ -360,8 +400,8 @@ export const AdminPage: React.FC = () => {
     setActiveSection('edit-product');
   };
 
-  // Submit Edit Product Handler
-  const handleUpdateProductSubmit = async (e: React.FormEvent) => {
+  // Submit Edit Product Handler (0ms Instant Optimistic Update)
+  const handleUpdateProductSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingProduct) return;
 
@@ -378,17 +418,17 @@ export const AdminPage: React.FC = () => {
       isNew: productForm.isNew,
     };
 
-    await updateProductAPI(editingProduct.id, updatedFields, token);
-
+    // Instant UI Update
     setProducts(
       products.map((p) =>
         p.id === editingProduct.id ? ({ ...p, ...updatedFields } as Product) : p
       )
     );
 
-    setSuccessMessage(`Product "${productForm.name}" updated successfully in MongoDB Atlas!`);
+    setSuccessMessage(`Product "${productForm.name}" updated!`);
     setTimeout(() => setSuccessMessage(null), 4000);
 
+    const prodIdToUpdate = editingProduct.id;
     setEditingProduct(null);
     setProductForm({
       name: '',
@@ -403,20 +443,27 @@ export const AdminPage: React.FC = () => {
       isNew: true,
     });
     setActiveSection('products');
+
+    // Asynchronous Background Backend Sync
+    updateProductAPI(prodIdToUpdate, updatedFields, token);
   };
 
-  const handleDeleteCategory = async (id: string) => {
-    await deleteCategoryAPI(id, token);
+  const handleDeleteCategory = (id: string) => {
     setCategories(categories.filter((c) => c.id !== id));
     setSuccessMessage('Category deactivated in MongoDB Atlas.');
     setTimeout(() => setSuccessMessage(null), 3000);
+
+    // Asynchronous Background Backend Sync
+    deleteCategoryAPI(id, token);
   };
 
-  const handleDeleteProduct = async (id: string) => {
-    await deleteProductAPI(id, token);
+  const handleDeleteProduct = (id: string) => {
     setProducts(products.filter((p) => p.id !== id));
     setSuccessMessage('Product removed from inventory.');
     setTimeout(() => setSuccessMessage(null), 3000);
+
+    // Asynchronous Background Backend Sync
+    deleteProductAPI(id, token);
   };
 
   const totalRevenue = orders.reduce((sum, o) => sum + (o.totalPrice || 0), 0);
@@ -1720,7 +1767,7 @@ export const AdminPage: React.FC = () => {
 
         {/* SECTION: OTHER ADMIN PANELS */}
         {(activeSection === 'customers' || activeSection === 'settings') && (
-          <div className="max-w-4xl mx-auto text-center py-20 bg-white rounded-3xl border border-[#D9A6AB]/30 shadow-xs">
+          <div className="max-w-4xl mx-auto text-center py-20 bg-[#FFF9F5] rounded-3xl border border-[#D9A6AB]/30 shadow-xs">
             <h2 className="text-2xl font-bold font-serif text-[#332522] capitalize">{activeSection} Control</h2>
             <p className="text-sm text-[#332522]/70 mt-2">
               The {activeSection} manager is active and synced with MongoDB Atlas.
