@@ -1,8 +1,9 @@
 import React from 'react';
-import { Flame, ArrowRight } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { motion } from 'motion/react';
+import { Flame } from 'lucide-react';
 import type { Product } from '../../types';
 import { ProductCard } from '../products/ProductCard';
+import { SectionHeader } from '../common/SectionHeader';
 
 interface TrendingProductsProps {
   products: Product[];
@@ -14,50 +15,70 @@ export const TrendingProducts: React.FC<TrendingProductsProps> = ({
   onAddToCart,
 }) => {
   return (
-    <section className="boho-section bg-[#F7F4EE] border-b border-[#DED6C9]">
+    <section className="boho-section bg-[#F7F4EE] border-b border-[#DED6C9] py-14 sm:py-20">
       <div className="boho-container">
-
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-12 gap-5">
-          <div>
-            <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.22em] font-medium text-[#927B60] mb-3">
-              <Flame className="w-4 h-4" />
-              <span>Customer favourites</span>
-            </div>
-
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-normal font-serif text-[#38352F]">
-              Trending now
-            </h2>
-
-            <p className="text-sm sm:text-base text-[#777064] mt-3">
-              Discover the pieces everyone is loving this season.
-            </p>
-          </div>
-
-          <Link
-            to="/shop?filter=trending"
-            className="group inline-flex items-center gap-2 text-xs uppercase tracking-[0.16em] font-medium text-[#38352F] border-b border-[#A18B70] pb-2 hover:text-[#927B60] transition-colors"
-          >
-            Shop trending
-            <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
-          </Link>
-        </div>
+        <SectionHeader
+          icon={<Flame className="w-4 h-4 text-[#C6A16B]" />}
+          eyebrow="Customer favourites"
+          title="Trending now"
+          subtitle="Discover the handpicked pieces everyone is loving this season."
+          linkText="Shop trending"
+          linkUrl="/shop?filter=trending"
+        />
 
         {products.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-x-7 lg:gap-x-10 gap-y-12">
-            {products.map((product) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                onAddToCart={onAddToCart}
-              />
-            ))}
-          </div>
-        ) : (
-          <p className="py-12 text-center font-serif text-xl text-[#777064]">
-            New favourites will be arriving soon.
-          </p>
-        )}
+          <>
+            {/* Phone Mobile Swipeable Horizontal Snap Row (< 640px) */}
+            <div className="block sm:hidden">
+              <div className="flex overflow-x-auto snap-x snap-mandatory gap-4 scrollbar-none pb-4 -mx-4 px-4">
+                {products.map((product, index) => (
+                  <motion.div
+                    key={product.id}
+                    initial={{ opacity: 0, y: 25 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{
+                      duration: 0.5,
+                      ease: [0.22, 1, 0.36, 1],
+                      delay: index * 0.08,
+                    }}
+                    className="w-[260px] shrink-0 snap-start"
+                  >
+                    <ProductCard product={product} onAddToCart={onAddToCart} />
+                  </motion.div>
+                ))}
+              </div>
+              <p className="text-[10px] uppercase tracking-[0.2em] text-[#927B60] font-bold text-center mt-3">
+                Swipe to see more &rarr;
+              </p>
+            </div>
 
+            {/* Desktop & Tablet Responsive Grid (>= 640px) */}
+            <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-x-7 lg:gap-x-10 gap-y-12">
+              {products.map((product, index) => (
+                <motion.div
+                  key={product.id}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: '-40px' }}
+                  transition={{
+                    duration: 0.6,
+                    ease: [0.22, 1, 0.36, 1],
+                    delay: index * 0.08,
+                  }}
+                >
+                  <ProductCard product={product} onAddToCart={onAddToCart} />
+                </motion.div>
+              ))}
+            </div>
+          </>
+        ) : (
+          <div className="py-16 text-center border border-dashed border-[#CFC5B6] rounded-2xl bg-white/50">
+            <p className="font-serif text-xl text-[#777064]">
+              New favourites will be arriving soon.
+            </p>
+          </div>
+        )}
       </div>
     </section>
   );
